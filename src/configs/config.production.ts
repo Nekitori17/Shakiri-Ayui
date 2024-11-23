@@ -5,9 +5,9 @@ export default {
     music: {
       volume: 75,
       leaveOnEmpty: true,
-      leaveOnEmptyCooldown: 30000,
+      leaveOnEmptyCooldown: 60000,
       leaveOnEnd: true,
-      leaveOnEndCooldown: 30000,
+      leaveOnEndCooldown: 60000,
     },
     moderator: {
       logging: true,
