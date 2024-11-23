@@ -29,7 +29,7 @@ const command: CommandInterface = {
         leftChar: "▓",
         rightChar: "░",
         timecodes: true,
-        length: 25
+        length: 20
       })
       interaction.editReply({
         embeds: [
