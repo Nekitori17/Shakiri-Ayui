@@ -21,31 +21,34 @@ const command: CommandInterface = {
             name: interaction.user.displayName,
             iconURL: interaction.user.displayAvatarURL(),
           })
-          .setTitle("🚹 User Information")
+          .setTitle("🙍‍♂️ User Information")
           .setDescription(
-            `**Username**: ${userObject?.user.username}` +
+            `* **Display name**: ${userObject?.displayName}` +
               "\n" +
-              `**Display name**: ${userObject?.displayName}` +
+              `* **Username**: ${userObject?.user.username}` +
               "\n" +
-              `**Type**: ${userObject?.user.bot ? "Bot" : "User"}` +
+              `* **Type**: ${userObject?.user.bot ? "Bot" : "User"}` +
               "\n" +
-              `**Joined Discord**: <t:${
+              `* **Joined Discord**: <t:${
                 userObject?.user.createdTimestamp || 0 / 1000
               }:F>` +
               "\n" +
-              `**Joined Server**: <t:${
+              `* **Joined Server**: <t:${
                 userObject?.joinedTimestamp || 0 / 1000
               }:F>` +
               "\n" +
-              `**Avatar**: [View](${userObject?.displayAvatarURL()})` +
+              `* **Avatar**: [View](${userObject?.displayAvatarURL({
+                extension: "png",
+                forceStatic: true,
+              })})` +
               "\n" +
-              `**Subscription**: ${
+              `* **Subscription**: ${
                 userObject?.premiumSinceTimestamp
-                  ? `<t:${userObject.premiumSinceTimestamp! / 1000}:F>`
+                  ? "<t:" + userObject.premiumSinceTimestamp / 1000 + ":F>"
                   : "None"
               }` +
               "\n" +
-              `**Hightest Role**: ${userObject?.roles.highest}`
+              `* **Hightest Role**: ${userObject?.roles.highest}`
           )
           .setThumbnail(userObject?.displayAvatarURL() || null)
           .setFooter({

@@ -14,39 +14,33 @@ const command: CommandInterface = {
           })
           .setTitle("👪 Server Information")
           .setDescription(
-            `**Name**: ${interaction.guild?.name}` +
+            `* **Name**: ${interaction.guild?.name}` +
               "\n" +
-              `**Description**: ${
+              `* **Description**: ${
                 interaction.guild?.description || "No description"
               }` +
               "\n" +
-              `**Boost**: ${interaction.guild?.premiumTier}/4 (${
+              `* **Boost Level**: ${interaction.guild?.premiumTier}/4 (${
                 interaction.guild?.premiumSubscriptionCount || 0
               }/14 boosts)` +
               "\n" +
-              `**Owner**: ${await interaction.guild?.fetchOwner()}` +
+              `* **Owner**: ${await interaction.guild?.fetchOwner()}` +
               "\n" +
-              `**Members**: ${interaction.guild?.memberCount} (${
-                interaction.guild?.members.cache.filter((m) => !m.user.bot).size
-              } users | ${
-                interaction.guild?.members.cache.filter((m) => m.user.bot).size
-              } bots)` +
+              `* **Members**: ${interaction.guild?.memberCount}` +
               "\n" +
-              `**Roles**: ${interaction.guild?.roles.cache.size}` +
+              `* **Roles**: ${interaction.guild?.roles.cache.size} | **Channels**: ${interaction.guild?.channels.cache.size}` +
               "\n" +
-              `**Channels**: ${interaction.guild?.channels.cache.size}` +
+              `* **Emo**: ${interaction.guild?.emojis.cache.size} emojis | ${interaction.guild?.stickers.cache.size} stickers` +
               "\n" +
-              `**Emo**: ${interaction.guild?.emojis.cache.size} emojis | ${interaction.guild?.stickers.cache.size} stickers` +
-              "\n" +
-              `**Created at**: <t:${
+              `* **Created at**: <t:${
                 interaction.guild?.createdTimestamp || 0 / 1000
               }:F>` +
               "\n" +
-              `**Verification level**: ${interaction.guild?.verificationLevel}` +
+              `* **Verification level**: ${interaction.guild?.verificationLevel}` +
               "\n" +
-              `**Verified**: ${interaction.guild?.verified ? "✅" : "❌"}` +
+              `* **Verified**: ${interaction.guild?.verified ? "✅" : "❌"}` +
               "\n" +
-              `**Vanity URL**: ${interaction.guild?.vanityURLCode || "None"}`
+              `* **Vanity URL**: ${interaction.guild?.vanityURLCode || "None"}`
           )
           .setThumbnail(interaction.guild?.iconURL() || null)
           .setFields([
@@ -56,7 +50,6 @@ const command: CommandInterface = {
                 extension: "png",
                 forceStatic: true,
               })})`,
-              inline: true,
             },
             {
               name: "Futures",
