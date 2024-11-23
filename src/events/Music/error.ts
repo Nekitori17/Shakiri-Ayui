@@ -4,13 +4,12 @@ import { TextChannel } from "discord.js";
 import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
 
 const event: MusicEventInterface = (player: Player) => {
-  player.events.on("playerError", (queue, error, track) => {
+  player.events.on("error", (queue, error) => {
     (queue.metadata.channel as TextChannel).send({
       embeds: [
         CommonEmbedBuilder.error({
           title: error.name,
           description: error.message,
-          footer: `Track: ${track.title}`,
         }),
       ],
     });
