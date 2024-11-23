@@ -13,6 +13,10 @@ export default class CommonEmbedBuilder {
     footer?: string;
   }): EmbedBuilder {
     return new EmbedBuilder()
+      .setAuthor({
+        name: "Info",
+        iconURL: "https://img.icons8.com/color/512/info.png",
+      })
       .setColor("White")
       .setTitle(title)
       .setDescription(description)
@@ -30,6 +34,10 @@ export default class CommonEmbedBuilder {
     footer?: string;
   }): EmbedBuilder {
     return new EmbedBuilder()
+    .setAuthor({
+      name: "Success",
+      iconURL: "https://img.icons8.com/color/512/ok--v1.png"
+    })
       .setColor("Green")
       .setTitle(title)
       .setDescription(description)
@@ -47,6 +55,10 @@ export default class CommonEmbedBuilder {
     footer?: string;
   }): EmbedBuilder {
     return new EmbedBuilder()
+    .setAuthor({
+      name: "Warning",
+      iconURL: "https://img.icons8.com/emoji/512/warning-emoji.png"
+    })
       .setColor("Yellow")
       .setTitle(title)
       .setDescription(description)
@@ -64,6 +76,10 @@ export default class CommonEmbedBuilder {
     footer?: string;
   }): EmbedBuilder {
     return new EmbedBuilder()
+      .setAuthor({
+        name: "Error",
+        iconURL: "https://img.icons8.com/flat-round/512/error--v1.png",
+      })
       .setColor("Red")
       .setTitle(title)
       .setDescription(description)
