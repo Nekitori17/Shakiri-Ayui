@@ -5,6 +5,7 @@ import { YoutubeiExtractor } from "discord-player-youtubei";
 import registerCommands from "./handlers/registerCommands";
 import discordEventHandler from "./handlers/discordEventHandler";
 import musicEventHandler from "./handlers/musicEventHandler";
+import mongoose from "mongoose";
 
 const client = new Client({
   intents: [
@@ -29,14 +30,22 @@ const player = new Player(client);
 
 async function run(client: Client) {
   await registerCommands();
+  
   await player.extractors.register(YoutubeiExtractor, {
     streamOptions: {
       useClient: "IOS",
     },
   });
   await player.extractors.loadDefault((ext) => ext !== "YouTubeExtractor");
+
+  mongoose.set("strictQuery", false);
+  await mongoose.connect(
+    `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CLUSTER}`
+  );
+
   discordEventHandler(client);
   musicEventHandler(client, player);
+
   client.login(process.env.BOT_TOKEN as string);
 }
 

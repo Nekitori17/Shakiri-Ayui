@@ -21,6 +21,10 @@ export default {
       channelSend: "1120996521396150342",
       backgroundImage: "https://i.ibb.co/BnCqSH0/banner.jpg",
     },
+    countingGame: {
+      channelSet: "1173207895878418543",
+      numberStart: 359
+    }
   },
   setting: {
     statusIntervalTime: 10000,
