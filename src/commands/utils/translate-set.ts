@@ -2,7 +2,6 @@ import {
   ApplicationCommandOptionType,
   Client,
   CommandInteraction,
-  TextChannel,
 } from "discord.js";
 import { CommandInterface } from "./../../types/InteractionInterfaces";
 import { translateLanguages } from "../../data/translateLanguages";
@@ -45,8 +44,11 @@ const command: CommandInterface = {
         );
       }
     } catch (error: { name: string; message: string } | any) {
-      await interaction.deleteReply();
-      (interaction.channel as TextChannel)?.send({
+      interaction.editReply({
+        content: null,
+        components: undefined,
+        files: undefined,
+        attachments: undefined,
         embeds: [
           CommonEmbedBuilder.error({
             title: error.name,
@@ -63,7 +65,7 @@ const command: CommandInterface = {
   options: [
     {
       name: "lang",
-      description: "Language to translate (Ex: en, vi, ja,...)",
+      description: "Language to translate (ex: en, vi, ja,...)",
       type: ApplicationCommandOptionType.String,
       required: true,
     },

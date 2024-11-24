@@ -95,8 +95,11 @@ const command: CommandInterface = {
         });
       }
     } catch (error: { name: string; message: string } | any) {
-      await interaction.deleteReply();
-      (interaction.channel as TextChannel)?.send({
+      interaction.editReply({
+        content: null,
+        components: undefined,
+        files: undefined,
+        attachments: undefined,
         embeds: [
           CommonEmbedBuilder.error({
             title: error.name,

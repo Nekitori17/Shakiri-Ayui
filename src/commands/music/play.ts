@@ -4,7 +4,6 @@ import {
   CommandInteraction,
   GuildMember,
   PermissionFlagsBits,
-  TextChannel,
 } from "discord.js";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 import { QueryType, useMainPlayer } from "discord-player";
@@ -52,8 +51,11 @@ const command: CommandInterface = {
 
       interaction.deleteReply()
     } catch (error: { name: string; message: string } | any) {
-      await interaction.deleteReply();
-      (interaction.channel as TextChannel)?.send({
+      interaction.editReply({
+        content: null,
+        components: undefined,
+        files: undefined,
+        attachments: undefined,
         embeds: [
           CommonEmbedBuilder.error({
             title: error.name,

@@ -10,7 +10,6 @@ import { CommandInterface } from "../../types/InteractionInterfaces";
 import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
 import { ModerationEmbedBuilder } from "../../utils/moderationEmbedBuilder";
 import config from "../../config";
-import ms from "ms";
 
 const command: CommandInterface = {
   async execute(interaction: CommandInteraction, client: Client) {
@@ -101,8 +100,11 @@ const command: CommandInterface = {
         });
       }
     } catch (error: { name: string; message: string } | any) {
-      await interaction.deleteReply();
-      (interaction.channel as TextChannel)?.send({
+      interaction.editReply({
+        content: null,
+        components: undefined,
+        files: undefined,
+        attachments: undefined,
         embeds: [
           CommonEmbedBuilder.error({
             title: error.name,

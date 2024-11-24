@@ -6,7 +6,6 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ActionRowBuilder,
-  TextChannel,
 } from "discord.js";
 import axios from "axios";
 import { CommandInterface } from "../../types/InteractionInterfaces";
@@ -16,10 +15,11 @@ import mediaConverter from "../../utils/mediaConverter";
 
 const command: CommandInterface = {
   async execute(interaction: CommandInteraction, client: Client) {
+    await interaction.deferReply();
     const idChart = interaction.options.get("id")?.value as number;
 
     try {
-      await interaction.reply(
+      await interaction.editReply(
         `> 🔎 [1/3] | Fetching chart information at */chart/${idChart}`
       );
 
@@ -125,8 +125,11 @@ const command: CommandInterface = {
         files: [illustration!],
       });
     } catch (error: { name: string; message: string } | any) {
-      await interaction.deleteReply();
-      (interaction.channel as TextChannel)?.send({
+      interaction.editReply({
+        content: null,
+        components: undefined,
+        files: undefined,
+        attachments: undefined,
         embeds: [
           CommonEmbedBuilder.error({
             title: error.name,

@@ -2,7 +2,6 @@ import {
   ApplicationCommandType,
   Client,
   MessageContextMenuCommandInteraction,
-  TextChannel,
 } from "discord.js";
 import axios from "axios";
 import { ContextInterface } from "../../types/InteractionInterfaces";
@@ -43,8 +42,11 @@ const context: ContextInterface = {
 
         interaction.editReply(translated.result);
     } catch (error: { name: string; message: string } | any) {
-      await interaction.deleteReply();
-      (interaction.channel as TextChannel)?.send({
+      interaction.editReply({
+        content: null,
+        components: undefined,
+        files: undefined,
+        attachments: undefined,
         embeds: [
           CommonEmbedBuilder.error({
             title: error.name,
