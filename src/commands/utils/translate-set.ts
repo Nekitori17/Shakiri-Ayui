@@ -6,7 +6,7 @@ import {
 import { CommandInterface } from "./../../types/InteractionInterfaces";
 import { translateLanguages } from "../../data/translateLanguages";
 import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
-import TranslateMessage from "../../models/TranslateMessage";
+import UserSettings from "../../models/UserSettings";
 
 const command: CommandInterface = {
   async execute(interaction: CommandInteraction, client: Client) {
@@ -23,19 +23,19 @@ const command: CommandInterface = {
         userId: interaction.user.id,
       };
 
-      const data = await TranslateMessage.findOne(query);
+      const data = await UserSettings.findOne(query);
 
       if (data) {
-        data.language = language;
+        data.messageTranslateLang = language;
 
         await data.save();
         interaction.editReply(
           `> <:update:1309527728999104622> You have set your translate language to \`${translateLanguages[language]}\``
         );
       } else {
-        const newData = new TranslateMessage({
+        const newData = new UserSettings({
           userId: interaction.user.id,
-          language,
+          messageTranslateLang: language,
         });
 
         await newData.save();

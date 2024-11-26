@@ -6,7 +6,7 @@ import {
 import axios from "axios";
 import { ContextInterface } from "../../types/InteractionInterfaces";
 import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
-import TranslateMessage from "../../models/TranslateMessage";
+import UserSettings from "../../models/UserSettings";
 
 const context: ContextInterface = {
   async execute(
@@ -21,12 +21,12 @@ const context: ContextInterface = {
         userId: interaction.user.id
       }
 
-      const data = await TranslateMessage.findOne(query)
+      const data = await UserSettings.findOne(query)
 
       const translated = await axios
         .post(`${process.env.CUSTOM_URL_API_BASE}/endpoint`, {
           input: targetMessage.content,
-          lang: data?.language || "en",
+          lang: data?.messageTranslateLang || "en",
         }, {
           params: {
             q: "google-translate"
