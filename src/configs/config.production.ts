@@ -23,7 +23,12 @@ export default {
     },
     countingGame: {
       channelSet: "1173207895878418543",
-      numberStart: 359
+      numberStart: 366
+    },
+    temporaryVoiceChannel: {
+      nameChannelSyntax: "{username}'s Voice",
+      channelSet: "",
+      categorySet: ""
     }
   },
   setting: {

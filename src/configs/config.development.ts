@@ -24,6 +24,11 @@ export default {
     countingGame: {
       channelSet: "1310036246344630352",
       numberStart: 1
+    },
+    temporaryVoiceChannel: {
+      nameChannelSyntax: "{username}'s Voice",
+      channelSet: "1311278510240694302",
+      categorySet: "1202978247126552616"
     }
   },
   setting: {

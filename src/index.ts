@@ -29,24 +29,29 @@ const client = new Client({
 const player = new Player(client);
 
 async function run(client: Client) {
-  await registerCommands();
-  
-  await player.extractors.register(YoutubeiExtractor, {
-    streamOptions: {
-      useClient: "IOS",
-    },
-  });
-  await player.extractors.loadDefault((ext) => ext !== "YouTubeExtractor");
+  try {
+    await registerCommands();
 
-  mongoose.set("strictQuery", false);
-  await mongoose.connect(
-    `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CLUSTER}`
-  );
+    await player.extractors.loadDefault((ext) => ext !== "YouTubeExtractor");
+    await player.extractors.register(YoutubeiExtractor, {
+      streamOptions: {
+        useClient: "IOS",
+      },
+    });
 
-  discordEventHandler(client);
-  musicEventHandler(client, player);
+    mongoose.set("strictQuery", false);
+    await mongoose.connect(
+      `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CLUSTER}`
+    );
 
-  client.login(process.env.BOT_TOKEN as string);
+    discordEventHandler(client);
+    musicEventHandler(client, player);
+
+    client.login(process.env.BOT_TOKEN as string);
+  } catch (error: { name: string; message: string } | any) {
+    console.log(`\x1b[31m\x1b[1m=> ${error.name}\x1b[0m`);
+    console.log(`\x1b[32m${error.message}\x1b[0m`);
+  }
 }
 
 run(client);
