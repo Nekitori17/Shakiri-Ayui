@@ -29,6 +29,9 @@ export default {
       nameChannelSyntax: "{username}'s Voice",
       channelSet: "1311278510240694302",
       categorySet: "1202978247126552616"
+    },
+    connectWordGame: {
+      channelSet: "1313506743019634688"
     }
   },
   setting: {

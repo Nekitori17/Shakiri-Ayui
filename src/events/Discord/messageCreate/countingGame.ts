@@ -3,16 +3,20 @@ import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import config from "../../../config";
 import CountingGame from "../../../models/CountingGame";
 
+const isNumeric = (str: string) => {
+  const num = parseFloat(str);
+  return !isNaN(num) && isFinite(num);
+};
+
 const event: DiscordEventInterface = async (client: Client, msg: Message) => {
   if (msg.channelId != config.modules.countingGame.channelSet) return;
   if (msg.author.bot) return;
-
-  const query = {
-    guildId: msg.guildId,
-  };
+  if (!isNumeric(msg.content)) return;
 
   try {
-    const data = await CountingGame.findOne(query);
+    const data = await CountingGame.findOne({
+      guildId: msg.guildId
+    });
 
     if (data) {
       if (data.latestUserId === msg.author.id)

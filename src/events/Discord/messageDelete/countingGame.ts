@@ -5,12 +5,10 @@ import CountingGame from "../../../models/CountingGame";
 const event: DiscordEventInterface = async (client: Client, msg: Message) => {
   if (msg.author.bot) return;
 
-  const query = {
-    guildId: msg.guildId,
-  };
-
   try {
-    const data = await CountingGame.findOne(query);
+    const data = await CountingGame.findOne({
+      guildId: msg.guildId,
+    });
 
     if (!data) return;
 

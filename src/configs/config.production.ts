@@ -27,8 +27,11 @@ export default {
     },
     temporaryVoiceChannel: {
       nameChannelSyntax: "{username}'s Voice",
-      channelSet: "",
-      categorySet: ""
+      channelSet: "1130823008072769577",
+      categorySet: "1121072563175563386"
+    },
+    connectWordGame: {
+      channelSet: "1313506743019634688"
     }
   },
   setting: {

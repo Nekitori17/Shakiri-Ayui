@@ -1,22 +1,26 @@
 export const commandCategories = {
   core: {
     label: "Core",
-    emoji: "💻",
+    emoji: "💻"
   },
   game: {
     label: "Game",
-    emoji: "🎮",
+    emoji: "🎮"
   },
   moderator: {
     label: "moderator",
-    emoji: "👮",
+    emoji: "👮"
   },
   music: {
     label: "Music",
-    emoji: "🎶",
+    emoji: "🎶"
   },
   utils: {
     label: "Utils",
-    emoji: "🛠️",
+    emoji: "🛠️"
   },
+  settings: {
+    label: "Settings",
+    emoji: "⚙"
+  }
 };

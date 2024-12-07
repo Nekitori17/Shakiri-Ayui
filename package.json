@@ -14,6 +14,7 @@
     "Bot"
   ],
   "author": "Nekitori17",
+  "repository": "git://github.com/Nekitori17/shakiri-ayui.git",
   "license": "MIT",
   "devDependencies": {
     "typescript": "^5.6.2"
@@ -29,7 +30,7 @@
     "dotenv": "^16.4.5",
     "ffmpeg-static": "^5.2.0",
     "humanize-duration": "^3.32.1",
-    "json-store-typed": "^1.2.0",
+    "json-store-typed": "^1.1.0",
     "mediaplex": "^0.0.9",
     "mongoose": "^8.8.2",
     "ms": "^2.1.3",

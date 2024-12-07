@@ -17,11 +17,9 @@ const context: ContextInterface = {
     const targetMessage = interaction.targetMessage;
 
     try {
-      const query = {
+      const data = await UserSettings.findOne({
         userId: interaction.user.id
-      }
-
-      const data = await UserSettings.findOne(query)
+      });
 
       const translated = await axios
         .post(`${process.env.CUSTOM_URL_API_BASE}/endpoint`, {

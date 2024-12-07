@@ -52,7 +52,7 @@ const event: DiscordEventInterface = async (
     })
     .then((channel) => {
       newState.member?.voice.setChannel(channel);
-      temporaryChannels.set(channel.id, true);
+      temporaryChannels.set(channel.id, newState.member?.id);
     });
 };
 

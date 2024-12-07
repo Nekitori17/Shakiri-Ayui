@@ -19,19 +19,14 @@ const command: CommandInterface = {
         message: "Please enter a valid language (Ex: en, vi, ja,...)",
       }
 
-      const query = {
-        userId: interaction.user.id,
-      };
-
-      const data = await UserSettings.findOne(query);
+      const data = await UserSettings.findOne({
+        userId: interaction.user.id
+      });
 
       if (data) {
         data.messageTranslateLang = language;
 
         await data.save();
-        interaction.editReply(
-          `> <:update:1309527728999104622> You have set your translate language to \`${translateLanguages[language]}\``
-        );
       } else {
         const newData = new UserSettings({
           userId: interaction.user.id,
@@ -39,10 +34,11 @@ const command: CommandInterface = {
         });
 
         await newData.save();
-        interaction.editReply(
+      }
+
+      interaction.editReply(
           `> <:update:1309527728999104622> You have set your translate language to \`${translateLanguages[language]}\``
         );
-      }
     } catch (error: { name: string; message: string } | any) {
       interaction.editReply({
         content: null,
