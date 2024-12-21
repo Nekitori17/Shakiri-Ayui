@@ -2,12 +2,14 @@ import {
   ApplicationCommandOptionType,
   Client,
   CommandInteraction,
+  EmbedBuilder,
   GuildMember,
   PermissionFlagsBits,
 } from "discord.js";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 import { QueryType, useMainPlayer } from "discord-player";
 import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
+import { musicSourceIcons } from "../../data/musicSourceIcons";
 import config from "../../config";
 
 const command: CommandInterface = {
@@ -31,7 +33,8 @@ const command: CommandInterface = {
         `> 🎶 Loading ${result.playlist ? "playlist" : "track"}...`
       );
 
-      await player.play(
+      const settings = await config.modules(interaction.guildId!);
+      const { track } = await player.play(
         (interaction.member as GuildMember).voice.channel!,
         result,
         {
@@ -40,16 +43,31 @@ const command: CommandInterface = {
             metadata: {
               channel: interaction.channel,
             },
-            volume: config.modules.music.volume,
-            leaveOnEmpty: config.modules.music.leaveOnEmpty,
-            leaveOnEmptyCooldown: config.modules.music.leaveOnEmptyCooldown,
-            leaveOnEnd: config.modules.music.leaveOnEnd,
-            leaveOnEndCooldown: config.modules.music.leaveOnEndCooldown,
+            volume: settings.music?.volume,
+            leaveOnEmpty: settings.music?.leaveOnEmpty,
+            leaveOnEmptyCooldown: settings.music?.leaveOnEmptyCooldown,
+            leaveOnEnd: settings.music?.leaveOnEnd,
+            leaveOnEndCooldown: settings.music?.leaveOnEndCooldown,
           },
         }
       );
 
-      interaction.deleteReply()
+      interaction.editReply({
+        content: null,
+        embeds: [
+          new EmbedBuilder()
+            .setAuthor({
+              name: `🎶 | Added ${track.title} by ${track.author} to the queue!`,
+              iconURL: track.thumbnail,
+              url: track.url,
+            })
+            .setFooter({
+              text: `Request by: ${track.requestedBy?.displayName}`,
+              iconURL: musicSourceIcons[track.source],
+            })
+            .setColor("Green"),
+        ],
+      });
     } catch (error: { name: string; message: string } | any) {
       interaction.editReply({
         content: null,

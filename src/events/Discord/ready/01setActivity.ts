@@ -40,7 +40,7 @@ const execute: DiscordEventInterface = async (client: Client) => {
       status: statusArray[nth].status,
     });
     nth++;
-  }, config.setting.statusIntervalTime);
+  }, config.statusIntervalTime);
 };
 
 export default execute;

@@ -1,17 +1,10 @@
-import {
-  Client,
-  PermissionsBitField,
-  TextChannel,
-} from "discord.js";
+import { Client, PermissionsBitField, TextChannel } from "discord.js";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import getLocalContexts from "../../../utils/getLocalContexts";
 import CommonEmbedBuilder from "../../../utils/commonEmbedBuilder";
 import config from "../../../config";
 
-const event: DiscordEventInterface = (
-  client: Client,
-  interaction: any
-) => {
+const event: DiscordEventInterface = (client: Client, interaction: any) => {
   if (!interaction.isContextMenuCommand()) return;
 
   const localContexts = getLocalContexts();
@@ -35,7 +28,7 @@ const event: DiscordEventInterface = (
         });
       }
 
-    contextObject.botPermissions?.push(...config.setting.defaultPermissions);
+    contextObject.botPermissions?.push(...config.defaultPermissions);
     if (contextObject.botPermissions?.length) {
       for (const permission of contextObject.botPermissions) {
         if (
@@ -75,6 +68,8 @@ const event: DiscordEventInterface = (
   } catch (error: { name: string; message: string } | any) {
     console.log(`\x1b[31m\x1b[1m|> ${error.name} (Context Interaction)\x1b[0m`);
     console.log(`\x1b[32m${error.message}\x1b[0m`);
+    console.log(error);
+
     (interaction.channel as TextChannel)?.send({
       embeds: [
         CommonEmbedBuilder.error({

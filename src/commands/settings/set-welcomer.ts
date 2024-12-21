@@ -1,0 +1,124 @@
+import {
+  CommandInteraction,
+  Client,
+  ApplicationCommandOptionType,
+  AttachmentBuilder,
+  PermissionFlagsBits,
+} from "discord.js";
+import { CommandInterface } from "../../types/InteractionInterfaces";
+import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
+import config from "../../config";
+
+const command: CommandInterface = {
+  async execute(interaction: CommandInteraction, client: Client) {
+    await interaction.deferReply();
+    const enabled = interaction.options.get("enabled")?.value as boolean;
+    const channelSend = interaction.options.get("channel")?.value as string;
+    const reset = interaction.options.get("reset")?.value as boolean;
+
+    try {
+      const settings = await config.modules(interaction.guildId!);
+
+      if (reset) {
+        settings.welcomer = {
+          enabled: false,
+          channelSend: null,
+          customMessage: null,
+          backgroundImage: null,
+          imageTitle: null,
+          imageBody: null,
+          imageFooter: null,
+        };
+      }
+
+      settings.welcomer = {
+        enabled,
+        channelSend: channelSend || settings.welcomer?.channelSend,
+        customMessage: settings.welcomer?.customMessage,
+        backgroundImage: settings.welcomer?.backgroundImage,
+        imageTitle: settings.welcomer?.imageTitle,
+        imageBody: settings.welcomer?.imageBody,
+        imageFooter: settings.welcomer?.imageFooter,
+      };
+
+      await settings.save();
+
+      const advancedSettingsTxt =
+        ">> Custom Message <<" +
+        "\n" +
+        settings.welcomer.customMessage +
+        "\n" +
+        ">> Image Title <<" +
+        "\n" +
+        settings.welcomer.imageTitle +
+        "\n" +
+        ">> Image Body <<" +
+        "\n" +
+        settings.welcomer.imageBody +
+        "\n" +
+        ">> Image Footer <<" +
+        "\n" +
+        settings.welcomer.imageFooter;
+
+      const fileContent = Buffer.from(advancedSettingsTxt, "utf-8");
+      const attachment = new AttachmentBuilder(fileContent, {
+        name: "customize-setting-data.md",
+      });
+
+      interaction.editReply({
+        embeds: [
+          CommonEmbedBuilder.success({
+            title: "Updated **Welcomer** module settings",
+            description: `**Enabled**: \`${
+              settings.welcomer.enabled
+            }\`, **Channel Send**: ${
+              settings.welcomer.channelSend
+                ? `<#${settings.welcomer.channelSend}>`
+                : "`None`"
+            }`,
+          }),
+        ],
+        files: [attachment],
+      });
+    } catch (error: { name: string; message: string } | any) {
+      interaction.editReply({
+        content: null,
+        components: undefined,
+        files: undefined,
+        attachments: undefined,
+        embeds: [
+          CommonEmbedBuilder.error({
+            title: error.name,
+            description: error.message,
+          }),
+        ],
+      });
+    }
+  },
+  name: "set-welcomer",
+  description: "Settings for welcomer module",
+  deleted: false,
+  options: [
+    {
+      name: "enabled",
+      description: "Enabled this module or not",
+      type: ApplicationCommandOptionType.Boolean,
+      required: true,
+    },
+    {
+      name: "channel",
+      description: "Channel to send the welcomer to",
+      type: ApplicationCommandOptionType.Channel,
+      required: false,
+    },
+    {
+      name: "reset",
+      description: "Reset this module settings",
+      type: ApplicationCommandOptionType.Boolean,
+      required: false,
+    },
+  ],
+  permissionsRequired: [PermissionFlagsBits.ManageGuild],
+};
+
+export default command;

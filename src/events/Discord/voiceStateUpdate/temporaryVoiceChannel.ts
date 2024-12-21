@@ -10,8 +10,10 @@ const event: DiscordEventInterface = async (
   oldState: VoiceState,
   newState: VoiceState
 ) => {
+  const settings = await config.modules(newState.guild.id!);
+  if (!settings.temporaryVoiceChannel?.enabled) return;
   const temporaryChannels = jsonStore(
-    path.join(__dirname, "../../../../database/temporaryVoiceChannels.json")
+    path.join(__dirname, "../../../../database/temporaryVoiceChannels")
   );
 
   if (
@@ -27,15 +29,14 @@ const event: DiscordEventInterface = async (
     }
   }
 
-  if (newState.channelId !== config.modules.temporaryVoiceChannel.channelSet)
-    return;
+  if (newState.channelId !== settings.temporaryVoiceChannel?.channelSet) return;
 
   const query = { userId: newState.member?.id };
   const data = await UserSettings.findOne(query);
 
   const channelName =
     data?.temporaryVoiceChannel?.channelName ||
-    config.modules.temporaryVoiceChannel.nameChannelSyntax;
+    settings.temporaryVoiceChannel?.nameChannelSyntax;
 
   await newState.guild.channels
     .create({
@@ -45,7 +46,7 @@ const event: DiscordEventInterface = async (
       ),
       type: ChannelType.GuildVoice,
       parent:
-        config.modules.temporaryVoiceChannel.categorySet ||
+        settings.temporaryVoiceChannel?.categorySet ||
         newState.member?.voice.channel?.parentId,
       userLimit: data?.temporaryVoiceChannel?.limitUser || undefined,
       bitrate: 96000,

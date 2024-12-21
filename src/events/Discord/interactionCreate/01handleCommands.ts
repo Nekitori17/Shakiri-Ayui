@@ -37,13 +37,13 @@ const event: DiscordEventInterface = async (
         });
       }
 
-    commandObject.botPermissions?.push(...config.setting.defaultPermissions);
+    commandObject.botPermissions?.push(...config.defaultPermissions);
     if (commandObject.botPermissions?.length) {
       for (const permission of commandObject.botPermissions) {
         if (
-          !(interaction.guild?.members.me?.permissions as PermissionsBitField).has(
-            permission
-          )
+          !(
+            interaction.guild?.members.me?.permissions as PermissionsBitField
+          ).has(permission)
         ) {
           throw {
             name: "Missing Permissions",
@@ -85,6 +85,8 @@ const event: DiscordEventInterface = async (
   } catch (error: { name: string; message: string } | any) {
     console.log(`\x1b[31m\x1b[1m|> ${error.name} (Command Interaction)\x1b[0m`);
     console.log(`\x1b[32m${error.message}\x1b[0m`);
+    console.log(error);
+
     (interaction.channel as TextChannel)?.send({
       embeds: [
         CommonEmbedBuilder.error({

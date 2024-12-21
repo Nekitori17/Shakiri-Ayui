@@ -19,11 +19,12 @@ const command: CommandInterface = {
 
     try {
       const commandListMenuDropdown = Object.entries(commandCategories).map(
-        ([category, { label, emoji }]) =>
+        ([category, { label, emoji, description }]) =>
           new StringSelectMenuOptionBuilder()
             .setLabel(label)
             .setValue(category)
             .setEmoji(emoji)
+            .setDescription(description)
       );
 
       const selectMenu =

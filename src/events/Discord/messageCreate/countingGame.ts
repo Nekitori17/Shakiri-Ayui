@@ -9,9 +9,12 @@ const isNumeric = (str: string) => {
 };
 
 const event: DiscordEventInterface = async (client: Client, msg: Message) => {
-  if (msg.channelId != config.modules.countingGame.channelSet) return;
   if (msg.author.bot) return;
   if (!isNumeric(msg.content)) return;
+  
+  const settings = await config.modules(msg.guildId!)
+  if (!settings.countingGame?.enabled) return;
+  if (msg.channelId != settings.countingGame?.channelSet) return;
 
   try {
     const data = await CountingGame.findOne({
@@ -36,7 +39,7 @@ const event: DiscordEventInterface = async (client: Client, msg: Message) => {
       await data.save();
       msg.react("✅");
     } else {
-      if (msg.content != config.modules.countingGame.numberStart.toString())
+      if (msg.content != settings.countingGame?.startNumber.toString())
         throw {
         message: `❌ | ${msg.author}, you counted wrong! Check the message history and count with the correct number.`,
       }
@@ -44,7 +47,7 @@ const event: DiscordEventInterface = async (client: Client, msg: Message) => {
       const newData = new CountingGame({
         guildId: msg.guildId,
         channelId: msg.channelId,
-        countingCurrent: config.modules.countingGame.numberStart + 1,
+        countingCurrent: settings.countingGame?.startNumber + 1,
         latestUserId: msg.author.id,
         latestMessageId: msg.id,
       });

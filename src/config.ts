@@ -1,6 +1,22 @@
-import configDevelopment from "./configs/config.development";
-import configProduction from "./configs/config.production";
+import { PermissionFlagsBits } from "discord.js";
+import GuildSettings from "./models/GuildSettings";
 
-const config = process.env.NODE_ENV === "production" ? configProduction : configDevelopment;
-
-export default config
+export default {
+  modules: async (guildId: string) => {
+    return await GuildSettings.findOneAndUpdate(
+      { guildId },
+      { $setOnInsert: { guildId } },
+      {
+        upsert: true,
+        new: true,
+      }
+    );
+  },
+  statusIntervalTime: 10000,
+  defaultPermissions: [
+    PermissionFlagsBits.ViewChannel,
+    PermissionFlagsBits.SendMessages,
+    PermissionFlagsBits.EmbedLinks,
+    PermissionFlagsBits.AttachFiles,
+  ],
+};
