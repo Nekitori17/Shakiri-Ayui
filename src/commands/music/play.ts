@@ -1,19 +1,17 @@
+import config from "../../config";
 import {
   ApplicationCommandOptionType,
-  Client,
-  CommandInteraction,
   EmbedBuilder,
   GuildMember,
   PermissionFlagsBits,
 } from "discord.js";
-import { CommandInterface } from "../../types/InteractionInterfaces";
-import { QueryType, useMainPlayer } from "discord-player";
+import { QueryType, TrackSource, useMainPlayer } from "discord-player";
 import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
 import { musicSourceIcons } from "../../data/musicSourceIcons";
-import config from "../../config";
+import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
-  async execute(interaction: CommandInteraction, client: Client) {
+  async execute(interaction, client) {
     await interaction.deferReply();
     const player = useMainPlayer();
     const query = interaction.options.get("query")?.value as string;
@@ -63,7 +61,7 @@ const command: CommandInterface = {
             })
             .setFooter({
               text: `Request by: ${track.requestedBy?.displayName}`,
-              iconURL: musicSourceIcons[track.source],
+              iconURL: musicSourceIcons[track.source as TrackSource],
             })
             .setColor("Green"),
         ],

@@ -1,19 +1,18 @@
 import {
   ApplicationCommandOptionType,
-  Client,
-  CommandInteraction,
   EmbedBuilder,
   PermissionFlagsBits,
 } from "discord.js";
-import { CommandInterface } from "../../types/InteractionInterfaces";
-import { useQueue } from "discord-player";
-import { repeatModeNames } from "../../data/musicRepeatModes";
+import { useQueue, QueueRepeatMode } from "discord-player";
 import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
+import { repeatModeNames } from "../../data/musicRepeatModes";
+import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
-  async execute(interaction: CommandInteraction, client: Client) {
+  async execute(interaction, client) {
     await interaction.deferReply();
-    const repeatMode = interaction.options.get("mode")?.value as number;
+    const repeatMode = interaction.options.get("mode")
+      ?.value as QueueRepeatMode;
     const repeatModeName =
       repeatModeNames[repeatMode as keyof typeof repeatModeNames];
 

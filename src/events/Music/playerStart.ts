@@ -1,10 +1,10 @@
-import { repeatModeNames } from "../../data/musicRepeatModes";
-import { Player } from "discord-player";
-import { MusicEventInterface } from "../../types/EventInterfaces";
 import { EmbedBuilder, TextChannel } from "discord.js";
+import { TrackSource } from "discord-player";
+import { repeatModeNames } from "../../data/musicRepeatModes";
 import { musicSourceIcons } from "../../data/musicSourceIcons";
+import { MusicEventInterface } from "../../types/EventInterfaces";
 
-const event: MusicEventInterface = (player: Player) => {
+const event: MusicEventInterface = (player) => {
   player.events.on("playerStart", async (queue, track) => {
     (queue.metadata.channel as TextChannel).send({
       embeds: [
@@ -28,7 +28,7 @@ const event: MusicEventInterface = (player: Player) => {
           .setThumbnail(track.thumbnail)
           .setFooter({
             text: `Duration: ${track.duration}`,
-            iconURL: musicSourceIcons[track.source],
+            iconURL: musicSourceIcons[track.source as TrackSource],
           })
           .setColor("#00a2ff")
           .setTimestamp(),

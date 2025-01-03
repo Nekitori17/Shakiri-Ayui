@@ -1,17 +1,15 @@
 import {
-  Client,
-  CommandInteraction,
   EmbedBuilder,
   PermissionFlagsBits,
 } from "discord.js";
-import { CommandInterface } from "../../types/InteractionInterfaces";
+import { useQueue, TrackSource } from "discord-player";
 import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
-import { useQueue } from "discord-player";
 import { repeatModeNames } from "../../data/musicRepeatModes";
 import { musicSourceIcons } from "../../data/musicSourceIcons";
+import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
-  async execute(interaction: CommandInteraction, client: Client) {
+  async execute(interaction, client) {
     await interaction.deferReply();
 
     try {
@@ -50,7 +48,7 @@ const command: CommandInterface = {
             .setThumbnail(track.thumbnail)
             .setFooter({
               text: `ID: ${track.id}`,
-              iconURL: musicSourceIcons[track.source],
+              iconURL: musicSourceIcons[track.source as TrackSource],
             })
             .setTimestamp()
             .setColor("#00a2ff"),

@@ -1,6 +1,7 @@
 (require("dotenv") as { config: () => void }).config();
 import { Client, IntentsBitField } from "discord.js";
 import { Player } from "discord-player";
+import { DefaultExtractors } from "@discord-player/extractor";
 import { YoutubeiExtractor } from "discord-player-youtubei";
 import registerCommands from "./handlers/registerCommands";
 import discordEventHandler from "./handlers/discordEventHandler";
@@ -32,11 +33,12 @@ async function run(client: Client) {
   try {
     await registerCommands();
 
-    await player.extractors.loadDefault((ext) => ext !== "YouTubeExtractor");
+    await player.extractors.loadMulti(DefaultExtractors);
     await player.extractors.register(YoutubeiExtractor, {
       streamOptions: {
-        useClient: "IOS",
-      },
+        highWaterMark: 1 << 25,
+        useClient: "IOS"
+      }
     });
 
     mongoose.set("strictQuery", false);

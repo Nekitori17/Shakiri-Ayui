@@ -1,19 +1,14 @@
-import {
-  Client,
-  CommandInteraction,
-  EmbedBuilder,
-  PermissionFlagsBits,
-} from "discord.js";
-import { CommandInterface } from "../../types/InteractionInterfaces";
-import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
+import { EmbedBuilder, PermissionFlagsBits } from "discord.js";
 import { useHistory } from "discord-player";
+import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
+import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
-  async execute(interaction: CommandInteraction, client: Client) {
+  async execute(interaction, client) {
     await interaction.deferReply();
 
     try {
-      const history = useHistory(interaction.guild?.id!);
+      const history = useHistory();
       if (!history)
         throw {
           name: "No Queue",

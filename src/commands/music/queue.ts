@@ -2,20 +2,18 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  Client,
-  CommandInteraction,
   ComponentType,
   EmbedBuilder,
   PermissionFlagsBits,
 } from "discord.js";
-import { CommandInterface } from "../../types/InteractionInterfaces";
 import { Track, useQueue } from "discord-player";
 import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
+import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
-  async execute(interaction: CommandInteraction, client: Client) {
+  async execute(interaction, client) {
     await interaction.deferReply();
-    const queue = useQueue(interaction.guild?.id!);
+    const queue = useQueue();
 
     try {
       if (queue?.tracks.size == 0)

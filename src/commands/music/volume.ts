@@ -1,21 +1,19 @@
 import {
   ApplicationCommandOptionType,
-  Client,
-  CommandInteraction,
   EmbedBuilder,
   PermissionFlagsBits,
 } from "discord.js";
-import { CommandInterface } from "../../types/InteractionInterfaces";
-import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
 import { useQueue } from "discord-player";
+import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
+import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
-  async execute(interaction: CommandInteraction, client: Client) {
+  async execute(interaction, client) {
     await interaction.deferReply();
     const level = interaction.options.get("level")?.value as number;
 
     try {
-      const queue = useQueue(interaction.guild?.id!);
+      const queue = useQueue();
       if (!queue)
         throw {
           name: "No Queue",
@@ -55,8 +53,8 @@ const command: CommandInterface = {
       name: "level",
       description: "Level of volume",
       type: ApplicationCommandOptionType.Number,
-      required: true
-    }
+      required: true,
+    },
   ],
   deleted: false,
   voiceChannel: true,

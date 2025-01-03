@@ -1,9 +1,8 @@
-import { Player } from "discord-player";
-import { MusicEventInterface } from "../../types/EventInterfaces";
 import { TextChannel } from "discord.js";
 import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
+import { MusicEventInterface } from "../../types/EventInterfaces";
 
-const event: MusicEventInterface = (player: Player) => {
+const event: MusicEventInterface = (player) => {
   player.events.on("error", (queue, error) => {
     (queue.metadata.channel as TextChannel).send({
       embeds: [

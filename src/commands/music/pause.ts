@@ -1,18 +1,14 @@
-import {
-  Client,
-  CommandInteraction,
-  PermissionFlagsBits,
-} from "discord.js";
-import { CommandInterface } from "../../types/InteractionInterfaces";
-import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
+import { PermissionFlagsBits } from "discord.js";
 import { useQueue } from "discord-player";
+import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
+import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
-  async execute(interaction: CommandInteraction, client: Client) {
+  async execute(interaction, client) {
     await interaction.deferReply();
 
     try {
-      const queue = useQueue(interaction.guild?.id!);
+      const queue = useQueue();
       if (!queue)
         throw {
           name: "No Queue",
@@ -20,7 +16,7 @@ const command: CommandInterface = {
         };
 
       queue.node.setPaused(true);
-      interaction.deleteReply()
+      interaction.deleteReply();
     } catch (error: { name: string; message: string } | any) {
       interaction.editReply({
         content: null,
