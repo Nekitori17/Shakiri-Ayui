@@ -13,7 +13,7 @@ const event: DiscordEventInterface = async (
   const settings = await config.modules(newState.guild.id!);
   if (!settings.temporaryVoiceChannel?.enabled) return;
   const temporaryChannels = jsonStore(
-    path.join(__dirname, "../../../../database/temporaryVoiceChannels")
+    path.join(__dirname, "../../../../database/temporaryVoiceChannels.json")
   );
 
   if (

@@ -21,7 +21,7 @@ const execute: DiscordEventInterface = async (client: Client) => {
       status: "dnd",
     },
     {
-      name: "discord.gg/4WedYpqTXX",
+      name: "I'm the cutest bot",
       type: ActivityType.Watching,
       status: "idle",
     },
