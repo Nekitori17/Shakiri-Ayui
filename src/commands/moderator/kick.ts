@@ -1,24 +1,19 @@
+import config from "../../config";
 import {
   ApplicationCommandOptionType,
-  Client,
   GuildMemberRoleManager,
   PermissionFlagsBits,
   TextChannel,
 } from "discord.js";
-import { CommandInteraction } from "discord.js";
-import { CommandInterface } from "../../types/InteractionInterfaces";
 import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
+import { CommandInterface } from "../../types/InteractionInterfaces";
 import { ModerationEmbedBuilder } from "../../utils/moderationEmbedBuilder";
-import config from "../../config";
 
 const command: CommandInterface = {
-  async execute(interaction: CommandInteraction, client: Client) {
+  async execute(interaction, client) {
     await interaction.deferReply();
     const target = interaction.options.get("target")?.value as string;
-
-    const reason =
-      (interaction.options.get("reason")?.value as string) ||
-      "No reason provided";
+    const reason = interaction.options.get("reason")?.value as string;
 
     try {
       const targetUser = await interaction.guild?.members.fetch(target);
@@ -67,7 +62,7 @@ const command: CommandInterface = {
           ModerationEmbedBuilder.kick({
             target: targetUser,
             moderator: interaction.user,
-            reason: reason,
+            reason: reason || "No reason provided",
           }),
         ],
       });
@@ -95,7 +90,7 @@ const command: CommandInterface = {
             ModerationEmbedBuilder.kick({
               target: targetUser,
               moderator: interaction.user,
-              reason: reason,
+              reason: reason || "No reason provided",
             }),
           ],
         });

@@ -1,8 +1,8 @@
-import { Client, Message, TextChannel } from "discord.js";
-import { DiscordEventInterface } from "../../../types/EventInterfaces";
+import { Message, TextChannel } from "discord.js";
 import CountingGame from "../../../models/CountingGame";
+import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
-const event: DiscordEventInterface = async (client: Client, msg: Message) => {
+const event: DiscordEventInterface = async (client, msg: Message) => {
   if (msg.author.bot) return;
 
   try {

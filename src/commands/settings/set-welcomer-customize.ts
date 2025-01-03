@@ -1,19 +1,17 @@
+import config from "../../config";
 import {
-  CommandInteraction,
-  Client,
-  ModalBuilder,
-  TextInputBuilder,
-  TextInputStyle,
   ActionRowBuilder,
   AttachmentBuilder,
+  ModalBuilder,
   PermissionFlagsBits,
+  TextInputBuilder,
+  TextInputStyle,
 } from "discord.js";
-import { CommandInterface } from "../../types/InteractionInterfaces";
 import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
-import config from "../../config";
+import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
-  async execute(interaction: CommandInteraction, client: Client) {
+  async execute(interaction, client) {
     try {
       const settings = await config.modules(interaction.guildId!);
 

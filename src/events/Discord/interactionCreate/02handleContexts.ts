@@ -1,10 +1,10 @@
-import { Client, PermissionsBitField, TextChannel } from "discord.js";
-import { DiscordEventInterface } from "../../../types/EventInterfaces";
+import config from "../../../config";
+import { PermissionsBitField, TextChannel } from "discord.js";
 import getLocalContexts from "../../../utils/getLocalContexts";
 import CommonEmbedBuilder from "../../../utils/commonEmbedBuilder";
-import config from "../../../config";
+import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
-const event: DiscordEventInterface = (client: Client, interaction: any) => {
+const event: DiscordEventInterface = (client, interaction: any) => {
   if (!interaction.isContextMenuCommand()) return;
 
   const localContexts = getLocalContexts();

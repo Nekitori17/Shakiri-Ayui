@@ -1,15 +1,13 @@
 import {
   ApplicationCommandOptionType,
-  Client,
-  CommandInteraction,
   PermissionFlagsBits,
   TextChannel,
 } from "discord.js";
-import { CommandInterface } from "../../types/InteractionInterfaces";
 import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
+import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
-  async execute(interaction: CommandInteraction, client: Client) {
+  async execute(interaction, client) {
     await interaction.deferReply({ ephemeral: true });
     const amount = interaction.options.get("amount")?.value as number;
 
@@ -25,7 +23,7 @@ const command: CommandInterface = {
         interaction.channel as TextChannel
       ).bulkDelete(amount);
 
-      interaction.editReply(`> 🚮 Deleted ${deletedMessages.size} message.`)
+      interaction.editReply(`> 🚮 Deleted ${deletedMessages.size} message.`);
     } catch (error: { name: string; message: string } | any) {
       interaction.editReply({
         content: null,

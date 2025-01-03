@@ -1,20 +1,18 @@
 import path from "path";
 import {
   ActionRowBuilder,
-  Client,
-  CommandInteraction,
   ComponentType,
   EmbedBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from "discord.js";
-import { CommandInterface } from "../../types/InteractionInterfaces";
-import { commandCategories } from "../../data/commandCategories";
-import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
 import getAllFiles from "../../utils/getAllFiles";
+import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
+import { commandCategories } from "../../data/commandCategories";
+import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
-  async execute(interaction: CommandInteraction, client: Client) {
+  async execute(interaction, client) {
     await interaction.deferReply();
 
     try {

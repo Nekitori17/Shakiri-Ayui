@@ -1,8 +1,8 @@
-import { ActivityType, Client } from "discord.js";
-import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import config from "../../../config";
+import { ActivityType } from "discord.js";
+import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
-const execute: DiscordEventInterface = async (client: Client) => {
+const execute: DiscordEventInterface = async (client) => {
   interface statusObject {
     name: string;
     type: ActivityType;

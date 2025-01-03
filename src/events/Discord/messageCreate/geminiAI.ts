@@ -1,16 +1,13 @@
-import { Client, EmbedBuilder, Message } from "discord.js";
-import { DiscordEventInterface } from "../../../types/EventInterfaces";
-import config from "../../../config";
 import axios from "axios";
+import config from "../../../config";
+import { EmbedBuilder, Message } from "discord.js";
 import CommonEmbedBuilder from "../../../utils/commonEmbedBuilder";
+import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
-const event: DiscordEventInterface = async (
-  client: Client,
-  msg: Message
-) => {
+const event: DiscordEventInterface = async (client, msg: Message) => {
   if (msg.author.bot) return;
 
-  const settings = await config.modules(msg.guildId!)
+  const settings = await config.modules(msg.guildId!);
   if (!settings.geminiAI?.enabled) return;
   if (msg.channelId !== settings.geminiAI?.channelSet) return;
   if (msg.content.startsWith(settings.geminiAI?.ignorePrefix)) return;

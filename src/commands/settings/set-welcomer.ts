@@ -1,16 +1,14 @@
+import config from "../../config";
 import {
-  CommandInteraction,
-  Client,
   ApplicationCommandOptionType,
   AttachmentBuilder,
   PermissionFlagsBits,
 } from "discord.js";
-import { CommandInterface } from "../../types/InteractionInterfaces";
 import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
-import config from "../../config";
+import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
-  async execute(interaction: CommandInteraction, client: Client) {
+  async execute(interaction, client) {
     await interaction.deferReply();
     const enabled = interaction.options.get("enabled")?.value as boolean;
     const channelSend = interaction.options.get("channel")?.value as string;

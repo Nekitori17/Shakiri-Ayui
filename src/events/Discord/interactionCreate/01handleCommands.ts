@@ -1,17 +1,16 @@
+import config from "../../../config";
 import {
-  Client,
   CommandInteraction,
   GuildMember,
   PermissionsBitField,
   TextChannel,
 } from "discord.js";
-import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import getLocalCommands from "../../../utils/getLocalCommands";
 import CommonEmbedBuilder from "../../../utils/commonEmbedBuilder";
-import config from "../../../config";
+import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
 const event: DiscordEventInterface = async (
-  client: Client,
+  client,
   interaction: CommandInteraction
 ) => {
   if (!interaction.isChatInputCommand()) return;

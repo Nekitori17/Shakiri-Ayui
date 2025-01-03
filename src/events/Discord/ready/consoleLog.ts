@@ -1,6 +1,6 @@
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
-const execute: DiscordEventInterface = (client: any, c: any): void => {
+const execute: DiscordEventInterface = (client, c): void => {
   console.log(`✅ OK! | Logged in as ${c.user.tag}!`);
 };
 

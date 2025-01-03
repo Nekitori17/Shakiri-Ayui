@@ -1,11 +1,8 @@
 import config from "../../../config";
+import { GuildMember, TextChannel } from "discord.js";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
-import { Client, GuildMember, TextChannel } from "discord.js";
 
-const event: DiscordEventInterface = async (
-  client: Client,
-  member: GuildMember
-) => {
+const event: DiscordEventInterface = async (client, member: GuildMember) => {
   const settings = await config.modules(member.guild.id);
   if (!settings.welcomer?.enabled) return;
   if (!member.guild.channels.cache.has(settings.welcomer?.channelSend || ""))
@@ -33,8 +30,7 @@ const event: DiscordEventInterface = async (
 
   if (channelSend) {
     const welcomeMessage = replacer(
-      settings.welcomer?.customMessage ||
-        "> Welcome {user} to __{guild}__."
+      settings.welcomer?.customMessage || "> Welcome {user} to __{guild}__."
     );
 
     await (channelSend as TextChannel).send(welcomeMessage);

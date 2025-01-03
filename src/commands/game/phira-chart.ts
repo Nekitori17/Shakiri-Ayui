@@ -1,20 +1,18 @@
-import {
-  Client,
-  ApplicationCommandOptionType,
-  CommandInteraction,
-  EmbedBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ActionRowBuilder,
-} from "discord.js";
 import axios from "axios";
+import {
+  ActionRowBuilder,
+  ApplicationCommandOptionType,
+  ButtonStyle,
+  ButtonBuilder,
+  EmbedBuilder,
+} from "discord.js";
+import mediaConverter from "../../utils/mediaConverter";
+import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 import { ButtonComponentInterface } from "../../types/ActionComponentInterfaces";
-import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
-import mediaConverter from "../../utils/mediaConverter";
 
 const command: CommandInterface = {
-  async execute(interaction: CommandInteraction, client: Client) {
+  async execute(interaction, client) {
     await interaction.deferReply();
     const idChart = interaction.options.get("id")?.value as number;
 

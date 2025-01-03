@@ -1,12 +1,12 @@
-import { ChannelType, Client, VoiceState } from "discord.js";
-import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import path from "path";
-import jsonStore from "json-store-typed";
-import UserSettings from "../../../models/UserSettings";
 import config from "../../../config";
+import jsonStore from "json-store-typed";
+import { ChannelType, VoiceState } from "discord.js";
+import UserSettings from "../../../models/UserSettings";
+import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
 const event: DiscordEventInterface = async (
-  client: Client,
+  client,
   oldState: VoiceState,
   newState: VoiceState
 ) => {

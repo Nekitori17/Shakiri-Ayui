@@ -1,14 +1,14 @@
-import { Client, Message, TextChannel, time } from "discord.js";
-import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import config from "../../../config";
+import { Message, TextChannel } from "discord.js";
 import CountingGame from "../../../models/CountingGame";
+import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
 const isNumeric = (str: string) => {
   const num = parseFloat(str);
   return !isNaN(num) && isFinite(num);
 };
 
-const event: DiscordEventInterface = async (client: Client, msg: Message) => {
+const event: DiscordEventInterface = async (client, msg: Message) => {
   if (msg.author.bot) return;
   if (!isNumeric(msg.content)) return;
   

@@ -1,15 +1,10 @@
-import {
-  ApplicationCommandOptionType,
-  Client,
-  CommandInteraction,
-  PermissionFlagsBits,
-} from "discord.js";
-import { CommandInterface } from "../../types/InteractionInterfaces";
-import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
 import config from "../../config";
+import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
+import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
+import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
-  async execute(interaction: CommandInteraction, client: Client) {
+  async execute(interaction, client) {
     await interaction.deferReply();
     const enabled = interaction.options.get("enabled")?.value as boolean;
     const ignorePrefix = interaction.options.get("ignorePrefix")

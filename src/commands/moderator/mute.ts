@@ -1,27 +1,23 @@
+import ms from "ms";
+import config from "../../config";
+import prettyMs from "pretty-ms";
 import {
   ApplicationCommandOptionType,
-  Client,
-  CommandInteraction,
   GuildMemberRoleManager,
   PermissionFlagsBits,
   TextChannel,
 } from "discord.js";
-import { CommandInterface } from "../../types/InteractionInterfaces";
 import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
+import { CommandInterface } from "../../types/InteractionInterfaces";
 import { ModerationEmbedBuilder } from "../../utils/moderationEmbedBuilder";
-import humanizeDuration from "humanize-duration";
-import config from "../../config";
-import ms from "ms";
 
 const command: CommandInterface = {
-  async execute(interaction: CommandInteraction, client: Client) {
+  async execute(interaction, client) {
     await interaction.deferReply();
     const target = interaction.options.get("target")?.value as string;
     const duration =
       (interaction.options.get("duration")?.value as string) || "1h";
-    const reason =
-      (interaction.options.get("reason")?.value as string) ||
-      "No reason provided";
+    const reason = interaction.options.get("reason")?.value as string;
 
     try {
       const msDuration = ms(duration);
@@ -30,10 +26,7 @@ const command: CommandInterface = {
           name: "Invalid Duration",
           message: "Please provide a valid duration",
         };
-      const strDuration = humanizeDuration(msDuration, {
-        round: true,
-        delimiter: " ",
-      });
+      const strDuration = prettyMs(msDuration);
 
       const targetUser = await interaction.guild?.members.fetch(target);
 
@@ -82,7 +75,7 @@ const command: CommandInterface = {
           ModerationEmbedBuilder.mute({
             moderator: interaction.user,
             target: targetUser,
-            reason: reason,
+            reason: reason || "No reason provided",
             duration: strDuration,
             update: userIsMuted,
           }),
@@ -112,7 +105,7 @@ const command: CommandInterface = {
             ModerationEmbedBuilder.mute({
               target: targetUser,
               moderator: interaction.user,
-              reason: reason,
+              reason: reason || "No reason provided",
               duration: strDuration,
               update: userIsMuted,
             }),

@@ -1,26 +1,24 @@
-import {
-  ApplicationCommandOptionType,
-  Client,
-  CommandInteraction,
-} from "discord.js";
-import { CommandInterface } from "./../../types/InteractionInterfaces";
-import { translateLanguages } from "../../data/translateLanguages";
+import { ApplicationCommandOptionType } from "discord.js";
 import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
 import UserSettings from "../../models/UserSettings";
+import { translateLanguages } from "../../data/translateLanguages";
+import { CommandInterface } from "./../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
-  async execute(interaction: CommandInteraction, client: Client) {
+  async execute(interaction, client) {
     await interaction.deferReply();
-    const language = interaction.options.get("lang")?.value as keyof typeof translateLanguages;
+    const language = interaction.options.get("lang")
+      ?.value as keyof typeof translateLanguages;
 
     try {
-      if (!Object.keys(translateLanguages).includes(language)) throw {
-        name: "Language Not Found",
-        message: "Please enter a valid language (Ex: en, vi, ja,...)",
-      }
+      if (!Object.keys(translateLanguages).includes(language))
+        throw {
+          name: "Language Not Found",
+          message: "Please enter a valid language (Ex: en, vi, ja,...)",
+        };
 
       const data = await UserSettings.findOne({
-        userId: interaction.user.id
+        userId: interaction.user.id,
       });
 
       if (data) {
@@ -37,8 +35,8 @@ const command: CommandInterface = {
       }
 
       interaction.editReply(
-          `> <:update:1309527728999104622> You have set your translate language to \`${translateLanguages[language]}\``
-        );
+        `> <:update:1309527728999104622> You have set your translate language to \`${translateLanguages[language]}\``
+      );
     } catch (error: { name: string; message: string } | any) {
       interaction.editReply({
         content: null,

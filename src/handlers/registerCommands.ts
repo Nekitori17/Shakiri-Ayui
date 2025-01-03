@@ -1,8 +1,8 @@
 import {
+  ApplicationCommandOptionType,
+  ApplicationCommandType,
   REST,
   Routes,
-  ApplicationCommandType,
-  ApplicationCommandOptionType,
 } from "discord.js";
 import getLocalCommands from "../utils/getLocalCommands";
 import getLocalContexts from "../utils/getLocalContexts";

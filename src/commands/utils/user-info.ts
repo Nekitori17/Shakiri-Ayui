@@ -1,13 +1,8 @@
-import {
-  ApplicationCommandOptionType,
-  Client,
-  CommandInteraction,
-  EmbedBuilder,
-} from "discord.js";
+import { ApplicationCommandOptionType, EmbedBuilder } from "discord.js";
 import { CommandInterface } from "./../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
-  async execute(interaction: CommandInteraction, client: Client) {
+  async execute(interaction, client) {
     await interaction.deferReply();
     const user = interaction.options.get("user")?.value as string;
     const userObject = await interaction.guild?.members.fetch(
