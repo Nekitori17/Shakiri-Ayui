@@ -56,8 +56,8 @@ const command: CommandInterface = {
               .join("\n")
           )
           .setFooter({
-            text: interaction.guild?.name || "",
-            iconURL: interaction.guild?.iconURL() || "",
+            text: interaction.guild?.name || client.user?.displayName!,
+              iconURL: interaction.guild?.iconURL() || client.user?.displayAvatarURL(),
           })
           .setTimestamp()
           .setColor("Aqua");
@@ -86,8 +86,8 @@ const command: CommandInterface = {
                 "\n"
             )
             .setFooter({
-              text: interaction.guild?.name || "",
-              iconURL: interaction.guild?.iconURL() || "",
+              text: interaction.guild?.name || client.user?.displayName!,
+              iconURL: interaction.guild?.iconURL() || client.user?.displayAvatarURL(),
             })
             .setTimestamp()
             .setColor("Aqua"),
@@ -105,7 +105,7 @@ const command: CommandInterface = {
       collector.on("collect", async (inter) => {
         if (!inter.values.length) return;
 
-        await reply.edit({
+        await interaction.editReply({
           embeds: [commandListEmbed(inter.values[0])],
         });
         inter.deferUpdate();

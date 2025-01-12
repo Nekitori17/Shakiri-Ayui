@@ -129,6 +129,7 @@ const command: CommandInterface = {
   name: "phira-chart",
   description: "Fetch chart information from API to download",
   deleted: false,
+  canUseInDm: true,
   options: [
     {
       name: "id",

@@ -14,6 +14,7 @@ const command: CommandInterface = {
   name: "error",
   description: "Test error",
   deleted: false,
+  canUseInDm: true,
 };
 
 export default command;
