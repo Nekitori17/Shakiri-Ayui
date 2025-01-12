@@ -54,7 +54,7 @@ const command: CommandInterface = {
             .setColor("#00a2ff"),
         ]
       })
-    } catch (error: { name: string; message: string } | any) {
+    } catch (error) {
       sendError(interaction, error);
     }
   },

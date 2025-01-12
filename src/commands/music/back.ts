@@ -26,7 +26,7 @@ const command: CommandInterface = {
             .setColor("#73ff00"),
         ],
       });
-    } catch (error: { name: string; message: string } | any) {
+    } catch (error) {
       sendError(interaction, error)
     }
   },

@@ -7,7 +7,7 @@ const command: CommandInterface = {
 
     try {
       throw new Error("Test error");
-    } catch (error: { name: string; message: string } | any) {
+    } catch (error) {
       sendError(interaction, error);
     }
   },

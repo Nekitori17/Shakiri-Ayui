@@ -151,7 +151,7 @@ const command: CommandInterface = {
         .catch((e) => {
           throw e;
         });
-    } catch (error: { name: string; message: string } | any) {
+    } catch (error) {
       sendError(interaction, error);
     }
   },

@@ -39,7 +39,7 @@ const context: ContextInterface = {
         });
 
       interaction.editReply(translated.result);
-    } catch (error: { name: string; message: string } | any) {
+    } catch (error) {
       sendError(interaction, error);
     }
   },

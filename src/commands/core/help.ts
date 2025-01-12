@@ -110,7 +110,7 @@ const command: CommandInterface = {
         });
         inter.deferUpdate();
       });
-    } catch (error: { name: string; message: string } | any) {
+    } catch (error) {
       sendError(interaction, error)
     }
   },

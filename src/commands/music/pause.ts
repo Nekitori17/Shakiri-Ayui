@@ -17,7 +17,7 @@ const command: CommandInterface = {
 
       queue.node.setPaused(true);
       interaction.deleteReply();
-    } catch (error: { name: string; message: string } | any) {
+    } catch (error) {
       sendError(interaction, error);
     }
   },

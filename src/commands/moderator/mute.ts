@@ -108,7 +108,7 @@ const command: CommandInterface = {
           ],
         });
       }
-    } catch (error: { name: string; message: string } | any) {
+    } catch (error) {
       sendError(interaction, error);
     }
   },

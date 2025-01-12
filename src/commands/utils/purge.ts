@@ -24,7 +24,7 @@ const command: CommandInterface = {
       ).bulkDelete(amount);
 
       interaction.editReply(`> 🚮 Deleted ${deletedMessages.size} message.`);
-    } catch (error: { name: string; message: string } | any) {
+    } catch (error) {
       sendError(interaction, error);
     }
   },

@@ -79,7 +79,7 @@ const command: CommandInterface = {
         ],
         files: [attachment],
       });
-    } catch (error: { name: string; message: string } | any) {
+    } catch (error) {
       sendError(interaction, error);
     }
   },

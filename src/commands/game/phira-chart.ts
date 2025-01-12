@@ -122,7 +122,7 @@ const command: CommandInterface = {
         components: [row as any],
         files: [illustration!],
       });
-    } catch (error: { name: string; message: string } | any) {
+    } catch (error) {
       sendError(interaction, error)
     }
   },

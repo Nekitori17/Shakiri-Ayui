@@ -38,7 +38,7 @@ const command: CommandInterface = {
       interaction.editReply(
         `> <:update:1309527728999104622> You have set your translate language to \`${translateLanguages[language]}\``
       );
-    } catch (error: { name: string; message: string } | any) {
+    } catch (error) {
       sendError(interaction, error);
     }
   },
