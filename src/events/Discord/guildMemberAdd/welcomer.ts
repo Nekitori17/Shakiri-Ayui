@@ -30,7 +30,7 @@ const event: DiscordEventInterface = async (client, member: GuildMember) => {
 
   if (channelSend) {
     const welcomeMessage = replacer(
-      settings.welcomer?.customMessage || "> Welcome {user} to __{guild}__."
+      settings.welcomer.message || "> Welcome {user} to __{guild}__."
     );
 
     await (channelSend as TextChannel).send(welcomeMessage);

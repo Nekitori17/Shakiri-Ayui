@@ -3,7 +3,7 @@ import {
   ApplicationCommandType,
   MessageContextMenuCommandInteraction,
 } from "discord.js";
-import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
+import { sendError } from "../../utils/sendError";
 import UserSettings from "../../models/UserSettings";
 import { ContextInterface } from "../../types/InteractionInterfaces";
 
@@ -40,18 +40,7 @@ const context: ContextInterface = {
 
       interaction.editReply(translated.result);
     } catch (error: { name: string; message: string } | any) {
-      interaction.editReply({
-        content: null,
-        components: undefined,
-        files: undefined,
-        attachments: undefined,
-        embeds: [
-          CommonEmbedBuilder.error({
-            title: error.name,
-            description: error.message,
-          }),
-        ],
-      });
+      sendError(interaction, error);
     }
   },
   name: "Translate the message",

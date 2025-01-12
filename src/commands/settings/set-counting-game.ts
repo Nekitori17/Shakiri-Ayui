@@ -1,5 +1,6 @@
 import config from "../../config";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
+import { sendError } from "../../utils/sendError";
 import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -37,18 +38,7 @@ const command: CommandInterface = {
         ],
       });
     } catch (error: { name: string; message: string } | any) {
-      interaction.editReply({
-        content: null,
-        components: undefined,
-        files: undefined,
-        attachments: undefined,
-        embeds: [
-          CommonEmbedBuilder.error({
-            title: error.name,
-            description: error.message,
-          }),
-        ],
-      });
+      sendError(interaction, error)
     }
   },
   name: "set-counting-game",

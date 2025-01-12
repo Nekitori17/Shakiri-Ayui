@@ -3,7 +3,7 @@ import {
   PermissionFlagsBits,
 } from "discord.js";
 import { useQueue, TrackSource } from "discord-player";
-import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
+import { sendError } from "../../utils/sendError";
 import { repeatModeNames } from "../../data/musicRepeatModes";
 import { musicSourceIcons } from "../../data/musicSourceIcons";
 import { CommandInterface } from "../../types/InteractionInterfaces";
@@ -55,18 +55,7 @@ const command: CommandInterface = {
         ]
       })
     } catch (error: { name: string; message: string } | any) {
-      interaction.editReply({
-        content: null,
-        components: undefined,
-        files: undefined,
-        attachments: undefined,
-        embeds: [
-          CommonEmbedBuilder.error({
-            title: error.name,
-            description: error.message,
-          }),
-        ],
-      });
+      sendError(interaction, error);
     }
   },
   name: "nowplaying",

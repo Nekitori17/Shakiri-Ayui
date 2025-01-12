@@ -7,7 +7,7 @@ import {
   EmbedBuilder,
 } from "discord.js";
 import mediaConverter from "../../utils/mediaConverter";
-import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
+import { sendError } from "../../utils/sendError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 import { ButtonComponentInterface } from "../../types/ActionComponentInterfaces";
 
@@ -123,18 +123,7 @@ const command: CommandInterface = {
         files: [illustration!],
       });
     } catch (error: { name: string; message: string } | any) {
-      interaction.editReply({
-        content: null,
-        components: undefined,
-        files: undefined,
-        attachments: undefined,
-        embeds: [
-          CommonEmbedBuilder.error({
-            title: error.name,
-            description: error.message,
-          }),
-        ],
-      });
+      sendError(interaction, error)
     }
   },
   name: "phira-chart",

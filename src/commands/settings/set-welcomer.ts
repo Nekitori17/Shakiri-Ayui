@@ -4,6 +4,7 @@ import {
   AttachmentBuilder,
   PermissionFlagsBits,
 } from "discord.js";
+import { sendError } from "../../utils/sendError";
 import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -20,19 +21,19 @@ const command: CommandInterface = {
       if (reset) {
         settings.welcomer = {
           enabled: false,
-          channelSend: null,
-          customMessage: null,
-          backgroundImage: null,
-          imageTitle: null,
-          imageBody: null,
-          imageFooter: null,
+          channelSend: undefined,
+          message: "> Welcome {user} to __{guild}__.",
+          backgroundImage: "https://i.ibb.co/BnCqSH0/banner.jpg",
+          imageTitle: "{user_display}",
+          imageBody: "Welcome to {guild}",
+          imageFooter: "Member #{member_count}",
         };
       }
 
       settings.welcomer = {
         enabled,
         channelSend: channelSend || settings.welcomer?.channelSend,
-        customMessage: settings.welcomer?.customMessage,
+        message: settings.welcomer?.message,
         backgroundImage: settings.welcomer?.backgroundImage,
         imageTitle: settings.welcomer?.imageTitle,
         imageBody: settings.welcomer?.imageBody,
@@ -44,7 +45,7 @@ const command: CommandInterface = {
       const advancedSettingsTxt =
         ">> Custom Message <<" +
         "\n" +
-        settings.welcomer.customMessage +
+        settings.welcomer.message +
         "\n" +
         ">> Image Title <<" +
         "\n" +
@@ -79,18 +80,7 @@ const command: CommandInterface = {
         files: [attachment],
       });
     } catch (error: { name: string; message: string } | any) {
-      interaction.editReply({
-        content: null,
-        components: undefined,
-        files: undefined,
-        attachments: undefined,
-        embeds: [
-          CommonEmbedBuilder.error({
-            title: error.name,
-            description: error.message,
-          }),
-        ],
-      });
+      sendError(interaction, error);
     }
   },
   name: "set-welcomer",

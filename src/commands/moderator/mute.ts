@@ -7,7 +7,7 @@ import {
   PermissionFlagsBits,
   TextChannel,
 } from "discord.js";
-import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
+import { sendError } from "../../utils/sendError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 import { ModerationEmbedBuilder } from "../../utils/moderationEmbedBuilder";
 
@@ -113,18 +113,7 @@ const command: CommandInterface = {
         });
       }
     } catch (error: { name: string; message: string } | any) {
-      interaction.editReply({
-        content: null,
-        components: undefined,
-        files: undefined,
-        attachments: undefined,
-        embeds: [
-          CommonEmbedBuilder.error({
-            title: error.name,
-            description: error.message,
-          }),
-        ],
-      });
+      sendError(interaction, error)
     }
   },
   name: "mute",

@@ -1,4 +1,5 @@
 import { ApplicationCommandOptionType } from "discord.js";
+import { sendError } from "../../utils/sendError";
 import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
 import UserSettings from "../../models/UserSettings";
 import { translateLanguages } from "../../data/translateLanguages";
@@ -38,18 +39,7 @@ const command: CommandInterface = {
         `> <:update:1309527728999104622> You have set your translate language to \`${translateLanguages[language]}\``
       );
     } catch (error: { name: string; message: string } | any) {
-      interaction.editReply({
-        content: null,
-        components: undefined,
-        files: undefined,
-        attachments: undefined,
-        embeds: [
-          CommonEmbedBuilder.error({
-            title: error.name,
-            description: error.message,
-          }),
-        ],
-      });
+      sendError(interaction, error);
     }
   },
   name: "translate-set",

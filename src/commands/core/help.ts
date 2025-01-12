@@ -7,7 +7,7 @@ import {
   StringSelectMenuOptionBuilder,
 } from "discord.js";
 import getAllFiles from "../../utils/getAllFiles";
-import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
+import { sendError } from "../../utils/sendError";
 import { commandCategories } from "../../data/commandCategories";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -111,18 +111,7 @@ const command: CommandInterface = {
         inter.deferUpdate();
       });
     } catch (error: { name: string; message: string } | any) {
-      interaction.editReply({
-        content: null,
-        components: undefined,
-        files: undefined,
-        attachments: undefined,
-        embeds: [
-          CommonEmbedBuilder.error({
-            title: error.name,
-            description: error.message,
-          }),
-        ],
-      });
+      sendError(interaction, error)
     }
   },
   name: "help",

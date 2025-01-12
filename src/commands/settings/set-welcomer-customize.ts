@@ -7,6 +7,7 @@ import {
   TextInputBuilder,
   TextInputStyle,
 } from "discord.js";
+import { sendError } from "../../utils/sendError";
 import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -27,7 +28,7 @@ const command: CommandInterface = {
           )
           .setRequired(false)
           .setValue(
-            settings.welcomer?.customMessage ||
+            settings.welcomer?.message ||
               "> Welcome {user} to __{guild}__."
           ),
         new TextInputBuilder()
@@ -96,9 +97,9 @@ const command: CommandInterface = {
           settings.welcomer = {
             enabled: settings.welcomer?.enabled!,
             channelSend: settings.welcomer?.channelSend,
-            customMessage:
+            message:
               modalInteraction.fields.getTextInputValue("welcome-message") ||
-              settings.welcomer?.customMessage,
+              settings.welcomer?.message,
             backgroundImage:
               modalInteraction.fields.getTextInputValue("image-background") ||
               settings.welcomer?.backgroundImage,
@@ -118,7 +119,7 @@ const command: CommandInterface = {
           const advancedSettingsTxt =
             ">> Custom Message <<" +
             "\n" +
-            settings.welcomer.customMessage +
+            settings.welcomer.message +
             "\n" +
             ">> Image Title <<" +
             "\n" +
@@ -157,16 +158,7 @@ const command: CommandInterface = {
           throw e;
         });
     } catch (error: { name: string; message: string } | any) {
-      interaction.followUp({
-        components: undefined,
-        files: undefined,
-        embeds: [
-          CommonEmbedBuilder.error({
-            title: error.name,
-            description: error.message,
-          }),
-        ],
-      });
+      sendError(interaction, error)
     }
   },
   name: "set-welcomer-customize",
