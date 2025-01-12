@@ -15,7 +15,7 @@ const command: CommandInterface = {
 
       settings.moderator = {
         logging: logging,
-        loggingChannel: loggingChannel || settings.moderator?.loggingChannel,
+        loggingChannel: loggingChannel || settings.moderator.loggingChannel,
       };
       await settings.save();
 
@@ -24,10 +24,10 @@ const command: CommandInterface = {
           CommonEmbedBuilder.success({
             title: `Updated **Moderator Logging** module settings`,
             description: `**Logging**: \`${
-              settings.moderator?.logging
+              settings.moderator.logging
             }\`, **Channel Logging**: ${
-              settings.moderator?.loggingChannel
-                ? `<#${settings.moderator?.loggingChannel}>`
+              settings.moderator.loggingChannel
+                ? `<#${settings.moderator.loggingChannel}>`
                 : "`None`"
             }`,
           }),

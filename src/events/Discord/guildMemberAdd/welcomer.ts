@@ -4,12 +4,12 @@ import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
 const event: DiscordEventInterface = async (client, member: GuildMember) => {
   const settings = await config.modules(member.guild.id);
-  if (!settings.welcomer?.enabled) return;
-  if (!member.guild.channels.cache.has(settings.welcomer?.channelSend || ""))
-    return;
+  if (!settings.welcomer.enabled) return;
   const channelSend = member.guild.channels.cache.get(
-    settings.welcomer?.channelSend || ""
+    settings.welcomer.channelSend || ""
   );
+
+  if (!channelSend) return;
 
   function replacer(content: string) {
     const result = content
@@ -36,18 +36,10 @@ const event: DiscordEventInterface = async (client, member: GuildMember) => {
     await (channelSend as TextChannel).send(welcomeMessage);
 
     const imageData: ImageDataInterface = {
-      background:
-        settings.welcomer?.backgroundImage ||
-        "https://i.ibb.co/BnCqSH0/banner.jpg",
-      title: encodeURIComponent(
-        replacer(settings.welcomer.imageTitle || "{user_display}")
-      ),
-      body: encodeURIComponent(
-        replacer(settings.welcomer.imageBody || `Welcome to {guild}`)
-      ),
-      footer: encodeURIComponent(
-        replacer(settings.welcomer.imageFooter || `Member #{member_count}`)
-      ),
+      background: settings.welcomer.backgroundImage,
+      title: encodeURIComponent(replacer(settings.welcomer.imageTitle)),
+      body: encodeURIComponent(replacer(settings.welcomer.imageBody)),
+      footer: encodeURIComponent(replacer(settings.welcomer.imageFooter)),
       avatar: member.displayAvatarURL({
         extension: "png",
         forceStatic: true,

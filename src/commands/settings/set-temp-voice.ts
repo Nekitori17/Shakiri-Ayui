@@ -16,9 +16,9 @@ const command: CommandInterface = {
 
       settings.temporaryVoiceChannel = {
         enabled,
-        channelSet: channelSet || settings.temporaryVoiceChannel?.channelSet,
-        nameChannelSyntax: settings.temporaryVoiceChannel?.nameChannelSyntax!,
-        categorySet: categorySet || settings.temporaryVoiceChannel?.categorySet,
+        channelSet: channelSet || settings.temporaryVoiceChannel.channelSet,
+        nameChannelSyntax: settings.temporaryVoiceChannel.nameChannelSyntax!,
+        categorySet: categorySet || settings.temporaryVoiceChannel.categorySet,
       };
 
       await settings.save();
@@ -28,14 +28,14 @@ const command: CommandInterface = {
           CommonEmbedBuilder.success({
             title: `Updated **Temporary Voice Channel** settings`,
             description: `**Enabled**: \`${
-              settings.temporaryVoiceChannel?.enabled
+              settings.temporaryVoiceChannel.enabled
             }\`, **Channel Set**: ${
-              settings.temporaryVoiceChannel?.channelSet
-                ? `<#${settings.temporaryVoiceChannel?.channelSet}>`
+              settings.temporaryVoiceChannel.channelSet
+                ? `<#${settings.temporaryVoiceChannel.channelSet}>`
                 : "`None`"
             }, **Category Set**: ${
-              settings.temporaryVoiceChannel?.categorySet
-                ? `<#${settings.temporaryVoiceChannel?.categorySet}>`
+              settings.temporaryVoiceChannel.categorySet
+                ? `<#${settings.temporaryVoiceChannel.categorySet}>`
                 : "`None`"
             }`,
           }),

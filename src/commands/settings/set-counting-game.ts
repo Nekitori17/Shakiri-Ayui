@@ -17,8 +17,8 @@ const command: CommandInterface = {
 
       settings.countingGame = {
         enabled,
-        channelSet: channelSet || settings.countingGame?.channelSet,
-        startNumber: startNumber || settings.countingGame?.startNumber!,
+        channelSet: channelSet || settings.countingGame.channelSet,
+        startNumber: startNumber || settings.countingGame.startNumber,
       };
 
       await settings.save();
@@ -28,17 +28,17 @@ const command: CommandInterface = {
           CommonEmbedBuilder.success({
             title: `Updated **Counting Game** module settings`,
             description: `**Enabled**: \`${
-              settings.countingGame?.enabled
+              settings.countingGame.enabled
             }\`, **Channel Set**: ${
-              settings.countingGame?.channelSet
-                ? `<#${settings.countingGame?.channelSet}>`
+              settings.countingGame.channelSet
+                ? `<#${settings.countingGame.channelSet}>`
                 : "`None`"
-            }, **Start Number**: \`${settings.countingGame?.startNumber}\``,
+            }, **Start Number**: \`${settings.countingGame.startNumber}\``,
           }),
         ],
       });
     } catch (error: { name: string; message: string } | any) {
-      sendError(interaction, error)
+      sendError(interaction, error);
     }
   },
   name: "set-counting-game",

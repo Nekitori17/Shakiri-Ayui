@@ -41,11 +41,11 @@ const command: CommandInterface = {
             metadata: {
               channel: interaction.channel,
             },
-            volume: settings.music?.volume,
-            leaveOnEmpty: settings.music?.leaveOnEmpty,
-            leaveOnEmptyCooldown: settings.music?.leaveOnEmptyCooldown,
-            leaveOnEnd: settings.music?.leaveOnEnd,
-            leaveOnEndCooldown: settings.music?.leaveOnEndCooldown,
+            volume: settings.music.volume,
+            leaveOnEmpty: settings.music.leaveOnEmpty,
+            leaveOnEmptyCooldown: settings.music.leaveOnEmptyCooldown,
+            leaveOnEnd: settings.music.leaveOnEnd,
+            leaveOnEndCooldown: settings.music.leaveOnEndCooldown,
           },
         }
       );

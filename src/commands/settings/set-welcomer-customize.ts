@@ -27,10 +27,7 @@ const command: CommandInterface = {
               "Variables: {user}, {user_display}, {member_count}, {guild}"
           )
           .setRequired(false)
-          .setValue(
-            settings.welcomer?.message ||
-              "> Welcome {user} to __{guild}__."
-          ),
+          .setValue(settings.welcomer.message),
         new TextInputBuilder()
           .setCustomId("image-title")
           .setLabel("Image Title")
@@ -41,7 +38,7 @@ const command: CommandInterface = {
               "Variables: {user}, {user_display}, {member_count}, {guild}"
           )
           .setRequired(false)
-          .setValue(settings.welcomer?.imageTitle || "{user}"),
+          .setValue(settings.welcomer.imageTitle),
         new TextInputBuilder()
           .setCustomId("image-body")
           .setLabel("Image Body")
@@ -52,7 +49,7 @@ const command: CommandInterface = {
               "Variables: {user}, {user_display}, {member_count}, {guild}"
           )
           .setRequired(false)
-          .setValue(settings.welcomer?.imageBody || "Welcome to {guild}"),
+          .setValue(settings.welcomer.imageBody),
         new TextInputBuilder()
           .setCustomId("image-footer")
           .setLabel("Image Footer")
@@ -63,17 +60,14 @@ const command: CommandInterface = {
               "Variables: {user}, {user_display}, {member_count}, {guild}"
           )
           .setRequired(false)
-          .setValue(settings.welcomer?.imageFooter || "Member #{member_count}"),
+          .setValue(settings.welcomer.imageFooter),
         new TextInputBuilder()
           .setCustomId("image-background")
           .setLabel("Image Background")
           .setStyle(TextInputStyle.Short)
           .setPlaceholder("Enter your image background url here")
           .setRequired(false)
-          .setValue(
-            settings.welcomer?.backgroundImage ||
-              "https://i.ibb.co/BnCqSH0/banner.jpg"
-          ),
+          .setValue(settings.welcomer.backgroundImage),
       ];
 
       const actionRowComponents = modalComponents.map((modalComponent) =>
@@ -95,23 +89,23 @@ const command: CommandInterface = {
         .then(async (modalInteraction) => {
           await modalInteraction.deferReply();
           settings.welcomer = {
-            enabled: settings.welcomer?.enabled!,
-            channelSend: settings.welcomer?.channelSend,
+            enabled: settings.welcomer.enabled!,
+            channelSend: settings.welcomer.channelSend,
             message:
               modalInteraction.fields.getTextInputValue("welcome-message") ||
-              settings.welcomer?.message,
+              settings.welcomer.message,
             backgroundImage:
               modalInteraction.fields.getTextInputValue("image-background") ||
-              settings.welcomer?.backgroundImage,
+              settings.welcomer.backgroundImage,
             imageTitle:
               modalInteraction.fields.getTextInputValue("image-title") ||
-              settings.welcomer?.imageTitle,
+              settings.welcomer.imageTitle,
             imageBody:
               modalInteraction.fields.getTextInputValue("image-body") ||
-              settings.welcomer?.imageBody,
+              settings.welcomer.imageBody,
             imageFooter:
               modalInteraction.fields.getTextInputValue("image-footer") ||
-              settings.welcomer?.imageFooter,
+              settings.welcomer.imageFooter,
           };
 
           await settings.save();
@@ -158,7 +152,7 @@ const command: CommandInterface = {
           throw e;
         });
     } catch (error: { name: string; message: string } | any) {
-      sendError(interaction, error)
+      sendError(interaction, error);
     }
   },
   name: "set-welcomer-customize",

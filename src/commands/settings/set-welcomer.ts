@@ -32,12 +32,12 @@ const command: CommandInterface = {
 
       settings.welcomer = {
         enabled,
-        channelSend: channelSend || settings.welcomer?.channelSend,
-        message: settings.welcomer?.message,
-        backgroundImage: settings.welcomer?.backgroundImage,
-        imageTitle: settings.welcomer?.imageTitle,
-        imageBody: settings.welcomer?.imageBody,
-        imageFooter: settings.welcomer?.imageFooter,
+        channelSend: channelSend || settings.welcomer.channelSend,
+        message: settings.welcomer.message,
+        backgroundImage: settings.welcomer.backgroundImage,
+        imageTitle: settings.welcomer.imageTitle,
+        imageBody: settings.welcomer.imageBody,
+        imageFooter: settings.welcomer.imageFooter,
       };
 
       await settings.save();

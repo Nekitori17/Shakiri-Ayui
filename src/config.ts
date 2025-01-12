@@ -9,6 +9,7 @@ export default {
       {
         upsert: true,
         new: true,
+        setDefaultsOnInsert: true,
       }
     );
   },

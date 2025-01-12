@@ -8,9 +8,9 @@ const event: DiscordEventInterface = async (client, msg: Message) => {
   if (msg.author.bot) return;
 
   const settings = await config.modules(msg.guildId!);
-  if (!settings.geminiAI?.enabled) return;
-  if (msg.channelId !== settings.geminiAI?.channelSet) return;
-  if (msg.content.startsWith(settings.geminiAI?.ignorePrefix)) return;
+  if (!settings.geminiAI.enabled) return;
+  if (msg.channelId !== settings.geminiAI.channelSet) return;
+  if (msg.content.startsWith(settings.geminiAI.ignorePrefix)) return;
 
   const sent = await msg.reply("> 💭 Ayui is thinking...");
 

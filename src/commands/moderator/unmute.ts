@@ -73,15 +73,11 @@ const command: CommandInterface = {
       });
 
       const settings = await config.modules(interaction.guildId!);
-      if (settings.moderator?.logging) {
-        if (
-          !interaction.guild?.channels.cache.has(
-            settings.moderator?.loggingChannel || ""
-          )
-        )
-          return;
+      if (settings.moderator.logging) {
+        if (!settings.moderator.loggingChannel) return;
+
         const logChannel = interaction.guild?.channels.cache.get(
-          settings.moderator?.loggingChannel || ""
+          settings.moderator.loggingChannel
         ) as TextChannel;
 
         if (!logChannel)

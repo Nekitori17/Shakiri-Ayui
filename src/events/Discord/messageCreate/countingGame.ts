@@ -13,8 +13,8 @@ const event: DiscordEventInterface = async (client, msg: Message) => {
   if (!isNumeric(msg.content)) return;
   
   const settings = await config.modules(msg.guildId!)
-  if (!settings.countingGame?.enabled) return;
-  if (msg.channelId != settings.countingGame?.channelSet) return;
+  if (!settings.countingGame.enabled) return;
+  if (msg.channelId != settings.countingGame.channelSet) return;
 
   try {
     const data = await CountingGame.findOne({

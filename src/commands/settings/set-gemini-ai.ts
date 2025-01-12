@@ -17,8 +17,8 @@ const command: CommandInterface = {
 
       settings.geminiAI = {
         enabled,
-        ignorePrefix: ignorePrefix || settings.geminiAI?.ignorePrefix!,
-        channelSet: channelSet || settings.geminiAI?.channelSet,
+        ignorePrefix: ignorePrefix || settings.geminiAI.ignorePrefix,
+        channelSet: channelSet || settings.geminiAI.channelSet,
       };
       await settings.save();
 
@@ -27,19 +27,19 @@ const command: CommandInterface = {
           CommonEmbedBuilder.success({
             title: `Updated **Gemini Ai** module settings`,
             description: `**Enabled**: \`${
-              settings.geminiAI?.enabled
+              settings.geminiAI.enabled
             }\`, **Ignore Prefix**: \`${
-              settings.geminiAI?.ignorePrefix
+              settings.geminiAI.ignorePrefix
             }\`, **Channel Set**: ${
-              settings.geminiAI?.channelSet
-                ? `<#${settings.geminiAI?.channelSet}>`
+              settings.geminiAI.channelSet
+                ? `<#${settings.geminiAI.channelSet}>`
                 : "`None`"
             }`,
           }),
         ],
       });
     } catch (error: { name: string; message: string } | any) {
-      sendError(interaction, error)
+      sendError(interaction, error);
     }
   },
   name: "set-gemini-ai",
