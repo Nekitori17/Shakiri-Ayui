@@ -7,7 +7,7 @@ import {
 } from "discord.js";
 import { QueryType, TrackSource, useMainPlayer } from "discord-player";
 import { sendError } from "../../utils/sendError";
-import { musicSourceIcons } from "../../data/musicSourceIcons";
+import { musicSourceIcons } from "../../constants/musicSourceIcons";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {

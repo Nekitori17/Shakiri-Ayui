@@ -1,8 +1,7 @@
 import { ApplicationCommandOptionType } from "discord.js";
 import { sendError } from "../../utils/sendError";
-import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
 import UserSettings from "../../models/UserSettings";
-import { translateLanguages } from "../../data/translateLanguages";
+import { translateLanguages } from "../../constants/translateLanguages";
 import { CommandInterface } from "./../../types/InteractionInterfaces";
 
 const command: CommandInterface = {

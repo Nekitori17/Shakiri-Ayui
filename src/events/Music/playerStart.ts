@@ -1,7 +1,7 @@
 import { EmbedBuilder, TextChannel } from "discord.js";
 import { TrackSource } from "discord-player";
-import { repeatModeNames } from "../../data/musicRepeatModes";
-import { musicSourceIcons } from "../../data/musicSourceIcons";
+import { repeatModeNames } from "../../constants/musicRepeatModes";
+import { musicSourceIcons } from "../../constants/musicSourceIcons";
 import { MusicEventInterface } from "../../types/EventInterfaces";
 
 const event: MusicEventInterface = (player) => {

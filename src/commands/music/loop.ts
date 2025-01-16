@@ -5,7 +5,7 @@ import {
 } from "discord.js";
 import { useQueue, QueueRepeatMode } from "discord-player";
 import { sendError } from "../../utils/sendError";
-import { repeatModeNames } from "../../data/musicRepeatModes";
+import { repeatModeNames } from "../../constants/musicRepeatModes";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {

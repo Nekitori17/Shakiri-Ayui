@@ -8,7 +8,7 @@ import {
 } from "discord.js";
 import getAllFiles from "../../utils/getAllFiles";
 import { sendError } from "../../utils/sendError";
-import { commandCategories } from "../../data/commandCategories";
+import { commandCategories } from "../../constants/commandCategories";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {

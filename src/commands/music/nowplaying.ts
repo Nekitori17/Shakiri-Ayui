@@ -4,8 +4,8 @@ import {
 } from "discord.js";
 import { useQueue, TrackSource } from "discord-player";
 import { sendError } from "../../utils/sendError";
-import { repeatModeNames } from "../../data/musicRepeatModes";
-import { musicSourceIcons } from "../../data/musicSourceIcons";
+import { repeatModeNames } from "../../constants/musicRepeatModes";
+import { musicSourceIcons } from "../../constants/musicSourceIcons";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
