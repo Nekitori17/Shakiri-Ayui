@@ -9,7 +9,6 @@ import {
 import mediaConverter from "../../helpers/mediaConverter";
 import { sendError } from "../../utils/sendError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
-import { ButtonComponentInterface } from "../../types/ActionComponentInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
@@ -82,37 +81,23 @@ const command: CommandInterface = {
         })
         .setTimestamp();
 
-      const buttons: ButtonComponentInterface[] = [
-        {
-          label: "Download",
-          style: ButtonStyle.Link,
-          emoji: "📥",
-          url: (chartInfo.file as string).replace(
-            "api.phira.cn/files",
-            "files-cf.phira.cn"
-          ),
-        },
-        {
-          label: "Beatmap",
-          style: ButtonStyle.Link,
-          emoji: "🗺️",
-          url: `https://phira.moe/chart/${chartInfo.id}`,
-        },
-        {
-          label: "Uploader",
-          style: ButtonStyle.Link,
-          emoji: "👤",
-          url: `https://phira.moe/user/${uploaderInfo.id}`,
-        },
-      ];
-
-      const buttonRow = buttons.map((button) =>
+      const buttonRow = [
         new ButtonBuilder()
-          .setLabel(button.label as string)
-          .setEmoji(button.emoji as string)
-          .setStyle(button.style as ButtonStyle)
-          .setURL(button.url as string)
-      );
+          .setLabel("Download")
+          .setEmoji("📥")
+          .setStyle(ButtonStyle.Link)
+          .setURL((chartInfo.file as string).replace("api.phira.cn/files", "files-cf.phira.cn")),
+        new ButtonBuilder()
+          .setLabel("Beatmap")
+          .setEmoji("🗺️")
+          .setStyle(ButtonStyle.Link)
+          .setURL(`https://phira.moe/chart/${chartInfo.id}`),
+        new ButtonBuilder()
+          .setLabel("Uploader")
+          .setEmoji("👤")
+          .setStyle(ButtonStyle.Link)
+          .setURL(`https://phira.moe/user/${uploaderInfo.id}`),
+      ]
 
       const row = new ActionRowBuilder().addComponents(buttonRow);
 
