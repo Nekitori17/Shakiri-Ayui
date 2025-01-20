@@ -20,7 +20,7 @@ const command: CommandInterface = {
     const reason = interaction.options.get("reason")?.value as string;
 
     try {
-      const msDuration = ms(duration);
+      const msDuration = ms(duration as ms.StringValue);
       if (!msDuration)
         throw {
           name: "Invalid Duration",
