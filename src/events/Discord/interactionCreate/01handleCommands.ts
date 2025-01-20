@@ -82,9 +82,13 @@ const event: DiscordEventInterface = async (
 
     commandObject.execute(interaction, client);
   } catch (error: { name: string; message: string } | any) {
-    console.log(`\x1b[31m\x1b[1m|> ${error.name} (Command Interaction)\x1b[0m`);
-    console.log(`\x1b[32m${error.message}\x1b[0m`);
-    console.log(error);
+    if (error instanceof Error) {
+      console.log(
+        `\x1b[31m\x1b[1m|> ${error.name} (Command Interaction)\x1b[0m`
+      );
+      console.log(`\x1b[32m${error.message}\x1b[0m`);
+      console.log(error);
+    }
 
     (interaction.channel as TextChannel)?.send({
       embeds: [
