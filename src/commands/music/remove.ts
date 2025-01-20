@@ -13,7 +13,7 @@ const command: CommandInterface = {
     const index = interaction.options.get("index")?.value as number;
 
     try {
-      const queue = useQueue();
+      const queue = useQueue(interaction.guildId!);
       if (!queue)
         throw {
           name: "No Queue",
@@ -32,7 +32,7 @@ const command: CommandInterface = {
         ],
       });
     } catch (error) {
-      sendError(interaction, error)
+      sendError(interaction, error);
     }
   },
   name: "remove",

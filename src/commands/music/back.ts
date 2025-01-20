@@ -8,7 +8,7 @@ const command: CommandInterface = {
     await interaction.deferReply();
 
     try {
-      const history = useHistory();
+      const history = useHistory(interaction.guildId!);
       if (!history)
         throw {
           name: "No Queue",

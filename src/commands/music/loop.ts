@@ -17,7 +17,7 @@ const command: CommandInterface = {
       repeatModeNames[repeatMode as keyof typeof repeatModeNames];
 
     try {
-      const queue = useQueue(interaction.guild?.id!);
+      const queue = useQueue(interaction.guildId!);
       if (!queue)
         throw {
           name: "No Queue",

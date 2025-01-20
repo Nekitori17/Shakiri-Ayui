@@ -13,7 +13,7 @@ const command: CommandInterface = {
     const level = interaction.options.get("level")?.value as number;
 
     try {
-      const queue = useQueue();
+      const queue = useQueue(interaction.guildId!);
       if (!queue)
         throw {
           name: "No Queue",

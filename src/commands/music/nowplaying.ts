@@ -13,7 +13,7 @@ const command: CommandInterface = {
     await interaction.deferReply();
 
     try {
-      const queue = useQueue(interaction.guild?.id!);
+      const queue = useQueue(interaction.guildId!);
       if (!queue || !queue.isPlaying())
         throw {
           name: "No song playing",
