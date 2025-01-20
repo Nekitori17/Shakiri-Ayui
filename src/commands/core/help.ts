@@ -6,7 +6,7 @@ import {
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from "discord.js";
-import getAllFiles from "../../utils/getAllFiles";
+import getAllFiles from "../../helpers/getAllFiles";
 import { sendError } from "../../utils/sendError";
 import { commandCategories } from "../../constants/commandCategories";
 import { CommandInterface } from "../../types/InteractionInterfaces";

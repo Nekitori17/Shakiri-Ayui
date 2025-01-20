@@ -6,7 +6,7 @@ import {
   ButtonBuilder,
   EmbedBuilder,
 } from "discord.js";
-import mediaConverter from "../../utils/mediaConverter";
+import mediaConverter from "../../helpers/mediaConverter";
 import { sendError } from "../../utils/sendError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 import { ButtonComponentInterface } from "../../types/ActionComponentInterfaces";

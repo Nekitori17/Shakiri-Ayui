@@ -1,5 +1,5 @@
 import path from "path";
-import getAllFiles from "./getAllFiles";
+import getAllFiles from "../helpers/getAllFiles";
 import { CommandInterface } from "../types/InteractionInterfaces";
 
 export default (exception: string[] = []) => {

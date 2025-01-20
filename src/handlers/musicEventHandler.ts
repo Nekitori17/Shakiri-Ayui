@@ -1,5 +1,5 @@
 import path from "path";
-import getAllFiles from "../utils/getAllFiles";
+import getAllFiles from "../helpers/getAllFiles";
 import { Client } from "discord.js";
 import { Player } from "discord-player";
 import { MusicEventInterface } from "../types/EventInterfaces";

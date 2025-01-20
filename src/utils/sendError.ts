@@ -1,7 +1,9 @@
 import {
   AttachmentBuilder,
+  ButtonInteraction,
   CommandInteraction,
   MessageContextMenuCommandInteraction,
+  StringSelectMenuInteraction,
   UserContextMenuCommandInteraction,
 } from "discord.js";
 import CommonEmbedBuilder from "./commonEmbedBuilder";
@@ -10,22 +12,28 @@ export const sendError = (
   interaction:
     | CommandInteraction
     | MessageContextMenuCommandInteraction
-    | UserContextMenuCommandInteraction,
-  error: { name: string; message: string } & Error
+    | UserContextMenuCommandInteraction
+    | StringSelectMenuInteraction
+    | ButtonInteraction,
+  error: { name: string; message: string; stack: string; cause: string } | any
 ) => {
   const content =
-    "============Summary============" +
+    `# Error Name: ${error.name}` +
     "\n" +
-    `> Name: ${error.name}` +
+    `# Error Message: ${error.message}` +
     "\n" +
-    `> Message: ${error.message}` +
+    `# Time: ${new Date().toISOString()}` +
     "\n" +
-    "============Details============" +
+    `# Error at: ${error.stack}` +
+    "\n" +
+    `# Error Cause: ${error.cause}` +
+    "\n" +
+    "========================" +
     "\n" +
     error;
 
   const moreErrorInfo = new AttachmentBuilder(Buffer.from(content), {
-    name: `error-${Date()}_${(
+    name: `Error-${Date()}_${(
       process.hrtime.bigint() / 1000000n
     ).toString()}.log`,
   });
