@@ -17,23 +17,21 @@
   "repository": "git://github.com/Nekitori17/shakiri-ayui.git",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.3"
   },
   "dependencies": {
-    "@discord-player/extractor": "^7.0.0",
-    "@typegoose/typegoose": "^12.10.1",
-    "@types/ms": "^0.7.34",
+    "@discord-player/extractor": "^7.1.0",
+    "@types/ms": "^2.1.0",
     "axios": "^1.7.9",
-    "discord-player": "^7.0.0",
-    "discord-player-youtubei": "^1.3.7",
-    "discord.js": "^14.17.2",
+    "discord-player": "^7.1.0",
+    "discord-player-youtubei": "^1.4.1",
+    "discord.js": "^14.17.3",
     "dotenv": "^16.4.7",
     "ffmpeg-static": "^5.2.0",
     "json-store-typed": "^1.1.0",
-    "mongoose": "^8.9.3",
+    "mongoose": "^8.9.5",
     "ms": "^2.1.3",
     "pretty-ms": "^9.2.0",
-    "reflect-metadata": "^0.2.2",
     "sharp": "^0.33.5"
   }
 }
