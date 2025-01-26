@@ -3,7 +3,7 @@ import {
   ApplicationCommandType,
   MessageContextMenuCommandInteraction,
 } from "discord.js";
-import { sendError } from "../../utils/sendError";
+import sendError from "../../utils/sendError";
 import UserSettings from "../../models/UserSettings";
 import { ContextInterface } from "../../types/InteractionInterfaces";
 

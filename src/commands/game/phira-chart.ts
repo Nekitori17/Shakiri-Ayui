@@ -7,7 +7,7 @@ import {
   EmbedBuilder,
 } from "discord.js";
 import mediaConverter from "../../helpers/mediaConverter";
-import { sendError } from "../../utils/sendError";
+import sendError from "../../utils/sendError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {

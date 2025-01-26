@@ -3,7 +3,7 @@ import {
   PermissionFlagsBits,
   TextChannel,
 } from "discord.js";
-import { sendError } from "../../utils/sendError";
+import sendError from "../../utils/sendError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {

@@ -1,4 +1,4 @@
-import { sendError } from "../../utils/sendError";
+import sendError from "../../utils/sendError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {

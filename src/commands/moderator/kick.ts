@@ -6,7 +6,7 @@ import {
   PermissionFlagsBits,
   TextChannel,
 } from "discord.js";
-import { sendError } from "../../utils/sendError";
+import sendError from "../../utils/sendError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 import { ModerationEmbedBuilder } from "../../utils/moderationEmbedBuilder";
 

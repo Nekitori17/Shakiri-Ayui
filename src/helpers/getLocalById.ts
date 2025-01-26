@@ -1,13 +1,15 @@
+import fs from "fs";
+
 export default <T>(path: string, customId: string) => {
-  console.log(customId)
   const category = parserPart(customId.split("_")[0]);
   const action = parserPart(customId.split("_")[1]);
+  const localPath = `${path}/${category}/${action}`;
+  if (!fs.existsSync(localPath)) return;
 
-  return require(`${path}/${category}/${action}`).default as T;
+  return require(path).default as T;
 };
 
 function parserPart(str: string): string {
-  console.log(str)
   if (!str.includes("-")) return str;
 
   const parts = str.split("-");

@@ -8,7 +8,7 @@ import {
 } from "discord.js";
 import CommonEmbedBuilder from "./commonEmbedBuilder";
 
-export const sendError = (
+export default async(
   interaction:
     | CommandInteraction
     | MessageContextMenuCommandInteraction
@@ -17,7 +17,7 @@ export const sendError = (
     | ButtonInteraction,
   error: { name: string; message: string; stack: string; cause: string } | any
 ) => {
-  if (!interaction.replied && !interaction.deferred) interaction.deferReply();
+  if (!interaction.replied && !interaction.deferred) await interaction.deferReply();
 
   const content =
     `# Error Name: ${error.name}` +

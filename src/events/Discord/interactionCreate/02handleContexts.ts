@@ -2,19 +2,19 @@ import config from "../../../config";
 import path from "path";
 import { PermissionsBitField } from "discord.js";
 import getLocal from "../../../helpers/getLocal";
-import { sendError } from "../../../utils/sendError";
+import sendError from "../../../utils/sendError";
 import CommonEmbedBuilder from "../../../utils/commonEmbedBuilder";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import { ContextInterface } from "../../../types/InteractionInterfaces";
 
 const event: DiscordEventInterface = (client, interaction: any) => {
   if (!interaction.isContextMenuCommand()) return;
-
-  const localContexts = getLocal<ContextInterface>(
-    path.join(__dirname, "../../../contexts")
-  );
-
+  
   try {
+    const localContexts = getLocal<ContextInterface>(
+      path.join(__dirname, "../../../contexts")
+    );
+    
     const contextObject = localContexts.find(
       (command) => command.name === interaction.commandName
     );

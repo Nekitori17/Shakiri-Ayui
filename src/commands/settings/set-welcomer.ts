@@ -4,7 +4,7 @@ import {
   AttachmentBuilder,
   PermissionFlagsBits,
 } from "discord.js";
-import { sendError } from "../../utils/sendError";
+import sendError from "../../utils/sendError";
 import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
