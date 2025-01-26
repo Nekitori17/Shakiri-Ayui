@@ -1,9 +1,11 @@
 import {
   ApplicationCommandOptionType,
   ApplicationCommandType,
+  ButtonInteraction,
   Client,
   CommandInteraction,
   MessageContextMenuCommandInteraction,
+  StringSelectMenuInteraction,
   UserContextMenuCommandInteraction,
 } from "discord.js";
 
@@ -42,6 +44,24 @@ export interface ContextInterface {
   deleted: boolean;
   cooldown?: number;
   canUseInDm?: boolean;
+  botPermissions?: bigint[];
+  permissionsRequired?: bigint[];
+}
+
+export interface ButtonInterface {
+  execute: (interaction: ButtonInteraction, client: Client) => void;
+  disabled: boolean;
+  cooldown?: number;
+  voiceChannel?: boolean;
+  botPermissions?: bigint[];
+  permissionsRequired?: bigint[];
+}
+
+export interface SelectMenuInterface {
+  execute: (interaction: StringSelectMenuInteraction, client: Client) => void;
+  disabled: boolean;
+  cooldown?: number;
+  voiceChannel?: boolean;
   botPermissions?: bigint[];
   permissionsRequired?: bigint[];
 }
