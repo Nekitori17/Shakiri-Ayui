@@ -68,7 +68,7 @@ const command: CommandInterface = {
           new EmbedBuilder()
             .setAuthor({
               iconURL: targetUser.user.displayAvatarURL(),
-              name: `${targetUser.user.username} has been unmuted`,
+              name: `||🥶|| **${targetUser.user.displayName}** has been unmuted`,
             })
             .setDescription(`**Reason**: ${reason || "No reason provided"}`)
             .setColor("Green"),

@@ -63,7 +63,7 @@ const command: CommandInterface = {
           new EmbedBuilder()
             .setAuthor({
               iconURL: targetUser.user.displayAvatarURL(),
-              name: `${targetUser.user.username} has been banned`,
+              name: `||🔨|| **${targetUser.user.displayName}** has been banned`,
             })
             .setDescription(`**Reason**: ${reason || "No reason provided"}`)
             .setColor("Red"),
