@@ -1,6 +1,7 @@
 import config from "../../config";
 import {
   ApplicationCommandOptionType,
+  EmbedBuilder,
   GuildMemberRoleManager,
   PermissionFlagsBits,
   TextChannel,
@@ -61,14 +62,16 @@ const command: CommandInterface = {
         };
 
       await targetUser.timeout(null, reason);
+
       await interaction.editReply({
         embeds: [
-          ModerationEmbedBuilder.un({
-            action: "Unmute",
-            moderator: interaction.user,
-            reason: reason || "No reason provided",
-            target: targetUser,
-          }),
+          new EmbedBuilder()
+            .setAuthor({
+              iconURL: targetUser.user.displayAvatarURL(),
+              name: `${targetUser.user.username} has been unmuted`,
+            })
+            .setDescription(`**Reason**: ${reason || "No reason provided"}`)
+            .setColor("Green"),
         ],
       });
 
@@ -98,7 +101,7 @@ const command: CommandInterface = {
         });
       }
     } catch (error) {
-      sendError(interaction, error)
+      sendError(interaction, error);
     }
   },
   name: "unmute",

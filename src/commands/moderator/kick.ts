@@ -1,6 +1,7 @@
 import config from "../../config";
 import {
   ApplicationCommandOptionType,
+  EmbedBuilder,
   GuildMemberRoleManager,
   PermissionFlagsBits,
   TextChannel,
@@ -59,11 +60,13 @@ const command: CommandInterface = {
 
       await interaction.editReply({
         embeds: [
-          ModerationEmbedBuilder.kick({
-            target: targetUser,
-            moderator: interaction.user,
-            reason: reason || "No reason provided",
-          }),
+          new EmbedBuilder()
+            .setAuthor({
+              iconURL: targetUser.user.displayAvatarURL(),
+              name: `${targetUser.user.username} has been kicked`,
+            })
+            .setDescription(`**Reason**: ${reason || "No reason provided"}`)
+            .setColor("Orange"),
         ],
       });
 

@@ -3,6 +3,7 @@ import config from "../../config";
 import prettyMs from "pretty-ms";
 import {
   ApplicationCommandOptionType,
+  EmbedBuilder,
   GuildMemberRoleManager,
   PermissionFlagsBits,
   TextChannel,
@@ -70,15 +71,16 @@ const command: CommandInterface = {
       const userIsMuted = targetUser.isCommunicationDisabled();
 
       await targetUser.timeout(msDuration, reason);
+
       await interaction.editReply({
         embeds: [
-          ModerationEmbedBuilder.mute({
-            moderator: interaction.user,
-            target: targetUser,
-            reason: reason || "No reason provided",
-            duration: strDuration,
-            update: userIsMuted,
-          }),
+          new EmbedBuilder()
+            .setAuthor({
+              iconURL: targetUser.user.displayAvatarURL(),
+              name: `${targetUser.user.username} has been muted about ${strDuration}`,
+            })
+            .setDescription(`**Reason**: ${reason || "No reason provided"}`)
+            .setColor("Yellow"),
         ],
       });
 
