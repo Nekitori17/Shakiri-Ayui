@@ -1,13 +1,18 @@
 import config from "../../../config";
-import { PermissionsBitField, TextChannel } from "discord.js";
-import getLocalContexts from "../../../utils/getLocalContexts";
+import path from "path";
+import { PermissionsBitField } from "discord.js";
+import getLocal from "../../../helpers/getLocal";
+import { sendError } from "../../../utils/sendError";
 import CommonEmbedBuilder from "../../../utils/commonEmbedBuilder";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
+import { ContextInterface } from "../../../types/InteractionInterfaces";
 
 const event: DiscordEventInterface = (client, interaction: any) => {
   if (!interaction.isContextMenuCommand()) return;
 
-  const localContexts = getLocalContexts();
+  const localContexts = getLocal<ContextInterface>(
+    path.join(__dirname, "../../../contexts")
+  );
 
   try {
     const contextObject = localContexts.find(
@@ -74,14 +79,7 @@ const event: DiscordEventInterface = (client, interaction: any) => {
       console.log(error);
     }
 
-    (interaction.channel as TextChannel)?.send({
-      embeds: [
-        CommonEmbedBuilder.error({
-          title: error.name,
-          description: error.message,
-        }),
-      ],
-    });
+    sendError(interaction, error);
   }
 };
 

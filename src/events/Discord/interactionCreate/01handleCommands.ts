@@ -1,13 +1,15 @@
 import config from "../../../config";
+import path from "path";
 import {
   CommandInteraction,
   GuildMember,
   PermissionsBitField,
-  TextChannel,
 } from "discord.js";
-import getLocalCommands from "../../../utils/getLocalCommands";
+import getLocal from "../../../helpers/getLocal";
+import { sendError } from "../../../utils/sendError";
 import CommonEmbedBuilder from "../../../utils/commonEmbedBuilder";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
+import { CommandInterface } from "../../../types/InteractionInterfaces";
 
 const event: DiscordEventInterface = async (
   client,
@@ -15,7 +17,9 @@ const event: DiscordEventInterface = async (
 ) => {
   if (!interaction.isChatInputCommand()) return;
 
-  const localCommands = getLocalCommands();
+  const localCommands = getLocal<CommandInterface>(
+    path.join(__dirname, "../../../commands")
+  );
 
   try {
     const commandObject = localCommands.find(
@@ -35,6 +39,14 @@ const event: DiscordEventInterface = async (
           ],
         });
       }
+
+    if (commandObject.voiceChannel) {
+      if (!(interaction.member as GuildMember).voice.channel)
+        throw {
+          name: "No Voice Channel",
+          message: "To use this command, you must be in a voice channel",
+        };
+    }
 
     commandObject.botPermissions?.push(...config.defaultPermissions);
     if (commandObject.botPermissions?.length) {
@@ -72,14 +84,6 @@ const event: DiscordEventInterface = async (
       }
     }
 
-    if (commandObject.voiceChannel) {
-      if (!(interaction.member as GuildMember).voice.channel)
-        throw {
-          name: "No Voice Channel",
-          message: "To use this command, you must be in a voice channel",
-        };
-    }
-
     commandObject.execute(interaction, client);
   } catch (error: { name: string; message: string } | any) {
     if (error instanceof Error) {
@@ -90,14 +94,7 @@ const event: DiscordEventInterface = async (
       console.log(error);
     }
 
-    (interaction.channel as TextChannel)?.send({
-      embeds: [
-        CommonEmbedBuilder.error({
-          title: error.name,
-          description: error.message,
-        }),
-      ],
-    });
+    sendError(interaction, error);
   }
 };
 
