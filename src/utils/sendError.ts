@@ -17,6 +17,8 @@ export const sendError = (
     | ButtonInteraction,
   error: { name: string; message: string; stack: string; cause: string } | any
 ) => {
+  if (!interaction.replied && !interaction.deferred) interaction.deferReply();
+
   const content =
     `# Error Name: ${error.name}` +
     "\n" +
