@@ -39,7 +39,6 @@ const command: CommandInterface = {
             .setDescription(
               `* Title: ${track.title}` + "\n" +
               `* Artist: ${track.author}` + "\n" +
-              `* Views: ${track.views.toLocaleString("vi-VN")}` + "\n" +
               `* Volume: ${queue.options.volume.toString()}` + "\n" +
               `* Loop: ${repeatModeNames[queue.options.repeatMode || 0]}` + "\n" +
               `* Shuffled: ${queue.isShuffling ? "On" : "Off"}` + "\n" +

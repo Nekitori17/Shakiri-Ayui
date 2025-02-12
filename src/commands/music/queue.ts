@@ -34,15 +34,15 @@ const command: CommandInterface = {
         const buttonsPage = new ActionRowBuilder<ButtonBuilder>({
           components: [
             new ButtonBuilder()
-              .setCustomId("musicQueuePagePrevious")
+              .setCustomId("music-queue-page-previous")
               .setEmoji("⬅️")
               .setStyle(ButtonStyle.Primary),
             new ButtonBuilder()
-              .setCustomId("musicQueuePageCurrent")
+              .setCustomId("music-queue-page-current")
               .setLabel(`${page + 1}/${maxPage}`)
               .setStyle(ButtonStyle.Secondary),
             new ButtonBuilder()
-              .setCustomId("musicQueuePageNext")
+              .setCustomId("music-queue-page-next")
               .setEmoji("➡️")
               .setStyle(ButtonStyle.Primary),
           ],
@@ -84,17 +84,17 @@ const command: CommandInterface = {
       });
 
       collector.on("collect", async (inter) => {
-        if (inter.customId === "musicQueuePagePrevious") {
+        if (inter.customId === "music-queue-page-previous") {
           if (currentPage === 0) return inter.deferUpdate();
           currentPage -= 1;
           reply.edit(createReply(currentPage));
           inter.deferUpdate();
         }
 
-        if (inter.customId == "musicQueuePageCurrent")
+        if (inter.customId == "music-queue-page-current")
           return inter.deferUpdate();
 
-        if (inter.customId === "musicQueuePageNext") {
+        if (inter.customId === "music-queue-page-next") {
           if (currentPage === maxPage - 1) return inter.deferUpdate();
           currentPage += 1;
           reply.edit(createReply(currentPage));

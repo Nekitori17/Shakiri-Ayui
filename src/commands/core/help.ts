@@ -28,7 +28,7 @@ const command: CommandInterface = {
       const selectMenu =
         new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
           new StringSelectMenuBuilder()
-            .setCustomId(interaction.id)
+            .setCustomId(`help-menu-${interaction.id}`)
             .setMaxValues(1)
             .setMinValues(1)
             .setPlaceholder("Select a category")
@@ -57,7 +57,8 @@ const command: CommandInterface = {
           )
           .setFooter({
             text: interaction.guild?.name || client.user?.displayName!,
-              iconURL: interaction.guild?.iconURL() || client.user?.displayAvatarURL(),
+            iconURL:
+              interaction.guild?.iconURL() || client.user?.displayAvatarURL(),
           })
           .setTimestamp()
           .setColor("Aqua");
@@ -87,7 +88,8 @@ const command: CommandInterface = {
             )
             .setFooter({
               text: interaction.guild?.name || client.user?.displayName!,
-              iconURL: interaction.guild?.iconURL() || client.user?.displayAvatarURL(),
+              iconURL:
+                interaction.guild?.iconURL() || client.user?.displayAvatarURL(),
             })
             .setTimestamp()
             .setColor("Aqua"),
@@ -98,7 +100,8 @@ const command: CommandInterface = {
       const collector = reply.createMessageComponentCollector({
         componentType: ComponentType.StringSelect,
         filter: (i) =>
-          i.user.id == interaction.user.id && i.customId == interaction.id,
+          i.user.id == interaction.user.id &&
+          i.customId == `help-menu-${interaction.id}`,
         time: 60_000,
       });
 
@@ -111,7 +114,7 @@ const command: CommandInterface = {
         inter.deferUpdate();
       });
     } catch (error) {
-      sendError(interaction, error)
+      sendError(interaction, error);
     }
   },
   name: "help",
