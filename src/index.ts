@@ -37,7 +37,7 @@ async function run(client: Client) {
     await player.extractors.register(YoutubeiExtractor, {
       streamOptions: {
         highWaterMark: 1 << 25,
-        useClient: "IOS"
+        useClient: "TV"
       }
     });
 
