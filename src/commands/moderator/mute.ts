@@ -77,7 +77,7 @@ const command: CommandInterface = {
           new EmbedBuilder()
             .setAuthor({
               iconURL: targetUser.user.displayAvatarURL(),
-              name: `||🤫|| **${targetUser.user.displayName}** has been muted about ${strDuration}`,
+              name: `|🤫| **${targetUser.user.displayName}** has been muted about ${strDuration}`,
             })
             .setDescription(`**Reason**: ${reason || "No reason provided"}`)
             .setColor("Yellow"),

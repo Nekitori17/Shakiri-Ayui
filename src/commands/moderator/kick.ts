@@ -63,7 +63,7 @@ const command: CommandInterface = {
           new EmbedBuilder()
             .setAuthor({
               iconURL: targetUser.user.displayAvatarURL(),
-              name: `||🛴|| **${targetUser.user.displayName}** has been kicked`,
+              name: `|🛴| **${targetUser.user.displayName}** has been kicked`,
             })
             .setDescription(`**Reason**: ${reason || "No reason provided"}`)
             .setColor("Orange"),
