@@ -4,7 +4,7 @@ import {
   PermissionFlagsBits,
 } from "discord.js";
 import { useQueue } from "discord-player";
-import sendError from "../../utils/sendError";
+import sendError from "../../helpers/sendError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {

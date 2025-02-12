@@ -11,10 +11,10 @@ import CommonEmbedBuilder from "./commonEmbedBuilder";
 export default async(
   interaction:
     | CommandInteraction
+    | ButtonInteraction
     | MessageContextMenuCommandInteraction
     | UserContextMenuCommandInteraction
-    | StringSelectMenuInteraction
-    | ButtonInteraction,
+    | StringSelectMenuInteraction,
   error: { name: string; message: string; stack: string; cause: string } | any
 ) => {
   if (!interaction.replied && !interaction.deferred) await interaction.deferReply();

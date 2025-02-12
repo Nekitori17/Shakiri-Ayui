@@ -2,8 +2,8 @@ import config from "../../../config";
 import path from "path";
 import { PermissionsBitField } from "discord.js";
 import getLocal from "../../../helpers/getLocal";
-import sendError from "../../../utils/sendError";
-import CommonEmbedBuilder from "../../../utils/commonEmbedBuilder";
+import sendError from "../../../helpers/sendError";
+import CommonEmbedBuilder from "../../../helpers/commonEmbedBuilder";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import { ContextInterface } from "../../../types/InteractionInterfaces";
 

@@ -1,5 +1,5 @@
 import { TextChannel } from "discord.js";
-import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
+import CommonEmbedBuilder from "../../helpers/commonEmbedBuilder";
 import { MusicEventInterface } from "../../types/EventInterfaces";
 
 const event: MusicEventInterface = (player) => {

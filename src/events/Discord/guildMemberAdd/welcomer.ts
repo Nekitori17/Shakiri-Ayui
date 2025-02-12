@@ -1,5 +1,5 @@
 import config from "../../../config";
-import { GuildMember, TextChannel } from "discord.js";
+import { GuildMember } from "discord.js";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
 const event: DiscordEventInterface = async (client, member: GuildMember) => {
@@ -10,6 +10,7 @@ const event: DiscordEventInterface = async (client, member: GuildMember) => {
   );
 
   if (!channelSend) return;
+  if (!channelSend.isSendable()) return;
 
   function replacer(content: string) {
     const result = content
@@ -28,27 +29,25 @@ const event: DiscordEventInterface = async (client, member: GuildMember) => {
     avatar: string;
   }
 
-  if (channelSend) {
-    const welcomeMessage = replacer(
-      settings.welcomer.message || "> Welcome {user} to __{guild}__."
-    );
+  const welcomeMessage = replacer(
+    settings.welcomer.message || "> Welcome {user} to __{guild}__."
+  );
 
-    await (channelSend as TextChannel).send(welcomeMessage);
+  const imageData: ImageDataInterface = {
+    background: settings.welcomer.backgroundImage,
+    title: encodeURIComponent(replacer(settings.welcomer.imageTitle)),
+    body: encodeURIComponent(replacer(settings.welcomer.imageBody)),
+    footer: encodeURIComponent(replacer(settings.welcomer.imageFooter)),
+    avatar: member.displayAvatarURL({
+      extension: "png",
+      forceStatic: true,
+    }),
+  };
 
-    const imageData: ImageDataInterface = {
-      background: settings.welcomer.backgroundImage,
-      title: encodeURIComponent(replacer(settings.welcomer.imageTitle)),
-      body: encodeURIComponent(replacer(settings.welcomer.imageBody)),
-      footer: encodeURIComponent(replacer(settings.welcomer.imageFooter)),
-      avatar: member.displayAvatarURL({
-        extension: "png",
-        forceStatic: true,
-      }),
-    };
+  const linkImage = `https://api.popcat.xyz/welcomecard?background=${imageData.background}&text1=${imageData.title}&text2=${imageData.body}&text3=${imageData.footer}&avatar=${imageData.avatar}`;
 
-    const linkImage = `https://api.popcat.xyz/welcomecard?background=${imageData.background}&text1=${imageData.title}&text2=${imageData.body}&text3=${imageData.footer}&avatar=${imageData.avatar}`;
-    (channelSend as TextChannel).send(linkImage);
-  }
+  await channelSend.send(welcomeMessage);
+  channelSend.send(linkImage);
 };
 
 export default event;

@@ -1,21 +1,27 @@
 import fs from "fs";
+import path from "path";
 
-export default <T>(path: string, customId: string) => {
-  const category = parserPart(customId.split("_")[0]);
-  const action = parserPart(customId.split("_")[1]);
-  const localPath = `${path}/${category}/${action}`;
-  if (!fs.existsSync(localPath)) return;
+export default <T>(filePath: string, category: string, actionId: string) => {
+  const categoryPath = path.join(filePath, toCamelCase(category));
+  if (!fs.existsSync(categoryPath)) return;
 
-  return require(path).default as T;
+  const actionList = fs.readdirSync(categoryPath);
+  if (
+    !actionList.find(
+      (action) => actionId == path.basename(action, path.extname(action))
+    )
+  )
+    return;
+
+  return require(path.join(categoryPath, actionId)).default as T;
 };
 
-function parserPart(str: string): string {
-  if (!str.includes("-")) return str;
+function toCamelCase(str: string) {
+  if (!str.includes("-") && !str.includes("_))")) return str.toLowerCase();
 
-  const parts = str.split("-");
-  const pascalCase = parts
-    .slice(1)
-    .map((part) => part[0].toUpperCase() + part.slice(1).toLowerCase())
-    .join("");
-  return parts[0].toLowerCase() + pascalCase;
+  return str
+    .toLowerCase()
+    .replace(/([-_][a-z])/g, (group) =>
+      group.toUpperCase().replace("-", "").replace("_", "")
+    );
 }

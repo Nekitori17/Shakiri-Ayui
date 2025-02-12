@@ -5,24 +5,29 @@ import {
   PermissionsBitField,
   StringSelectMenuInteraction,
 } from "discord.js";
-import sendError from "../../../utils/sendError";
+import sendError from "../../../helpers/sendError";
 import getLocalById from "../../../helpers/getLocalById";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
-const event: DiscordEventInterface = (
+const event: DiscordEventInterface = async (
   client,
   interaction: StringSelectMenuInteraction
 ) => {
   if (!interaction.isStringSelectMenu()) return;
+  if (!interaction.customId.startsWith("$")) return;
 
   try {
     const selectMenuObject = getLocalById<SelectMenuInterface>(
       path.join(__dirname, "../../../menus/selects"),
+      interaction.customId,
       interaction.values[0]
     );
 
     if (!selectMenuObject) return;
+    await interaction.message.edit({
+      components: interaction.message.components,
+    });
 
     if (selectMenuObject.voiceChannel) {
       if (!(interaction.member as GuildMember).voice.channel)

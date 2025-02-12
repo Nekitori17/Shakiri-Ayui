@@ -7,8 +7,8 @@ import {
   TextInputBuilder,
   TextInputStyle,
 } from "discord.js";
-import sendError from "../../utils/sendError";
-import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
+import sendError from "../../helpers/sendError";
+import CommonEmbedBuilder from "../../helpers/commonEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {

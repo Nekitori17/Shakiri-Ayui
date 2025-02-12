@@ -4,11 +4,10 @@ import {
   EmbedBuilder,
   GuildMemberRoleManager,
   PermissionFlagsBits,
-  TextChannel,
 } from "discord.js";
-import sendError from "../../utils/sendError";
+import sendError from "../../helpers/sendError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
-import { ModerationEmbedBuilder } from "../../utils/moderationEmbedBuilder";
+import { ModerationEmbedBuilder } from "../../helpers/moderationEmbedBuilder";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
@@ -81,7 +80,7 @@ const command: CommandInterface = {
 
         const logChannel = interaction.guild?.channels.cache.get(
           settings.moderator.loggingChannel
-        ) as TextChannel;
+        );
 
         if (!logChannel)
           throw {
@@ -89,6 +88,7 @@ const command: CommandInterface = {
             message: "The logging channel was not found",
           };
 
+        if (!logChannel.isSendable()) return;
         await logChannel.send({
           embeds: [
             ModerationEmbedBuilder.un({

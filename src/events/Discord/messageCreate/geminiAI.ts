@@ -1,7 +1,7 @@
 import axios from "axios";
 import config from "../../../config";
 import { EmbedBuilder, Message } from "discord.js";
-import CommonEmbedBuilder from "../../../utils/commonEmbedBuilder";
+import CommonEmbedBuilder from "../../../helpers/commonEmbedBuilder";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
 const event: DiscordEventInterface = async (client, msg: Message) => {

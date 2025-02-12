@@ -1,4 +1,4 @@
-import { Message, TextChannel } from "discord.js";
+import { Message } from "discord.js";
 import CountingGame from "../../../models/CountingGame";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
@@ -18,7 +18,7 @@ const event: DiscordEventInterface = async (client, msg: Message) => {
     }
   } catch (error: { name: string; message: string } | any) {
     await msg.delete();
-    (msg.channel as TextChannel).send(`> ${error.message}`);
+    if (msg.channel.isSendable()) msg.channel.send(`> ${error.message}`);
   }
 };
 

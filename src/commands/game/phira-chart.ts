@@ -7,7 +7,7 @@ import {
   EmbedBuilder,
 } from "discord.js";
 import mediaConverter from "../../helpers/mediaConverter";
-import sendError from "../../utils/sendError";
+import sendError from "../../helpers/sendError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -47,10 +47,7 @@ const command: CommandInterface = {
       await interaction.editReply("🔀 [3/3] | Converting some file..");
 
       const illustration = await mediaConverter({
-        url: (chartInfo.illustration as string).replace(
-          "api.phira.cn/files",
-          "files-cf.phira.cn"
-        ),
+        url: chartInfo.illustration as string,
         format: "png",
       });
 
@@ -86,7 +83,7 @@ const command: CommandInterface = {
           .setLabel("Download")
           .setEmoji("📥")
           .setStyle(ButtonStyle.Link)
-          .setURL((chartInfo.file as string).replace("api.phira.cn/files", "files-cf.phira.cn")),
+          .setURL(chartInfo.file as string),
         new ButtonBuilder()
           .setLabel("Beatmap")
           .setEmoji("🗺️")
@@ -97,7 +94,7 @@ const command: CommandInterface = {
           .setEmoji("👤")
           .setStyle(ButtonStyle.Link)
           .setURL(`https://phira.moe/user/${uploaderInfo.id}`),
-      ]
+      ];
 
       const row = new ActionRowBuilder().addComponents(buttonRow);
 
@@ -108,7 +105,7 @@ const command: CommandInterface = {
         files: [illustration!],
       });
     } catch (error) {
-      sendError(interaction, error)
+      sendError(interaction, error);
     }
   },
   name: "phira-chart",

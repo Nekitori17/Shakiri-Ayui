@@ -1,8 +1,8 @@
 import config from "../../config";
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
-import CommonEmbedBuilder from "../../utils/commonEmbedBuilder";
+import CommonEmbedBuilder from "../../helpers/commonEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
-import sendError from "../../utils/sendError";
+import sendError from "../../helpers/sendError";
 
 const command: CommandInterface = {
   async execute(interaction, client) {

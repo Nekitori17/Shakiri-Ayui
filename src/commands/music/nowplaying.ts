@@ -3,7 +3,7 @@ import {
   PermissionFlagsBits,
 } from "discord.js";
 import { useQueue, TrackSource } from "discord-player";
-import sendError from "../../utils/sendError";
+import sendError from "../../helpers/sendError";
 import { repeatModeNames } from "../../constants/musicRepeatModes";
 import { musicSourceIcons } from "../../constants/musicSourceIcons";
 import { CommandInterface } from "../../types/InteractionInterfaces";

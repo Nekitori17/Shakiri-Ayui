@@ -1,5 +1,5 @@
 import { ApplicationCommandOptionType } from "discord.js";
-import sendError from "../../utils/sendError";
+import sendError from "../../helpers/sendError";
 import UserSettings from "../../models/UserSettings";
 import { translateLanguages } from "../../constants/translateLanguages";
 import { CommandInterface } from "../../types/InteractionInterfaces";
