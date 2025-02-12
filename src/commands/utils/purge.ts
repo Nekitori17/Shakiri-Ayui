@@ -1,5 +1,6 @@
 import {
   ApplicationCommandOptionType,
+  MessageFlags,
   PermissionFlagsBits,
   TextChannel,
 } from "discord.js";
@@ -8,7 +9,7 @@ import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const amount = interaction.options.get("amount")?.value as number;
 
     try {

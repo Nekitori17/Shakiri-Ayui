@@ -2,6 +2,7 @@ import axios from "axios";
 import {
   ApplicationCommandType,
   MessageContextMenuCommandInteraction,
+  MessageFlags,
 } from "discord.js";
 import sendError from "../../utils/sendError";
 import UserSettings from "../../models/UserSettings";
@@ -9,7 +10,7 @@ import { ContextInterface } from "../../types/InteractionInterfaces";
 
 const context: ContextInterface = {
   async execute(interaction: MessageContextMenuCommandInteraction, client) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const targetMessage = interaction.targetMessage;
 
     try {
