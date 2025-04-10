@@ -1,12 +1,11 @@
 (require("dotenv") as { config: () => void }).config();
+import mongoose from "mongoose";
 import { Client, IntentsBitField } from "discord.js";
 import { Player } from "discord-player";
-import { DefaultExtractors } from "@discord-player/extractor";
-import { YoutubeiExtractor } from "discord-player-youtubei";
 import registerCommands from "./handlers/registerCommands";
-import discordEventHandler from "./handlers/discordEventHandler";
+import registerMusicExtractor from "./handlers/registerMusicExtractor";
 import musicEventHandler from "./handlers/musicEventHandler";
-import mongoose from "mongoose";
+import discordEventHandler from "./handlers/discordEventHandler";
 
 const client = new Client({
   intents: [
@@ -31,15 +30,8 @@ const player = new Player(client);
 
 async function run(client: Client) {
   try {
-    await registerCommands();
-
-    await player.extractors.loadMulti(DefaultExtractors);
-    await player.extractors.register(YoutubeiExtractor, {
-      streamOptions: {
-        highWaterMark: 1 << 25,
-        useClient: "TV"
-      }
-    });
+    registerCommands();
+    registerMusicExtractor(player);
 
     mongoose.set("strictQuery", false);
     await mongoose.connect(
@@ -53,7 +45,7 @@ async function run(client: Client) {
   } catch (error: { name: string; message: string } | any) {
     console.log(`\x1b[31m\x1b[1m=> ${error.name}\x1b[0m`);
     console.log(`\x1b[32m${error.message}\x1b[0m`);
-    console.log(error)
+    console.log(error);
   }
 }
 
