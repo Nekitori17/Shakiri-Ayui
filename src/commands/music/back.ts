@@ -11,7 +11,7 @@ const command: CommandInterface = {
       const history = useHistory(interaction.guildId!);
       if (!history)
         throw {
-          name: "No Queue",
+          name: "NoQueue",
           message: "There is no queue to play",
         };
 

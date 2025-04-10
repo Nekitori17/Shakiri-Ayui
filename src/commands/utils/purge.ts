@@ -15,7 +15,7 @@ const command: CommandInterface = {
     try {
       if (amount < 1 || amount > 100) {
         throw {
-          name: "Invalid Number",
+          name: "InvalidNumber",
           message: "Can't set the value less than 1 or greater than 100",
         };
       }

@@ -13,25 +13,25 @@ const command: CommandInterface = {
     try {
       if (!Object.keys(translateLanguages).includes(language))
         throw {
-          name: "Language Not Found",
+          name: "LanguageNotFound",
           message: "Please enter a valid language (Ex: en, vi, ja,...)",
         };
 
-      const data = await UserSettings.findOne({
+      const userSettings = await UserSettings.findOne({
         userId: interaction.user.id,
       });
 
-      if (data) {
-        data.messageTranslateLang = language;
+      if (userSettings) {
+        userSettings.messageTranslateLang = language;
 
-        await data.save();
+        await userSettings.save();
       } else {
-        const newData = new UserSettings({
+        const newUserSettings = new UserSettings({
           userId: interaction.user.id,
           messageTranslateLang: language,
         });
 
-        await newData.save();
+        await newUserSettings.save();
       }
 
       interaction.editReply(

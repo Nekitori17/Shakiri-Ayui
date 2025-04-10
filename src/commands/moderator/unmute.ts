@@ -19,26 +19,26 @@ const command: CommandInterface = {
       const targetUser = await interaction.guild?.members.fetch(target);
       if (!targetUser?.isCommunicationDisabled())
         throw {
-          name: "User is not muted",
+          name: "UserIsNotMuted",
           message: "This user is not muted",
         };
 
       if (!targetUser)
         throw {
-          name: "User Not Found",
+          name: "UserNotFound",
           message: "That user does not exist in this server",
         };
 
       if (targetUser.id === interaction.guild?.ownerId)
         throw {
-          name: "Owner is muted?",
+          name: "OwnerIsMuted?",
           message: "Nahhh. I don't think owner can be muted",
         };
 
       if (targetUser.id === interaction.guild?.members.me?.id)
         throw {
-          name: "Ohhh my god...",
-          message: "I just can't do that",
+          name: "OhhhMyGod...",
+          message: "I even can't do that",
         };
 
       const requestUserRolePosition = (
@@ -50,13 +50,13 @@ const command: CommandInterface = {
 
       if (targetUserRolePosition >= requestUserRolePosition)
         throw {
-          name: "Insufficient Permissions",
+          name: "InsufficientPermissions",
           message: "They have the same/higher role than you",
         };
 
       if (targetUserRolePosition >= botRolePosition!)
         throw {
-          name: "Insufficient Permissions",
+          name: "InsufficientPermissions",
           message: "They have the same/higher role than me",
         };
 
@@ -84,7 +84,7 @@ const command: CommandInterface = {
 
         if (!logChannel)
           throw {
-            name: "Channel Not Found",
+            name: "ChannelNotFound",
             message: "The logging channel was not found",
           };
 

@@ -30,7 +30,7 @@ export const commandCategories = Object.fromEntries(
       emoji: "⚙",
       description: "Commands to configure server settings"
     },
-    user_settings: {
+    userSettings: {
       label: "User Settings",
       emoji: "👤",
       description: "Commands to configure user settings"

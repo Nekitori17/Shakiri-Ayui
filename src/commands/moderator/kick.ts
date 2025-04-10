@@ -20,19 +20,19 @@ const command: CommandInterface = {
 
       if (!targetUser)
         throw {
-          name: "User Not Found",
+          name: "UserNotFound",
           message: "That user does not exist in this server",
         };
 
       if (targetUser.id === interaction.guild?.ownerId)
         throw {
-          name: "Can't Kick Owner",
+          name: "Can'tKickOwner",
           message: "Why you would want to kick the owner of this server 🤨",
         };
 
       if (targetUser.id === interaction.guild?.members.me?.id)
         throw {
-          name: "Can't kick Me",
+          name: "Can'tKickMe",
           message: "Why you would want to kick me 😭",
         };
 
@@ -45,13 +45,13 @@ const command: CommandInterface = {
 
       if (targetUserRolePosition >= requestUserRolePosition)
         throw {
-          name: "Insufficient Permissions",
+          name: "InsufficientPermissions",
           message: "They have the same/higher role than you",
         };
 
       if (targetUserRolePosition >= botRolePosition!)
         throw {
-          name: "Insufficient Permissions",
+          name: "InsufficientPermissions",
           message: "They have the same/higher role than me",
         };
 
@@ -79,7 +79,7 @@ const command: CommandInterface = {
 
         if (!logChannel)
           throw {
-            name: "Channel Not Found",
+            name: "ChannelNotFound",
             message: "The logging channel was not found",
           };
 

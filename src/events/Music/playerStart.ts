@@ -16,8 +16,6 @@ const event: MusicEventInterface = (player) => {
           .setDescription(
             `* Requested by ${track.requestedBy}` +
               "\n" +
-              `* Views: ${track.views.toLocaleString("vi-VN")}` +
-              "\n" +
               `* Volume: ${queue.options.volume.toString()}` +
               "\n" +
               `* Loop: ${repeatModeNames[queue.options.repeatMode || 0]}` +

@@ -11,7 +11,7 @@ const command: CommandInterface = {
       const queue = useQueue(interaction.guildId!);
       if (!queue)
         throw {
-          name: "No Queue",
+          name: "NoQueue",
           message: "There is no queue to stop",
         };
 

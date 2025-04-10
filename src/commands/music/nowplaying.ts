@@ -16,7 +16,7 @@ const command: CommandInterface = {
       const queue = useQueue(interaction.guildId!);
       if (!queue || !queue.isPlaying())
         throw {
-          name: "No song playing",
+          name: "NoSongPlaying",
           message: "There is no song playing",
         };
 

@@ -1,16 +1,17 @@
-import { model, Schema } from "mongoose";
+import { model, Schema, InferSchemaType } from "mongoose";
 
-const UserSettings = new Schema({
+const userSettingsSchema = new Schema({
   userId: { type: String, required: true },
   messageTranslateLang: String,
   temporaryVoiceChannel: {
-    type: new Schema({
-      channelName: String,
-      limitUser: Number,
-      blockedUsers: [String],
-    }),
+    type: {
+      channelName: { type: String, default: null },
+      limitUser: { type: Number, default: 0 },
+      blockedUsers: { type: [String], default: [] },
+    },
     default: {},
   },
 });
 
-export default model("UserSettings", UserSettings);
+type UserSettingsType = InferSchemaType<typeof userSettingsSchema>;
+export default model<UserSettingsType>("UserSettings", userSettingsSchema);

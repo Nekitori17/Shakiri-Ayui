@@ -23,7 +23,7 @@ const command: CommandInterface = {
     try {
       if (!result.hasTracks())
         throw {
-          name: "No Results",
+          name: "NoResults",
           message: "Please try again or try a different query or platform",
         };
 

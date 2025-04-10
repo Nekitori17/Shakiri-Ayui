@@ -42,7 +42,7 @@ const event: DiscordEventInterface = (client, interaction: any) => {
           ).has(permission)
         ) {
           throw {
-            name: "Missing Permissions",
+            name: "MissingPermissions",
             message: `I'am missing the \`${new PermissionsBitField(permission)
               .toArray()
               .join(", ")}\` permission to use this command.`,
@@ -59,7 +59,7 @@ const event: DiscordEventInterface = (client, interaction: any) => {
           )
         )
           throw {
-            name: "Missing Permissions",
+            name: "MissingPermissions",
             message: `You are missing the \`${new PermissionsBitField(
               permission
             )

@@ -20,7 +20,7 @@ const event: DiscordEventInterface = async (
   try {
     const selectMenuObject = getLocalById<SelectMenuInterface>(
       path.join(__dirname, "../../../menus/selects"),
-      interaction.customId,
+      interaction.customId.replace("$", ""),
       interaction.values[0]
     );
 
@@ -32,7 +32,7 @@ const event: DiscordEventInterface = async (
     if (selectMenuObject.voiceChannel) {
       if (!(interaction.member as GuildMember).voice.channel)
         throw {
-          name: "No Voice Channel",
+          name: "NoVoiceChannel",
           message: "To use this command, you must be in a voice channel",
         };
     }
@@ -46,7 +46,7 @@ const event: DiscordEventInterface = async (
           ).has(permission)
         ) {
           throw {
-            name: "Missing Permissions",
+            name: "MissingPermissions",
             message: `I'am missing the \`${new PermissionsBitField(permission)
               .toArray()
               .join(", ")}\` permission to use this command.`,
@@ -63,7 +63,7 @@ const event: DiscordEventInterface = async (
           )
         )
           throw {
-            name: "Missing Permissions",
+            name: "MissingPermissions",
             message: `You are missing the \`${new PermissionsBitField(
               permission
             )

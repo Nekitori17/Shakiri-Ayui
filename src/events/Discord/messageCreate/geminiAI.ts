@@ -20,7 +20,7 @@ const event: DiscordEventInterface = async (client, msg: Message) => {
         `${process.env.CUSTOM_URL_API_BASE}/endpoint`,
         {
           input: msg.content,
-          model: "gemini-1.5-pro-latest",
+          model: "gemini-2.5-pro-preview-03-25",
         },
         {
           params: {
@@ -31,7 +31,7 @@ const event: DiscordEventInterface = async (client, msg: Message) => {
           },
         }
       )
-      .then((res) => res.data.output)
+      .then((res) => res.data)
       .catch((err) => {
         throw {
           name: err.response.statusText,
@@ -49,9 +49,9 @@ const event: DiscordEventInterface = async (client, msg: Message) => {
             name: msg.member?.displayName!,
             iconURL: msg.member?.displayAvatarURL(),
           })
-          .setTitle("Gemini 1.5 Pro Latest")
+          .setTitle("Gemini 2.5 Pro Preview 03-25")
           .setThumbnail("https://files.catbox.moe/8xpwh3.png")
-          .setDescription(response)
+          .setDescription(response.text)
           .setFooter({
             text: msg.guild?.name!,
             iconURL: msg.guild?.iconURL()!,

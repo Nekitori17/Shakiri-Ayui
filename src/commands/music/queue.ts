@@ -18,7 +18,7 @@ const command: CommandInterface = {
       const queue = useQueue(interaction.guildId!);
       if (queue?.tracks.size == 0)
         throw {
-          name: "No Queue",
+          name: "NoQueue",
           message: "There is no queue to show",
         };
 
