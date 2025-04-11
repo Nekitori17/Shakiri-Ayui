@@ -83,7 +83,7 @@ const event: DiscordEventInterface = async (
       console.log(error);
     }
 
-    sendError(interaction, error);
+    sendError(interaction, error, true);
   }
 };
 

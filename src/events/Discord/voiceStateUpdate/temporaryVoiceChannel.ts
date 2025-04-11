@@ -31,24 +31,23 @@ const event: DiscordEventInterface = async (
 
   if (newState.channelId !== settings.temporaryVoiceChannel.channelSet) return;
 
-  const query = { userId: newState.member?.id };
-  const data = await UserSettings.findOne(query);
+  const userSettings = await UserSettings.findOne({ userId: newState.member?.id });
 
   const channelName =
-    data?.temporaryVoiceChannel?.channelName ||
+    userSettings?.temporaryVoiceChannel?.channelName ||
     settings.temporaryVoiceChannel.nameChannelSyntax;
 
   await newState.guild.channels
     .create({
       name: channelName.replace(
-        /{username}/gi,
+        /{user}/gi,
         newState.member?.displayName || "Neko"
       ),
       type: ChannelType.GuildVoice,
       parent:
         settings.temporaryVoiceChannel.categorySet ||
         newState.member?.voice.channel?.parentId,
-      userLimit: data?.temporaryVoiceChannel?.limitUser || undefined,
+      userLimit: userSettings?.temporaryVoiceChannel?.limitUser || undefined,
       bitrate: 96000,
     })
     .then((channel) => {

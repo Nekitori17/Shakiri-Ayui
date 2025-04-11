@@ -25,7 +25,7 @@ const command: CommandInterface = {
               .setColor("White")
               .setFooter({
                 text: `Temporary Voice Module | ${client.user?.displayName}`,
-                iconURL: "https://img.icons8.com/plumpy/512/speaker.png",
+                iconURL: "https://img.icons8.com/stencil/512/medium-volume.png",
               }),
           ],
           components: [temporaryVoiceMenu],

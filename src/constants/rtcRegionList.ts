@@ -1,0 +1,15 @@
+export const rtcRegionList = {
+  Automatic: "null",
+  Brazil: "brazil",
+  "Hong Kong": "hongkong",
+  India: "india",
+  Japan: "japan",
+  Rotterdam: "rotterdam",
+  Singapore: "singapore",
+  "South Africa": "southafrica",
+  Sydney: "sydney",
+  "US Central": "us-central",
+  "US East": "us-east",
+  "US South": "us-south",
+  "US West": "us-west",
+};

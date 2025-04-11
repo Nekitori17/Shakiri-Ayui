@@ -43,7 +43,8 @@ const tempVoiceSelectMenu = [
   new StringSelectMenuOptionBuilder()
     .setLabel("Delete")
     .setDescription("Delete the voice channel.")
-    .setEmoji("🗑️").setValue("delete"),
+    .setEmoji("🗑️")
+    .setValue("delete"),
 ];
 
 export default new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(

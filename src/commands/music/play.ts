@@ -13,14 +13,15 @@ import { CommandInterface } from "../../types/InteractionInterfaces";
 const command: CommandInterface = {
   async execute(interaction, client) {
     await interaction.deferReply();
-    const player = useMainPlayer();
     const query = interaction.options.get("query")?.value as string;
-    const result = await player.search(query, {
-      requestedBy: interaction.user,
-      searchEngine: QueryType.AUTO,
-    });
 
     try {
+      const player = useMainPlayer();
+      const result = await player.search(query, {
+        requestedBy: interaction.user,
+        searchEngine: QueryType.AUTO,
+      });
+
       if (!result.hasTracks())
         throw {
           name: "NoResults",

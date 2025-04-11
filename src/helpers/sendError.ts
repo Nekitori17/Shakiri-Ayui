@@ -2,22 +2,29 @@ import {
   AttachmentBuilder,
   ButtonInteraction,
   CommandInteraction,
+  MessageFlags,
   MessageContextMenuCommandInteraction,
+  ModalSubmitInteraction,
   StringSelectMenuInteraction,
   UserContextMenuCommandInteraction,
 } from "discord.js";
 import CommonEmbedBuilder from "./commonEmbedBuilder";
 
-export default async(
+export default async (
   interaction:
     | CommandInteraction
     | ButtonInteraction
     | MessageContextMenuCommandInteraction
     | UserContextMenuCommandInteraction
-    | StringSelectMenuInteraction,
-  error: { name: string; message: string; stack: string; cause: string } | any
+    | StringSelectMenuInteraction
+    | ModalSubmitInteraction,
+  error: { name: string; message: string; stack: string; cause: string } | any,
+  ephemeral: boolean = false
 ) => {
-  if (!interaction.replied && !interaction.deferred) await interaction.deferReply();
+  if (!interaction.replied && !interaction.deferred)
+    await interaction.deferReply({
+      flags: ephemeral ? MessageFlags.Ephemeral : undefined,
+    });
 
   const content =
     `# Error Name: ${error.name}` +

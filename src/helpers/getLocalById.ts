@@ -8,20 +8,23 @@ export default <T>(filePath: string, category: string, actionId: string) => {
   const actionList = fs.readdirSync(categoryPath);
   if (
     !actionList.find(
-      (action) => actionId == path.basename(action, path.extname(action))
+      (action) => toCamelCase(actionId) == path.basename(action, path.extname(action))
     )
   )
     return;
 
-  return require(path.join(categoryPath, actionId)).default as T;
+  return require(path.join(categoryPath, toCamelCase(actionId))).default as T;
 };
 
 function toCamelCase(str: string) {
-  if (!str.includes("-") && !str.includes("_))")) return str.toLowerCase();
+  if (!str.includes("-")) return str.toLowerCase();
 
-  return str
-    .toLowerCase()
-    .replace(/([-_][a-z])/g, (group) =>
-      group.toUpperCase().replace("-", "").replace("_", "")
-    );
+  const parts = str.split("-");
+  return (
+    parts[0].toLowerCase() +
+    parts
+      .slice(1)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join("")
+  );
 }

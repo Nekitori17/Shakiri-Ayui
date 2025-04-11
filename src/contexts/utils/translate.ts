@@ -11,10 +11,10 @@ import { ContextInterface } from "../../types/InteractionInterfaces";
 const context: ContextInterface = {
   async execute(interaction: MessageContextMenuCommandInteraction, client) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-    const targetMessage = interaction.targetMessage;
-
+    
     try {
-      const data = await UserSettings.findOne({
+      const targetMessage = interaction.targetMessage;
+      const userSettings = await UserSettings.findOne({
         userId: interaction.user.id,
       });
 
@@ -23,7 +23,7 @@ const context: ContextInterface = {
           `${process.env.CUSTOM_URL_API_BASE}/endpoint`,
           {
             input: targetMessage.content,
-            lang: data?.messageTranslateLang || "en",
+            lang: userSettings?.messageTranslateLang || "en",
           },
           {
             params: {
