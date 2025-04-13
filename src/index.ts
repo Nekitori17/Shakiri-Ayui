@@ -34,9 +34,9 @@ async function run(client: Client) {
     registerMusicExtractor(player);
 
     mongoose.set("strictQuery", false);
-    await mongoose.connect(
-      `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_CLUSTER}`
-    );
+    await mongoose.connect(process.env.MONGODB_URI as string);
+    console.log("🔑| Connected to MongoDB");
+    
 
     discordEventHandler(client);
     musicEventHandler(client, player);
