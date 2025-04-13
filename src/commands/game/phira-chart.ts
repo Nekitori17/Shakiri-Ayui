@@ -96,12 +96,12 @@ const command: CommandInterface = {
           .setURL(`https://phira.moe/user/${uploaderInfo.id}`),
       ];
 
-      const row = new ActionRowBuilder().addComponents(buttonRow);
+      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(buttonRow);
 
       interaction.editReply({
         content: null,
         embeds: [embedChartInfo],
-        components: [row as any],
+        components: [row],
         files: [illustration!],
       });
     } catch (error) {
