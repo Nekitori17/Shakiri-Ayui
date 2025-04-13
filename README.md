@@ -60,14 +60,8 @@ GEMINI_AI_TOKEN = ""
 # Your API url base from nekitori17/fratizy-app
 CUSTOM_URL_API_BASE = ""
 
-# MongoDB cluster name
-DB_CLUSTER = ""
-
-# MongoDB username
-DB_USERNAME = ""
-
-# MongoDB password
-DB_PASSWORD = ""
+# # MongoDB connection string
+MONGODB_URI = ""
 ```
 
 <h3>Starting</h3>
