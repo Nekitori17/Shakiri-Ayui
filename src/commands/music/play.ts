@@ -7,6 +7,7 @@ import {
 } from "discord.js";
 import { QueryType, TrackSource, useMainPlayer } from "discord-player";
 import sendError from "../../helpers/sendError";
+import { musicPlayerStoreSession } from "../../musicPlayerStoreSession";
 import { musicSourceIcons } from "../../constants/musicSourceIcons";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -42,7 +43,10 @@ const command: CommandInterface = {
             metadata: {
               channel: interaction.channel,
             },
-            volume: settings.music.volume,
+            volume:
+              (musicPlayerStoreSession.volume.get(
+                interaction.guildId!
+              ) as number) || settings.music.volume,
             leaveOnEmpty: settings.music.leaveOnEmpty,
             leaveOnEmptyCooldown: settings.music.leaveOnEmptyCooldown,
             leaveOnEnd: settings.music.leaveOnEnd,

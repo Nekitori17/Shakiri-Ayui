@@ -5,6 +5,7 @@ import {
 } from "discord.js";
 import { useQueue } from "discord-player";
 import sendError from "../../helpers/sendError";
+import { musicPlayerStoreSession } from "../../musicPlayerStoreSession";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -21,6 +22,7 @@ const command: CommandInterface = {
         };
 
       queue.node.setVolume(level);
+      musicPlayerStoreSession.volume.set(interaction.guildId!, level);
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
@@ -32,7 +34,7 @@ const command: CommandInterface = {
         ],
       });
     } catch (error) {
-      sendError(interaction, error)
+      sendError(interaction, error);
     }
   },
   name: "volume",

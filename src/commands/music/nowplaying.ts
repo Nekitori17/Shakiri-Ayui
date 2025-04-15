@@ -1,11 +1,13 @@
-import {
-  EmbedBuilder,
-  PermissionFlagsBits,
-} from "discord.js";
-import { useQueue, TrackSource } from "discord-player";
+import { EmbedBuilder, PermissionFlagsBits } from "discord.js";
+import { useQueue, TrackSource, QueueRepeatMode } from "discord-player";
 import sendError from "../../helpers/sendError";
+import { musicPlayerStoreSession } from "../../musicPlayerStoreSession";
 import { repeatModeNames } from "../../constants/musicRepeatModes";
 import { musicSourceIcons } from "../../constants/musicSourceIcons";
+import {
+  extendMusicControllerButtonsRow,
+  mainMusicControllerButtonsRow,
+} from "../../components/musicControllerMenu";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -26,8 +28,20 @@ const command: CommandInterface = {
         leftChar: "▓",
         rightChar: "░",
         timecodes: true,
-        length: 20
-      })
+        length: 20,
+      });
+      const volume =
+        (musicPlayerStoreSession.volume.get(interaction.guildId!) as Number) ||
+        queue.node.volume;
+      const repeatMode =
+        (musicPlayerStoreSession.loop.get(
+          interaction.guildId!
+        ) as QueueRepeatMode) || queue.repeatMode;
+      const shuffeledTimes =
+        (musicPlayerStoreSession.shuffeld.get(
+          interaction.guildId!
+        ) as number) || 0;
+
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
@@ -37,12 +51,21 @@ const command: CommandInterface = {
             })
             .setTitle("> 🎼 Now playing")
             .setDescription(
-              `* Title: ${track.title}` + "\n" +
-              `* Artist: ${track.author}` + "\n" +
-              `* Volume: ${queue.options.volume.toString()}` + "\n" +
-              `* Loop: ${repeatModeNames[queue.options.repeatMode || 0]}` + "\n" +
-              `* Shuffled: ${queue.isShuffling ? "On" : "Off"}` + "\n" +
-              progress
+              `* Title: ${track.title}` +
+                "\n" +
+                `* Artist: ${track.author}` +
+                "\n" +
+                `* Volume: ${volume.toString()}%` +
+                "\n" +
+                `* Loop: ${repeatModeNames[repeatMode || 0]}` +
+                "\n" +
+                `* Shuffled: ${
+                  shuffeledTimes > 1
+                    ? `${shuffeledTimes} times`
+                    : `${shuffeledTimes} time`
+                }` +
+                "\n" +
+                progress
             )
             .setThumbnail(track.thumbnail)
             .setFooter({
@@ -51,8 +74,12 @@ const command: CommandInterface = {
             })
             .setTimestamp()
             .setColor("#00a2ff"),
-        ]
-      })
+        ],
+        components: [
+          mainMusicControllerButtonsRow,
+          extendMusicControllerButtonsRow,
+        ],
+      });
     } catch (error) {
       sendError(interaction, error);
     }

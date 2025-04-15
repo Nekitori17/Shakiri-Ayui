@@ -7,6 +7,7 @@ import {
 } from "discord.js";
 import { QueueRepeatMode, useQueue } from "discord-player";
 import sendError from "../../../helpers/sendError";
+import { musicPlayerStoreSession } from "../../../musicPlayerStoreSession";
 import { repeatModeNames } from "../../../constants/musicRepeatModes";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
@@ -47,16 +48,15 @@ const button: ButtonInterface = {
         await selectInteraction.deferReply({ flags: MessageFlags.Ephemeral });
 
         try {
-          queue.setRepeatMode(
-            parseInt(selectInteraction.values[0]) as QueueRepeatMode
-          );
+          const repeatMode = parseInt(
+            selectInteraction.values[0]
+          ) as QueueRepeatMode;
+
+          queue.setRepeatMode(repeatMode);
+          musicPlayerStoreSession.loop.set(interaction.guildId!, repeatMode);
 
           await selectInteraction.editReply(
-            `🔁 Loop mode set to ${
-              repeatModeNames[
-                parseInt(selectInteraction.values[0]) as QueueRepeatMode
-              ]
-            }`
+            `🔁 Loop mode set to ${repeatModeNames[repeatMode]}`
           );
         } catch (error) {
           sendError(selectInteraction, error, true);

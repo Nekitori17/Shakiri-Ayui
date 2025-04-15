@@ -1,6 +1,7 @@
 import { EmbedBuilder, PermissionFlagsBits } from "discord.js";
 import { useQueue } from "discord-player";
 import sendError from "../../helpers/sendError";
+import { musicPlayerStoreSession } from "../../musicPlayerStoreSession";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -9,13 +10,19 @@ const command: CommandInterface = {
 
     try {
       const queue = useQueue(interaction.guildId!);
-      if (!queue)
+      if (!queue || queue.tracks.size === 0)
         throw {
           name: "NoQueue",
           message: "There is no queue to shuffle",
         };
 
       queue.tracks.shuffle();
+      musicPlayerStoreSession.shuffeld.set(
+        interaction.guildId!,
+        ((musicPlayerStoreSession.shuffeld.get(
+          interaction.guildId!
+        ) as number) || 0) + 1
+      );
       interaction.editReply({
         embeds: [
           new EmbedBuilder()

@@ -6,6 +6,7 @@ import {
 import { useQueue, QueueRepeatMode } from "discord-player";
 import sendError from "../../helpers/sendError";
 import { repeatModeNames } from "../../constants/musicRepeatModes";
+import { musicPlayerStoreSession } from "../../musicPlayerStoreSession";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -25,6 +26,7 @@ const command: CommandInterface = {
         };
 
       queue.setRepeatMode(repeatMode);
+      musicPlayerStoreSession.loop.set(interaction.guildId!, repeatMode);
       interaction.editReply({
         embeds: [
           new EmbedBuilder()

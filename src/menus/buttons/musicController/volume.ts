@@ -8,6 +8,7 @@ import {
 import { useQueue } from "discord-player";
 import sendError from "../../../helpers/sendError";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
+import { musicPlayerStoreSession } from "../../../musicPlayerStoreSession";
 
 function isNumber(value: any) {
   return !isNaN(parseFloat(value)) && isFinite(value);
@@ -60,6 +61,7 @@ const button: ButtonInterface = {
           };
 
         queue.node.setVolume(level);
+        musicPlayerStoreSession.volume.set(interaction.guildId!, level);
         modalInteraction.editReply(`🔊 Volume set to ${level}%`);
       } catch (error) {
         sendError(modalInteraction, error, true);

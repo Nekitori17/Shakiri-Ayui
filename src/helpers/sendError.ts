@@ -10,6 +10,16 @@ import {
 } from "discord.js";
 import CommonEmbedBuilder from "./commonEmbedBuilder";
 
+function convertErrorToString(error: any) {
+  const fullError: { [key: string]: any } = {};
+
+  const keys = Object.getOwnPropertyNames(error);
+  for (const key of keys) {
+    fullError[key] = error[key];
+  }
+  return JSON.stringify(fullError);
+}
+
 export default async (
   interaction:
     | CommandInteraction
@@ -18,8 +28,9 @@ export default async (
     | UserContextMenuCommandInteraction
     | StringSelectMenuInteraction
     | ModalSubmitInteraction,
-  error: { name: string; message: string; stack: string; cause: string } | any,
-  ephemeral: boolean = false
+  error: Error | any,
+  ephemeral: boolean = false,
+  mode: "edit" | "reply" = "edit"
 ) => {
   if (!interaction.replied && !interaction.deferred)
     await interaction.deferReply({
@@ -39,7 +50,7 @@ export default async (
     "\n" +
     "========================" +
     "\n" +
-    error;
+    convertErrorToString(error);
 
   const moreErrorInfo = new AttachmentBuilder(Buffer.from(content), {
     name: `Error-${Date()}_${(

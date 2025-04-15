@@ -1,6 +1,7 @@
 import { EmbedBuilder, PermissionFlagsBits } from "discord.js";
 import { useQueue } from "discord-player";
 import sendError from "../../helpers/sendError";
+import { musicPlayerStoreSession } from "../../musicPlayerStoreSession";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -16,6 +17,9 @@ const command: CommandInterface = {
         };
 
       queue.delete();
+      musicPlayerStoreSession.shuffeld.del(queue.guild.id);
+      musicPlayerStoreSession.loop.del(queue.guild.id);
+      musicPlayerStoreSession.volume.del(queue.guild.id);
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
