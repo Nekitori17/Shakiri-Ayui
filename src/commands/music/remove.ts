@@ -17,7 +17,7 @@ const command: CommandInterface = {
       if (!queue)
         throw {
           name: "NoQueue",
-          message: "There is no queue to stop",
+          message: "There is no queue to remove",
         };
 
       const track = queue.removeTrack(index - 1);

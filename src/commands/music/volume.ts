@@ -17,7 +17,7 @@ const command: CommandInterface = {
       if (!queue)
         throw {
           name: "NoQueue",
-          message: "There is no queue to skip",
+          message: "There is no queue to set volume",
         };
 
       queue.node.setVolume(level);
