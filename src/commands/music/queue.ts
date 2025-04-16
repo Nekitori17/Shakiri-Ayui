@@ -31,7 +31,7 @@ const command: CommandInterface = {
         queuePartition.push(
           tracksArray.slice(
             i * AMOUNT_TRACK_IN_PAGE,
-            (AMOUNT_TRACK_IN_PAGE + 1) * AMOUNT_TRACK_IN_PAGE
+            (i + 1) * AMOUNT_TRACK_IN_PAGE
           )
         );
       }
@@ -67,11 +67,14 @@ const command: CommandInterface = {
                 queuePartition[page]
                   .map(
                     (track, index) =>
-                      `* ${page * 10 + index + 1}. ${track.title} - ${
-                        track.author
-                      }`
+                      `**${page * 10 + index + 1}.** ${track.title.substring(
+                        0,
+                        70
+                      )}${track.title.length > 70 ? "..." : ""} - \`${
+                        track.duration
+                      }\`\n*by ${track.author}*`
                   )
-                  .join("\n")
+                  .join("\n\n")
               )
               .setFooter({
                 text: interaction.guild?.name!,

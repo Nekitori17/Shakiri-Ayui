@@ -9,11 +9,11 @@ import {
   PermissionFlagsBits,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
-  MessageFlags,
 } from "discord.js";
-import { QueryType, Track, useMainPlayer } from "discord-player";
+import { QueryType, Track, TrackSource, useMainPlayer } from "discord-player";
 import sendError from "../../helpers/sendError";
 import { musicPlayerStoreSession } from "../../musicPlayerStoreSession";
+import { musicSourceIcons } from "../../constants/musicSourceIcons";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -45,7 +45,7 @@ const command: CommandInterface = {
         tracksPartition.push(
           tracksArray.slice(
             i * AMOUNT_TRACK_IN_PAGE,
-            (AMOUNT_TRACK_IN_PAGE + 1) * AMOUNT_TRACK_IN_PAGE
+            (i + 1) * AMOUNT_TRACK_IN_PAGE
           )
         );
       }
@@ -105,15 +105,15 @@ const command: CommandInterface = {
                 }`,
                 iconURL: interaction.user.displayAvatarURL(),
               })
-              .setTitle(`🎶 Search Results (Page ${page + 1}/${maxPage})`)
+              .setTitle(`> 🎶 Search Results (Page ${page + 1}/${maxPage})`)
               .setDescription(
                 tracksPartition[page]
                   .map(
                     (track, index) =>
-                      `**${page * 10 + index + 1}.** [${track.title.substring(
+                      `**${page * 10 + index + 1}.** ${track.title.substring(
                         0,
                         70
-                      )}${track.title.length > 70 ? "..." : ""}] - \`${
+                      )}${track.title.length > 70 ? "..." : ""} - \`${
                         track.duration
                       }\`\n*by ${track.author}*`
                   )
@@ -165,7 +165,7 @@ const command: CommandInterface = {
           }
 
           if (collectInteraction.isStringSelectMenu()) {
-            await collectInteraction.deferReply({ ephemeral: true });
+            await collectInteraction.deferReply();
             const trackId = collectInteraction.values[0];
             const track = result.tracks.find((t) => t.id === trackId);
 
@@ -203,7 +203,20 @@ const command: CommandInterface = {
             });
 
             collectInteraction.editReply({
-              content: `✅ **${track.title}** added to the queue!`,
+              content: null,
+              embeds: [
+                new EmbedBuilder()
+                  .setAuthor({
+                    name: `🎶 | Added ${track.title} by ${track.author} to the queue!`,
+                    iconURL: track.thumbnail,
+                    url: track.url,
+                  })
+                  .setFooter({
+                    text: `Request by: ${track.requestedBy?.displayName}`,
+                    iconURL: musicSourceIcons[track.source as TrackSource],
+                  })
+                  .setColor("Green"),
+              ],
             });
           }
         } catch (error) {
