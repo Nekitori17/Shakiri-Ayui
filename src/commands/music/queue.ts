@@ -22,12 +22,18 @@ const command: CommandInterface = {
           message: "There is no queue to show",
         };
 
+      const AMOUNT_TRACK_IN_PAGE = 10;
       const queuePartition: Track[][] = [];
       let currentPage = 0;
       const tracksArray = queue?.tracks.toArray() || [];
-      const maxPage = Math.ceil(tracksArray.length / 10);
+      const maxPage = Math.ceil(tracksArray.length / AMOUNT_TRACK_IN_PAGE);
       for (let i = 0; i < maxPage; i++) {
-        queuePartition.push(tracksArray.slice(i * 10, (i + 1) * 10));
+        queuePartition.push(
+          tracksArray.slice(
+            i * AMOUNT_TRACK_IN_PAGE,
+            (AMOUNT_TRACK_IN_PAGE + 1) * AMOUNT_TRACK_IN_PAGE
+          )
+        );
       }
 
       function createReply(page: number) {
@@ -36,7 +42,8 @@ const command: CommandInterface = {
             new ButtonBuilder()
               .setCustomId("music-queue-page-previous")
               .setEmoji("⬅️")
-              .setStyle(ButtonStyle.Primary),
+              .setStyle(ButtonStyle.Primary)
+              .setDisabled(page === 0),
             new ButtonBuilder()
               .setCustomId("music-queue-page-current")
               .setLabel(`${page + 1}/${maxPage}`)
@@ -44,7 +51,8 @@ const command: CommandInterface = {
             new ButtonBuilder()
               .setCustomId("music-queue-page-next")
               .setEmoji("➡️")
-              .setStyle(ButtonStyle.Primary),
+              .setStyle(ButtonStyle.Primary)
+              .setDisabled(page >= maxPage - 1),
           ],
         });
         return {
@@ -85,7 +93,6 @@ const command: CommandInterface = {
 
       collector.on("collect", async (inter) => {
         if (inter.customId === "music-queue-page-previous") {
-          if (currentPage === 0) return inter.deferUpdate();
           currentPage -= 1;
           reply.edit(createReply(currentPage));
           inter.deferUpdate();
@@ -95,7 +102,6 @@ const command: CommandInterface = {
           return inter.deferUpdate();
 
         if (inter.customId === "music-queue-page-next") {
-          if (currentPage === maxPage - 1) return inter.deferUpdate();
           currentPage += 1;
           reply.edit(createReply(currentPage));
           inter.deferUpdate();
