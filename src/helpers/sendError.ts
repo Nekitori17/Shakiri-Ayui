@@ -17,7 +17,7 @@ function convertErrorToString(error: any) {
   for (const key of keys) {
     fullError[key] = error[key];
   }
-  return JSON.stringify(fullError);
+  return JSON.stringify(fullError, null, 2);
 }
 
 export default async (
