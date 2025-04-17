@@ -5,5 +5,5 @@ export const musicSourceIcons: { [key in TrackSource]: string } = {
   spotify: "https://img.icons8.com/color/512/spotify.png",
   soundcloud: "https://img.icons8.com/color/512/soundcloud.png",
   apple_music: "https://img.icons8.com/color/512/apple-music.png",
-  arbitrary: ""
+  arbitrary: "https://img.icons8.com/color/512/file.png"
 }
