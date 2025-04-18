@@ -20,7 +20,7 @@ const event: DiscordEventInterface = async (client, msg: Message) => {
         `${process.env.CUSTOM_URL_API_BASE}/endpoint`,
         {
           input: msg.content,
-          model: "gemini-2.5-pro-preview-03-25",
+          model: "gemini-2.5-flash-preview-04-17",
         },
         {
           params: {
@@ -49,7 +49,7 @@ const event: DiscordEventInterface = async (client, msg: Message) => {
             name: msg.member?.displayName!,
             iconURL: msg.member?.displayAvatarURL(),
           })
-          .setTitle("Gemini 2.5 Pro Preview 03-25")
+          .setTitle("Gemini 2.5 Flash preview 04-17")
           .setThumbnail("https://files.catbox.moe/8xpwh3.png")
           .setDescription(response.text)
           .setFooter({
