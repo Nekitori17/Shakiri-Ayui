@@ -11,7 +11,7 @@ import {
   ContextInterface,
 } from "../types/InteractionInterfaces";
 
-export default (): void => {
+export default async () => {
   interface CommandRegisterInterface {
     name: string;
     description: string;
@@ -85,18 +85,16 @@ export default (): void => {
     process.env.BOT_TOKEN as string
   );
 
-  (async () => {
-    try {
-      console.log("📝 Registering everything...");
-      await rest.put(
-        Routes.applicationCommands(process.env.CLIENT_ID as string),
-        {
-          body: commands,
-        }
-      );
-      console.log("🎉 Registered successfully!");
-    } catch (error) {
-      console.error(`There is an error while trying to register: ${error}`);
-    }
-  })();
+  try {
+    console.log("📝 Registering everything...");
+    await rest.put(
+      Routes.applicationCommands(process.env.CLIENT_ID as string),
+      {
+        body: commands,
+      }
+    );
+    console.log("🎉 Registered successfully!");
+  } catch (error) {
+    console.error(`There is an error while trying to register: ${error}`);
+  }
 };

@@ -30,8 +30,8 @@ const player = new Player(client);
 
 async function run(client: Client) {
   try {
-    registerCommands();
-    registerMusicExtractor(player);
+    await registerCommands();
+    await registerMusicExtractor(player);
 
     mongoose.set("strictQuery", false);
     await mongoose.connect(process.env.MONGODB_URI as string);
