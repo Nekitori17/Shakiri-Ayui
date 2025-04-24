@@ -43,7 +43,7 @@ const button: ButtonInterface = {
         time: 60000,
       });
 
-      await modalInteraction.deferReply({ flags: MessageFlags.Ephemeral });
+      await modalInteraction.deferReply();
       try {
         const levelStr = modalInteraction.fields.getTextInputValue("level");
         if (!isNumber(levelStr))

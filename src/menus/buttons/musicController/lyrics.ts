@@ -47,7 +47,7 @@ const button: ButtonInterface = {
         ],
       });
     } catch (error) {
-      sendError(interaction, error, true);
+      sendError(interaction, error);
     }
   },
   disabled: false,

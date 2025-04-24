@@ -45,7 +45,7 @@ const button: ButtonInterface = {
       });
 
       collector.on("collect", async (selectInteraction) => {
-        await selectInteraction.deferReply({ flags: MessageFlags.Ephemeral });
+        await selectInteraction.deferReply();
 
         try {
           const repeatMode = parseInt(
@@ -59,11 +59,11 @@ const button: ButtonInterface = {
             `🔁 Loop mode set to ${repeatModeNames[repeatMode]}`
           );
         } catch (error) {
-          sendError(selectInteraction, error, true);
+          sendError(selectInteraction, error);
         }
       });
     } catch (error) {
-      sendError(interaction, error, true);
+      sendError(interaction, error);
     }
   },
   disabled: false,

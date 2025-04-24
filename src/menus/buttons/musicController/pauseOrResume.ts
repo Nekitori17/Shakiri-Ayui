@@ -20,7 +20,7 @@ const button: ButtonInterface = {
         interaction.deferUpdate();
       }
     } catch (error) {
-      sendError(interaction, error, true);
+      sendError(interaction, error);
     }
   },
   disabled: false,

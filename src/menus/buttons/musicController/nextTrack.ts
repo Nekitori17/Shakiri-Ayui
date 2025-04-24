@@ -1,9 +1,12 @@
+import { EmbedBuilder } from "discord.js";
 import { useQueue } from "discord-player";
 import sendError from "../../../helpers/sendError";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
 const button: ButtonInterface = {
   async execute(interaction, client) {
+    await interaction.deferReply();
+
     try {
       const queue = useQueue(interaction.guildId!);
       if (!queue)
@@ -12,8 +15,17 @@ const button: ButtonInterface = {
           message: "There is no queue to play",
         };
 
-      await queue.node.skip();
-      interaction.deferUpdate();
+      queue.node.skip();
+      interaction.editReply({
+              embeds: [
+                new EmbedBuilder()
+                  .setAuthor({
+                    name: "🎶 The track has been skipped!",
+                    iconURL: "https://img.icons8.com/color/512/last.png",
+                  })
+                  .setColor("#73ff00"),
+              ],
+            });
     } catch (error) {
       sendError(interaction, error, true);
     }

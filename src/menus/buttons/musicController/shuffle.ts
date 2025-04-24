@@ -6,7 +6,7 @@ import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
 const button: ButtonInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    await interaction.deferReply();
     try {
       const queue = useQueue(interaction.guildId!);
       if (!queue || queue.tracks.size === 0)
@@ -24,7 +24,7 @@ const button: ButtonInterface = {
       queue.tracks.shuffle();
       interaction.editReply("🔀 Queue shuffled!");
     } catch (error) {
-      sendError(interaction, error, true);
+      sendError(interaction, error);
     }
   },
   disabled: false,

@@ -1,9 +1,12 @@
+import { EmbedBuilder } from "discord.js";
 import { useHistory } from "discord-player";
-import { ButtonInterface } from "../../../types/InteractionInterfaces";
 import sendError from "../../../helpers/sendError";
+import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
 const button: ButtonInterface = {
   async execute(interaction, client) {
+    await interaction.deferReply();
+
     try {
       const history = useHistory(interaction.guildId!);
       if (!history)
@@ -13,9 +16,18 @@ const button: ButtonInterface = {
         };
 
       await history.previous();
-      interaction.deferUpdate();
+      interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setAuthor({
+              name: "🎶 The previous will start to play",
+              iconURL: "https://img.icons8.com/color/512/first.png",
+            })
+            .setColor("#73ff00"),
+        ],
+      });
     } catch (error) {
-      sendError(interaction, error, true);
+      sendError(interaction, error);
     }
   },
   disabled: false,
