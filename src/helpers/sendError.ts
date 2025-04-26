@@ -60,8 +60,8 @@ export default async (
 
   interaction.editReply({
     content: null,
-    components: undefined,
-    attachments: undefined,
+    components: [],
+    attachments: [],
     embeds: [
       CommonEmbedBuilder.error({
         title: error.name,
