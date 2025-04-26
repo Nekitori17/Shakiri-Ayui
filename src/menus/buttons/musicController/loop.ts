@@ -1,6 +1,7 @@
 import {
   ActionRowBuilder,
   ComponentType,
+  EmbedBuilder,
   MessageFlags,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
@@ -55,9 +56,16 @@ const button: ButtonInterface = {
           queue.setRepeatMode(repeatMode);
           musicPlayerStoreSession.loop.set(interaction.guildId!, repeatMode);
 
-          await selectInteraction.editReply(
-            `🔁 Loop mode set to ${repeatModeNames[repeatMode]}`
-          );
+          interaction.editReply({
+            embeds: [
+              new EmbedBuilder()
+                .setAuthor({
+                  name: `🎶 Set loop mode to ${repeatModeNames[repeatMode]}`,
+                  iconURL: "https://img.icons8.com/fluency/512/repeat.png",
+                })
+                .setColor("#5a01ff"),
+            ],
+          });
         } catch (error) {
           sendError(selectInteraction, error);
         }

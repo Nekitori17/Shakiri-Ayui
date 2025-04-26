@@ -1,6 +1,6 @@
 import {
   ActionRowBuilder,
-  MessageFlags,
+  EmbedBuilder,
   ModalBuilder,
   TextInputBuilder,
   TextInputStyle,
@@ -62,7 +62,16 @@ const button: ButtonInterface = {
 
         queue.node.setVolume(level);
         musicPlayerStoreSession.volume.set(interaction.guildId!, level);
-        modalInteraction.editReply(`🔊 Volume set to ${level}%`);
+        modalInteraction.editReply({
+          embeds: [
+            new EmbedBuilder()
+              .setAuthor({
+                name: `🎶 Volume set to ${level}!`,
+                iconURL: "https://img.icons8.com/color/512/low-volume.png",
+              })
+              .setColor("#73ff00"),
+          ],
+        });
       } catch (error) {
         sendError(modalInteraction, error, true);
       }

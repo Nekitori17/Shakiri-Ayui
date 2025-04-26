@@ -1,4 +1,4 @@
-import { MessageFlags } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import { useQueue } from "discord-player";
 import sendError from "../../../helpers/sendError";
 import { musicPlayerStoreSession } from "../../../musicPlayerStoreSession";
@@ -22,7 +22,16 @@ const button: ButtonInterface = {
         ) as number) || 0) + 1
       );
       queue.tracks.shuffle();
-      interaction.editReply("🔀 Queue shuffled!");
+      interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setAuthor({
+              name: "🎶 Shake, shake, shake. Now it's random!",
+              iconURL: "https://img.icons8.com/fluency/512/shuffle.png",
+            })
+            .setColor("#a6ff00"),
+        ],
+      });
     } catch (error) {
       sendError(interaction, error);
     }

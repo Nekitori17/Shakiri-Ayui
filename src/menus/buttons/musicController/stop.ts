@@ -1,4 +1,9 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  EmbedBuilder,
+} from "discord.js";
 import { useQueue } from "discord-player";
 import sendError from "../../../helpers/sendError";
 import { musicPlayerStoreSession } from "../../../musicPlayerStoreSession";
@@ -28,7 +33,14 @@ const button: ButtonInterface = {
       );
 
       const sent = await interaction.editReply({
-        content: "> Are you sure you want to stop the queue?",
+        embeds: [
+          new EmbedBuilder()
+            .setAuthor({
+              name: "Are you sure you want to stop the queue?",
+              iconURL: "https://img.icons8.com/fluency/512/question-mark.png",
+            })
+            .setColor("#fbff00"),
+        ],
         components: [confirmButton],
       });
 
@@ -42,12 +54,20 @@ const button: ButtonInterface = {
 
           if (buttonInteraction.customId === "stop-confirm-yes") {
             sent.edit({
-              content: "> The queue has been stopped!",
+              embeds: [
+                new EmbedBuilder()
+                  .setAuthor({
+                    name: "🎶 Queue has been stopped!",
+                    iconURL:
+                      "https://img.icons8.com/color/512/do-not-disturb.png",
+                  })
+                  .setColor("#ff3131"),
+              ],
               components: [],
             });
 
             queue.delete();
-            
+
             musicPlayerStoreSession.shuffeld.del(queue.guild.id);
             musicPlayerStoreSession.loop.del(queue.guild.id);
             musicPlayerStoreSession.volume.del(queue.guild.id);

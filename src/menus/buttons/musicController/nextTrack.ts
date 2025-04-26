@@ -17,15 +17,15 @@ const button: ButtonInterface = {
 
       queue.node.skip();
       interaction.editReply({
-              embeds: [
-                new EmbedBuilder()
-                  .setAuthor({
-                    name: "🎶 The track has been skipped!",
-                    iconURL: "https://img.icons8.com/color/512/last.png",
-                  })
-                  .setColor("#73ff00"),
-              ],
-            });
+        embeds: [
+          new EmbedBuilder()
+            .setAuthor({
+              name: "🎶 The track has been skipped!",
+              iconURL: "https://img.icons8.com/color/512/last.png",
+            })
+            .setColor("#73ff00"),
+        ],
+      });
     } catch (error) {
       sendError(interaction, error, true);
     }
