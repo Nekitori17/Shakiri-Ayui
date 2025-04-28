@@ -1,14 +1,10 @@
 import {
   AttachmentBuilder,
-  ButtonInteraction,
-  CommandInteraction,
-  MessageFlags,
-  MessageContextMenuCommandInteraction,
-  ModalSubmitInteraction,
-  StringSelectMenuInteraction,
-  UserContextMenuCommandInteraction,
+  MessageFlags
+
 } from "discord.js";
 import CommonEmbedBuilder from "./commonEmbedBuilder";
+import { AnyInteraction } from "../types/AnyIntreaction";
 
 function convertErrorToString(error: any) {
   const fullError: { [key: string]: any } = {};
@@ -21,13 +17,7 @@ function convertErrorToString(error: any) {
 }
 
 export default async (
-  interaction:
-    | CommandInteraction
-    | ButtonInteraction
-    | MessageContextMenuCommandInteraction
-    | UserContextMenuCommandInteraction
-    | StringSelectMenuInteraction
-    | ModalSubmitInteraction,
+  interaction: AnyInteraction,
   error: Error | any,
   ephemeral: boolean = false,
   mode: "edit" | "reply" = "edit"
