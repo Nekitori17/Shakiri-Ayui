@@ -46,11 +46,11 @@ const select: SelectMenuInterface = {
           .setPlaceholder("Select a user to kick")
           .addOptions(kickUserSelectMenu.filter((option) => option !== undefined))
           .setMinValues(1)
-          .setMaxValues(99999999)
+          .setMaxValues(10)
       );
 
       const sent = await interaction.editReply({
-        content: "Select a user to kick from your temporary voice channel",
+        content: "> Select a user to kick from your temporary voice channel",
         components: [row],
       });
 
