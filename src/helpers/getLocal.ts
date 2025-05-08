@@ -1,10 +1,6 @@
 import getAllFiles from "./getAllFiles";
 
-export default <T>(
-  folderPath: string,
-  exception: string[] = [],
-  exceptionField?: keyof T
-) => {
+export default <T>(folderPath: string, exception: string[] = []) => {
   let local: T[] = [];
 
   const categories = getAllFiles(folderPath, true);
@@ -14,11 +10,6 @@ export default <T>(
 
     for (const file of files) {
       const object = require(file).default as T;
-
-      if (exceptionField) {
-        const fieldValue = String(object[exceptionField]);
-        if (exception.includes(fieldValue)) continue;
-      }
 
       local.push(object);
     }
