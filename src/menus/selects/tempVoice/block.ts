@@ -7,8 +7,9 @@ import {
 } from "discord.js";
 import sendError from "../../../helpers/sendError";
 import UserSettings from "../../../models/UserSettings";
-import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
+import CommonEmbedBuilder from "../../../helpers/commonEmbedBuilder";
+import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
 const select: SelectMenuInterface = {
   async execute(interaction, client) {
@@ -24,14 +25,14 @@ const select: SelectMenuInterface = {
 
       const row = new ActionRowBuilder<UserSelectMenuBuilder>().setComponents(
         new UserSelectMenuBuilder()
-          .setCustomId("temp-voice-ban")
-          .setPlaceholder("Select a user to ban")
+          .setCustomId("temp-voice-block")
+          .setPlaceholder("Select a user to block")
           .setMinValues(1)
           .setMaxValues(10)
       );
 
       const sent = await interaction.editReply({
-        content: "> Select a user to ban from your temporary voice channel",
+        content: "> Select a user to block from your temporary voice channel",
         components: [row],
       });
 
@@ -51,7 +52,12 @@ const select: SelectMenuInterface = {
 
           if (userSettings) {
             users.forEach((user) => {
-              if (!userSettings.temporaryVoiceChannel.blockedUsers.includes(user.id))
+              if (
+                !userSettings.temporaryVoiceChannel.blockedUsers.includes(
+                  user.id
+                ) &&
+                user.id != selectInteraction.user.id
+              )
                 userSettings.temporaryVoiceChannel.blockedUsers.push(user.id);
             });
             await userSettings.save();
@@ -68,17 +74,27 @@ const select: SelectMenuInterface = {
           }
 
           users.forEach(async (user) => {
-            const member = await selectInteraction.guild?.members.fetch(user.id);
-            if (member && member?.voice.channelId === userVoiceChannel?.id) {
+            const member = await selectInteraction.guild?.members.fetch(
+              user.id
+            );
+            if (
+              member &&
+              member?.voice.channelId === userVoiceChannel?.id &&
+              user.id != selectInteraction.user.id
+            ) {
               await member.voice.disconnect();
             }
           });
 
           selectInteraction.editReply({
-            content: `> Banned users: ${users
-              .map((user) => user.displayName)
-              .join(", ")}`,
-            components: [],
+            embeds: [
+              CommonEmbedBuilder.success({
+                title: "> Blocked Users",
+                description: `Blocked users: ${users
+                  .map((user) => user.displayName)
+                  .join(", ")}`,
+              }),
+            ],
           });
         } catch (error) {
           sendError(selectInteraction, error, true);

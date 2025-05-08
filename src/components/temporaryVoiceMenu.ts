@@ -26,15 +26,15 @@ const tempVoiceSelectMenu = [
     .setEmoji("🦵")
     .setValue("kick"),
   new StringSelectMenuOptionBuilder()
-    .setLabel("Ban")
-    .setDescription("Ban users from the voice channel.")
+    .setLabel("Block")
+    .setDescription("Block users from the voice channel.")
     .setEmoji("🚫")
-    .setValue("ban"),
+    .setValue("block"),
   new StringSelectMenuOptionBuilder()
-    .setLabel("Unban")
-    .setDescription("Unban users from the voice channel.")
+    .setLabel("Unblock")
+    .setDescription("Unblock users from the voice channel.")
     .setEmoji("✅")
-    .setValue("unban"),
+    .setValue("unblock"),
   new StringSelectMenuOptionBuilder()
     .setLabel("Region")
     .setDescription("Change the voice channel's region.")

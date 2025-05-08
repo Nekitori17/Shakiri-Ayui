@@ -3,7 +3,6 @@ import {
   ButtonBuilder,
   ButtonStyle,
   ComponentType,
-  EmbedBuilder,
   GuildMember,
   MessageFlags,
   User,
@@ -11,13 +10,14 @@ import {
 } from "discord.js";
 import sendError from "../../../helpers/sendError";
 import UserSettings from "../../../models/UserSettings";
-import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
+import CommonEmbedBuilder from "../../../helpers/commonEmbedBuilder";
+import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
 const select: SelectMenuInterface = {
   async execute(interaction, client) {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-    const userVoiceChannel = (interaction.member as GuildMember).voice.channel;
+    const userVoiceChannel = (interaction.member as GuildMember).voice.channel!;
 
     try {
       if (!checkOwnTempVoice(userVoiceChannel?.id!, interaction.user.id))
@@ -47,149 +47,260 @@ const select: SelectMenuInterface = {
       collector.on("collect", async (selectInteraction) => {
         await selectInteraction.deferReply({ flags: MessageFlags.Ephemeral });
 
-        let sentInviteMessages: User[] = [];
+        let sentInviteMessageUsernames: string[] = [];
+        let cantSendInviteMessageUsernames: string[] = [];
+
         try {
           const users = selectInteraction.users;
-          const userNotBan = users.filter(async (user) => {
-            const userSettings = await UserSettings.findOne({
-              userId: user.id,
-            });
 
-            return !userSettings?.temporaryVoiceChannel.blockedUsers.includes(
-              selectInteraction.id.toString()
-            );
-          });
+          users.forEach(async (user) => {
+            try {
+              if (user.id == selectInteraction.user.id) return;
 
-          userNotBan.forEach(async (user) => {
-            const confirmButton =
-              new ActionRowBuilder<ButtonBuilder>().addComponents(
-                new ButtonBuilder()
-                  .setCustomId("invite-temp-voice-confirm-join")
-                  .setLabel("Join")
-                  .setStyle(ButtonStyle.Success),
-                new ButtonBuilder()
-                  .setCustomId("invite-temp-voice-confirm-deny")
-                  .setLabel("Deny")
-                  .setStyle(ButtonStyle.Danger),
-                new ButtonBuilder()
-                  .setCustomId("invite-temp-voice-confirm-block")
-                  .setLabel("Block")
-                  .setStyle(ButtonStyle.Secondary)
-              );
-
-            const userSent = await user.send({
-              embeds: [
-                new EmbedBuilder()
-                  .setAuthor({
-                    name: selectInteraction.user.displayName,
-                    iconURL: selectInteraction.user.displayAvatarURL(),
-                  })
-                  .setTitle(
-                    "> You have been invited to join a temporary voice channel"
-                  )
-                  .setDescription(
-                    `You have been invited to join the temporary voice channel: ${
-                      userVoiceChannel!.name
-                    }`
-                  )
-                  .setColor("#03ffbc")
-                  .setTimestamp(),
-              ],
-              components: [confirmButton],
-            });
-            sentInviteMessages.push(user);
-
-            const userCollector = userSent.createMessageComponentCollector({
-              componentType: ComponentType.Button,
-              filter: (i) => i.user.id === user.id,
-              time: 120_000,
-            });
-
-            userCollector.on("collect", async (userButtonInteraction) => {
-              try {
-                if (
-                  !(await selectInteraction.guild?.members.fetch(
-                    userButtonInteraction.user.id
-                  ))
+              const userSettings = await UserSettings.findOne({
+                userId: user.id,
+              });
+              if (
+                userSettings?.temporaryVoiceChannel.blockedUsers.includes(
+                  selectInteraction.user.id
                 )
-                  throw {
-                    name: "UserNotInGuild",
-                    message: "User is not in the guild",
-                  };
+              )
+                return cantSendInviteMessageUsernames.push(user.displayName);
 
-                if (
-                  userButtonInteraction.customId ==
-                  "invite-temp-voice-confirm-block"
-                ) {
-                  const userSettings = await UserSettings.findOne({
-                    userId: userButtonInteraction.user.id,
-                  });
+              const confirmButton =
+                new ActionRowBuilder<ButtonBuilder>().addComponents(
+                  new ButtonBuilder()
+                    .setCustomId("invite-temp-voice-confirm-join")
+                    .setLabel("Join")
+                    .setStyle(ButtonStyle.Success),
+                  new ButtonBuilder()
+                    .setCustomId("invite-temp-voice-confirm-deny")
+                    .setLabel("Deny")
+                    .setStyle(ButtonStyle.Danger),
+                  new ButtonBuilder()
+                    .setCustomId("invite-temp-voice-confirm-block")
+                    .setLabel("Block")
+                    .setStyle(ButtonStyle.Secondary)
+                );
 
-                  if (userSettings) {
-                    userSettings.temporaryVoiceChannel.blockedUsers.push(
-                      selectInteraction.user.id
-                    );
-                    await userSettings.save();
-                  } else {
-                    const newUserSettings = new UserSettings({
-                      userId: userButtonInteraction.user.id,
-                      temporaryVoiceChannel: {
-                        channelName: null,
-                        blockedUsers: [selectInteraction.user.id],
-                        limitUser: 0,
-                      },
+              const userSent = await user.send({
+                embeds: [
+                  CommonEmbedBuilder.info({
+                    title: "> Invite to Temporary Voice Channel",
+                    description: `You have been invited to join ${selectInteraction.user.displayName}'s temporary voice channel.`,
+                  }),
+                ],
+                components: [confirmButton],
+              });
+              sentInviteMessageUsernames.push(user.displayName);
+
+              const userCollector = userSent.createMessageComponentCollector({
+                componentType: ComponentType.Button,
+                filter: (i) => i.user.id === user.id,
+                time: 120_000,
+              });
+
+              userCollector.on("collect", async (userButtonInteraction) => {
+                const user = await selectInteraction.guild?.members.fetch(
+                  userButtonInteraction.user.id
+                );
+                const renewUserVoiceChannel = (
+                  await interaction.guild!.members.fetch(
+                    selectInteraction.user.id
+                  )
+                ).voice.channel;
+
+                try {
+                  if (!user)
+                    throw {
+                      name: "UserNotInGuild",
+                      message: "User is not in the guild",
+                    };
+
+                  if (
+                    userButtonInteraction.customId ==
+                    "invite-temp-voice-confirm-join"
+                  ) {
+                    if (!renewUserVoiceChannel) {
+                      return userSent.edit({
+                        content: null,
+                        embeds: [
+                          CommonEmbedBuilder.info({
+                            title: "> Channel Deleted",
+                            description:
+                              "The channel has been deleted by the owner.",
+                          }),
+                        ],
+                        components: [],
+                      });
+                    }
+
+                    if (userVoiceChannel.id != renewUserVoiceChannel.id) {
+                      return userSent.edit({
+                        content: null,
+                        embeds: [
+                          CommonEmbedBuilder.info({
+                            title: "> Channel Changed",
+                            description:
+                              "The channel has been changed by the owner.",
+                          }),
+                        ],
+                        components: [],
+                      });
+                    }
+
+                    if (
+                      userVoiceChannel.userLimit != 0 &&
+                      userVoiceChannel.members.size >=
+                        userVoiceChannel.userLimit
+                    )
+                      return userSent.edit({
+                        content: null,
+                        embeds: [
+                          CommonEmbedBuilder.info({
+                            title: "> Channel Full",
+                            description:
+                              "The channel is full. Please try again later.",
+                          }),
+                        ],
+                        components: [],
+                      });
+
+                    if (
+                      userVoiceChannel.members.find(
+                        (member) => member.id == userButtonInteraction.user.id
+                      )
+                    )
+                      return userSent.edit({
+                        content: null,
+                        embeds: [
+                          CommonEmbedBuilder.info({
+                            title: "> Already in Channel",
+                            description: "You are already in this channel.",
+                          }),
+                        ],
+                        components: [],
+                      });
+
+                    if (!user.voice) {
+                      return userSent.edit({
+                        content: null,
+                        embeds: [
+                          CommonEmbedBuilder.info({
+                            title: "> Not in Voice Channel",
+                            description:
+                              "You are not in a voice channel. Please join a voice channel and try again." +
+                              "\n\n" +
+                              "Or you can try to join by this link" +
+                              "\n" +
+                              (await userVoiceChannel.createInvite()).url,
+                          }),
+                        ],
+                        components: [],
+                      });
+                    }
+
+                    if (
+                      user.voice.channel?.guildId != userVoiceChannel.guild.id
+                    ) {
+                      return userSent.edit({
+                        content: null,
+                        embeds: [
+                          CommonEmbedBuilder.info({
+                            title: "> Not in Same Guild",
+                            description:
+                              "You are not in the same guild as the owner of this channel." +
+                              "\n\n" +
+                              "Or you can try to join by this link" +
+                              "\n" +
+                              (await userVoiceChannel.createInvite()).url,
+                          }),
+                        ],
+                        components: [],
+                      });
+                    }
+
+                    await user.voice.setChannel(userVoiceChannel!);
+                    await userSent.edit({
+                      content: null,
+                      embeds: [
+                        CommonEmbedBuilder.success({
+                          title: "> Joined Channel",
+                          description: `You have joined ${selectInteraction.user.displayName}'s temporary voice channel.`,
+                        }),
+                      ],
+                      components: [],
                     });
-                    await newUserSettings.save();
+                    return userButtonInteraction.deferUpdate();
                   }
-                  await userSent.edit({
-                    content: `You have blocked ${selectInteraction.user.displayName} from inviting you again.`,
-                    embeds: [],
-                    components: [],
-                  });
 
-                  return userButtonInteraction.deferUpdate();
-                }
+                  if (
+                    userButtonInteraction.customId ==
+                    "invite-temp-voice-confirm-block"
+                  ) {
+                    const userSettings = await UserSettings.findOne({
+                      userId: userButtonInteraction.user.id,
+                    });
 
-                if (
-                  userButtonInteraction.customId ==
-                  "invite-temp-voice-confirm-join"
-                ) {
-                  const userSelectedVoiceChannel =
-                    selectInteraction.guild?.members.cache.get(
-                      userButtonInteraction.user.id
-                    )?.voice;
-
-                  if (!userSelectedVoiceChannel)
-                    return userSent.edit({
-                      content: `You are not in a voice channel`,
-                      embeds: [],
+                    if (userSettings) {
+                      userSettings.temporaryVoiceChannel.blockedUsers.push(
+                        selectInteraction.user.id
+                      );
+                      await userSettings.save();
+                    } else {
+                      const newUserSettings = new UserSettings({
+                        userId: userButtonInteraction.user.id,
+                        temporaryVoiceChannel: {
+                          channelName: null,
+                          blockedUsers: [selectInteraction.user.id],
+                          limitUser: 0,
+                        },
+                      });
+                      await newUserSettings.save();
+                    }
+                    await userSent.edit({
+                      content: null,
+                      embeds: [
+                        CommonEmbedBuilder.info({
+                          title: "> Blocked",
+                          description: `You have blocked ${selectInteraction.user.displayName} from inviting you to their temporary voice channel.`,
+                        }),
+                      ],
                       components: [],
                     });
 
-                  await userSelectedVoiceChannel.setChannel(userVoiceChannel!);
-                  await userSent.edit({
-                    content: `> You have joined ${userVoiceChannel!.name}`,
-                    embeds: [],
-                    components: [],
-                  });
-                  return userButtonInteraction.deferUpdate();
-                }
+                    return userButtonInteraction.deferUpdate();
+                  }
 
-                if (
-                  userButtonInteraction.customId ==
-                  "invite-temp-voice-confirm-deny"
-                )
-                  return userSent.delete();
-              } catch (error) {
-                sendError(userButtonInteraction, error);
-              }
-            });
+                  if (
+                    userButtonInteraction.customId ==
+                    "invite-temp-voice-confirm-deny"
+                  )
+                    return userSent.delete();
+                } catch (error) {
+                  sendError(userButtonInteraction, error);
+                }
+              });
+            } catch (error) {
+              cantSendInviteMessageUsernames.push(user.displayName);
+              sendError(selectInteraction, error);
+            }
           });
 
           selectInteraction.editReply({
-            content: `> Invited users: ${sentInviteMessages
-              .map((user) => user.displayName)
-              .join(", ")}`,
+            content: null,
+            embeds: [
+              CommonEmbedBuilder.success({
+                title: "> Invited Users",
+                description:
+                  `Invited users: ${sentInviteMessageUsernames.join(", ")}` +
+                  +(cantSendInviteMessageUsernames.length > 0
+                    ? `\nCould not invite users: ${cantSendInviteMessageUsernames.join(
+                        ", "
+                      )}`
+                    : ""),
+              }),
+            ],
             components: [],
           });
         } catch (error) {

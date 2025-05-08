@@ -8,6 +8,7 @@ import {
 } from "discord.js";
 import sendError from "../../../helpers/sendError";
 import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
+import CommonEmbedBuilder from "../../../helpers/commonEmbedBuilder";
 import { rtcRegionList } from "../../../constants/rtcRegionList";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
@@ -25,7 +26,7 @@ const select: SelectMenuInterface = {
 
       const regionSelectMenu = Object.entries(rtcRegionList).map(
         ([name, value]) =>
-          new StringSelectMenuOptionBuilder().setLabel(name).setValue(value)
+          new StringSelectMenuOptionBuilder().setLabel(value).setValue(name)
       );
       const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
         new StringSelectMenuBuilder()
@@ -52,7 +53,16 @@ const select: SelectMenuInterface = {
 
           await userVoiceChannel?.setRTCRegion(regionName);
 
-          selectInteraction.editReply(`> Region changed to \`${selectInteraction.values[0]}\``);
+          selectInteraction.editReply({
+            embeds: [
+              CommonEmbedBuilder.success({
+                title: "> Changed Temporary Channel Region",
+                description: `Changed to region: \`${
+                  rtcRegionList[regionName as keyof typeof rtcRegionList]
+                }\``,
+              }),
+            ],
+          });
         } catch (error) {
           sendError(selectInteraction, error, true);
         }

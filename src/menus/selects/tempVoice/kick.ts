@@ -9,6 +9,7 @@ import {
 } from "discord.js";
 import sendError from "../../../helpers/sendError";
 import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
+import CommonEmbedBuilder from "../../../helpers/commonEmbedBuilder";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
 const select: SelectMenuInterface = {
@@ -42,7 +43,9 @@ const select: SelectMenuInterface = {
       const kickableMembersArray = Array.from(kickableMembers.values());
       const kickableMembersPartition: GuildMember[][] = [];
       let currentPage = 0;
-      const maxPage = Math.ceil(kickableMembersArray.length / AMOUNT_USER_IN_PAGE);
+      const maxPage = Math.ceil(
+        kickableMembersArray.length / AMOUNT_USER_IN_PAGE
+      );
 
       for (let i = 0; i < maxPage; i++) {
         kickableMembersPartition.push(
@@ -54,10 +57,11 @@ const select: SelectMenuInterface = {
       }
 
       const createReply = (page: number) => {
-        const kickUserSelectMenu = kickableMembersPartition[page].map((member) =>
-          new StringSelectMenuOptionBuilder()
-            .setLabel(member.displayName)
-            .setValue(member.id)
+        const kickUserSelectMenu = kickableMembersPartition[page].map(
+          (member) =>
+            new StringSelectMenuOptionBuilder()
+              .setLabel(member.displayName)
+              .setValue(member.id)
         );
 
         const userSelectMenu =
@@ -125,18 +129,26 @@ const select: SelectMenuInterface = {
           try {
             const userIds = collectInteraction.values;
             const kickedUsers = [];
-            
+
             for (const userId of userIds) {
-              const member = await collectInteraction.guild?.members.fetch(userId);
+              const member = await collectInteraction.guild?.members.fetch(
+                userId
+              );
               if (member) {
                 await member.voice.disconnect();
                 kickedUsers.push(member.displayName);
               }
             }
-            
-            await collectInteraction.editReply(
-              `> Kicked users: ${kickedUsers.join(", ")}`
-            );
+
+            await collectInteraction.editReply({
+              content: null,
+              embeds: [
+                CommonEmbedBuilder.success({
+                  title: "> Kicked Users",
+                  description: `Kicked users: ${kickedUsers.join(", ")}`,
+                }),
+              ],
+            });
             collector.stop();
           } catch (error) {
             sendError(collectInteraction, error, true);

@@ -11,6 +11,7 @@ import sendError from "../../../helpers/sendError";
 import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 import UserSettings from "../../../models/UserSettings";
+import CommonEmbedBuilder from "../../../helpers/commonEmbedBuilder";
 
 const select: SelectMenuInterface = {
   async execute(interaction, client) {
@@ -34,8 +35,8 @@ const select: SelectMenuInterface = {
 
       if (blockedUsers.length === 0) {
         throw {
-          name: "NoUserBanned",
-          message: "You have not banned any users. Nice",
+          name: "NoUserBlocked",
+          message: "You have not blocked any users. Nice",
         };
       }
 
@@ -66,8 +67,8 @@ const select: SelectMenuInterface = {
         const userSelectMenu =
           new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
             new StringSelectMenuBuilder()
-              .setCustomId("temp-voice-unban-select")
-              .setPlaceholder("Select a user to unban")
+              .setCustomId("temp-voice-unblock-select")
+              .setPlaceholder("Select a user to unblock")
               .addOptions(bannedUserSelectMenu)
               .setMinValues(1)
               .setMaxValues(10)
@@ -76,24 +77,25 @@ const select: SelectMenuInterface = {
 
         const buttonsPage = new ActionRowBuilder<ButtonBuilder>().addComponents(
           new ButtonBuilder()
-            .setCustomId("temp-voice-unban-previous")
+            .setCustomId("temp-voice-unblock-previous")
             .setEmoji("⬅️")
             .setStyle(ButtonStyle.Primary)
             .setDisabled(page === 0),
           new ButtonBuilder()
-            .setCustomId("temp-voice-unban-current")
+            .setCustomId("temp-voice-unblock-current")
             .setLabel(`${page + 1}/${maxPage}`)
             .setStyle(ButtonStyle.Secondary)
             .setDisabled(true),
           new ButtonBuilder()
-            .setCustomId("temp-voice-unban-next")
+            .setCustomId("temp-voice-unblock-next")
             .setEmoji("➡️")
             .setStyle(ButtonStyle.Primary)
             .setDisabled(page >= maxPage - 1)
         );
 
         return {
-          content: "> Select a user to unban from your temporary voice channel",
+          content:
+            "> Select a user to unblock from your temporary voice channel",
           components: [userSelectMenu, buttonsPage],
         };
       };
@@ -107,19 +109,19 @@ const select: SelectMenuInterface = {
 
       collector.on("collect", async (collectInteraction) => {
         if (collectInteraction.isButton()) {
-          if (collectInteraction.customId === "temp-voice-unban-previous") {
+          if (collectInteraction.customId === "temp-voice-unblock-previous") {
             currentPage--;
             await interaction.editReply(createReply(currentPage));
             return collectInteraction.deferUpdate();
           }
 
-          if (collectInteraction.customId === "temp-voice-unban-next") {
+          if (collectInteraction.customId === "temp-voice-unblock-next") {
             currentPage++;
             await collectInteraction.update(createReply(currentPage));
             return collectInteraction.deferUpdate();
           }
 
-          if (collectInteraction.customId === "temp-voice-unban-current")
+          if (collectInteraction.customId === "temp-voice-unblock-current")
             return collectInteraction.deferUpdate();
         }
 
@@ -134,16 +136,20 @@ const select: SelectMenuInterface = {
               updatedBlockedUsers;
             await userSettings!.save();
 
-            const unbannedUsers = userIds.map(
+            const unblockedUsers = userIds.map(
               (userId) =>
                 interaction.guild?.members.cache.get(userId)?.displayName ||
                 userId
             );
 
-            await collectInteraction.editReply(
-              `> Unbanned users: ${unbannedUsers.join(", ")}`
-            );
-            collector.stop();
+            collectInteraction.editReply({
+              embeds: [
+                CommonEmbedBuilder.success({
+                  title: "> Unblocked Users",
+                  description: `Unblocked users: ${unblockedUsers.join(", ")}`,
+                }),
+              ],
+            });
           } catch (error) {
             sendError(collectInteraction, error, true);
           }
