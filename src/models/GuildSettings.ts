@@ -30,15 +30,14 @@ const guildSettingSchema = new Schema({
   welcomer: {
     type: {
       enabled: { type: Boolean, default: false },
-      message: { type: String, default: "> Welcome {user} to __{guild}__." },
-      channelSend: String,
-      backgroundImage: {
+      message: {
         type: String,
-        default: "https://i.ibb.co/BnCqSH0/banner.jpg",
+        default: "> Welcome {user} to __{guild.name}__.",
       },
-      imageTitle: { type: String, default: "{user_display}" },
-      imageBody: { type: String, default: "Welcome to {guild}" },
-      imageFooter: { type: String, default: "Member #{member_count}" },
+      channelSend: String,
+      imageTitle: { type: String, default: "Welcome #{guild.count}" },
+      imageBody: { type: String, default: "{user.displayName}" },
+      imageFooter: { type: String, default: "To {guild.name}" },
     },
     default: {},
   },
@@ -53,7 +52,10 @@ const guildSettingSchema = new Schema({
   temporaryVoiceChannel: {
     type: {
       enabled: { type: Boolean, default: false },
-      nameChannelSyntax: { type: String, default: "{user}'s Voice" },
+      nameChannelSyntax: {
+        type: String,
+        default: "{user.displayName}'s Voice",
+      },
       channelSet: String,
       categorySet: String,
     },
