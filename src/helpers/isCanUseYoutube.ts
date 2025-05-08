@@ -7,11 +7,7 @@ import { Innertube } from "youtubei.js";
 export default async () => {
   try {
     const youtube = await Innertube.create();
-    const stream = await youtube.download("MvsAesQ-4zA", {
-      type: "video",
-      format: "mp4",
-      quality: "144p",
-    });
+    const stream = await youtube.download("V3ckbAOCVxI");
 
     const filePath = path.resolve("./tmp.mp4");
     const fileStream = fs.createWriteStream(filePath);
