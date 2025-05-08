@@ -3,6 +3,7 @@ import config from "../../../config";
 import jsonStore from "json-store-typed";
 import { ChannelType, VoiceState } from "discord.js";
 import UserSettings from "../../../models/UserSettings";
+import { genericVariableReplacer } from "../../../helpers/variableReplacer";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
 const event: DiscordEventInterface = async (
@@ -31,7 +32,9 @@ const event: DiscordEventInterface = async (
 
   if (newState.channelId !== settings.temporaryVoiceChannel.channelSet) return;
 
-  const userSettings = await UserSettings.findOne({ userId: newState.member?.id });
+  const userSettings = await UserSettings.findOne({
+    userId: newState.member?.id,
+  });
 
   const channelName =
     userSettings?.temporaryVoiceChannel?.channelName ||
@@ -39,9 +42,11 @@ const event: DiscordEventInterface = async (
 
   await newState.guild.channels
     .create({
-      name: channelName.replace(
-        /{user}/gi,
-        newState.member?.displayName || "Neko"
+      name: genericVariableReplacer(
+        channelName,
+        newState.member!,
+        newState.guild!,
+        client
       ),
       type: ChannelType.GuildVoice,
       parent:

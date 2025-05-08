@@ -10,6 +10,7 @@ import UserSettings from "../../../models/UserSettings";
 import sendError from "../../../helpers/sendError";
 import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
 import CommonEmbedBuilder from "../../../helpers/commonEmbedBuilder";
+import { genericVariableReplacer } from "../../../helpers/variableReplacer";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
 const select: SelectMenuInterface = {
@@ -33,7 +34,9 @@ const select: SelectMenuInterface = {
               .setLabel("New Name")
               .setRequired(true)
               .setStyle(TextInputStyle.Short)
-              .setPlaceholder("Variables: {user}")
+              .setPlaceholder(
+                "Variable: {user.displayName}, {user.username}, {guild.name}, {guild.count},..."
+              )
           )
         );
 
@@ -65,7 +68,12 @@ const select: SelectMenuInterface = {
       }
 
       await userVoiceChannel?.setName(
-        newName.replace(/{user}/gi, interaction.user.displayName)
+        genericVariableReplacer(
+          newName,
+          interaction.user,
+          interaction.guild!,
+          client
+        )
       );
       modalInteraction.editReply({
         embeds: [

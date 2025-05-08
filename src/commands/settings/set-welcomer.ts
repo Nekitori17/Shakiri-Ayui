@@ -22,11 +22,10 @@ const command: CommandInterface = {
         settings.welcomer = {
           enabled: false,
           channelSend: undefined,
-          message: "> Welcome {user} to __{guild}__.",
-          backgroundImage: "https://i.ibb.co/BnCqSH0/banner.jpg",
-          imageTitle: "{user_display}",
-          imageBody: "Welcome to {guild}",
-          imageFooter: "Member #{member_count}",
+          message: "> Welcome {user} to __{guild.name}__.",
+          imageTitle: "Welcome #{guild.count}",
+          imageBody: "{user.displayName}",
+          imageFooter: "To {guild.name}",
         };
       }
 
@@ -34,7 +33,6 @@ const command: CommandInterface = {
         enabled,
         channelSend: channelSend || settings.welcomer.channelSend,
         message: settings.welcomer.message,
-        backgroundImage: settings.welcomer.backgroundImage,
         imageTitle: settings.welcomer.imageTitle,
         imageBody: settings.welcomer.imageBody,
         imageFooter: settings.welcomer.imageFooter,

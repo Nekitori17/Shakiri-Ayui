@@ -24,7 +24,7 @@ const command: CommandInterface = {
           .setPlaceholder(
             "Write your message here" +
               "\n" +
-              "Variables: {user}, {user_display}, {member_count}, {guild}"
+              "Variables: {user}, {user.displayName}, {guild.count}, {guild.name},..."
           )
           .setRequired(false)
           .setValue(settings.welcomer.message),
@@ -35,7 +35,7 @@ const command: CommandInterface = {
           .setPlaceholder(
             "Write your image title here" +
               "\n" +
-              "Variables: {user}, {user_display}, {member_count}, {guild}"
+              "Variables: {user}, {user.displayName}, {guild.count}, {guild.name},..."
           )
           .setRequired(false)
           .setValue(settings.welcomer.imageTitle),
@@ -46,7 +46,7 @@ const command: CommandInterface = {
           .setPlaceholder(
             "Write your image body here" +
               "\n" +
-              "Variables: {user}, {user_display}, {member_count}, {guild}"
+              "Variables: {user}, {user.displayName}, {guild.count}, {guild.name},..."
           )
           .setRequired(false)
           .setValue(settings.welcomer.imageBody),
@@ -57,17 +57,10 @@ const command: CommandInterface = {
           .setPlaceholder(
             "Write your image footer here" +
               "\n" +
-              "Variables: {user}, {user_display}, {member_count}, {guild}"
+              "Variables: {user}, {user.displayName}, {guild.count}, {guild.name},..."
           )
           .setRequired(false)
           .setValue(settings.welcomer.imageFooter),
-        new TextInputBuilder()
-          .setCustomId("image-background")
-          .setLabel("Image Background")
-          .setStyle(TextInputStyle.Short)
-          .setPlaceholder("Enter your image background url here")
-          .setRequired(false)
-          .setValue(settings.welcomer.backgroundImage),
       ];
 
       const actionRowComponents = modalComponents.map((modalComponent) =>
@@ -94,9 +87,6 @@ const command: CommandInterface = {
             message:
               modalInteraction.fields.getTextInputValue("welcome-message") ||
               settings.welcomer.message,
-            backgroundImage:
-              modalInteraction.fields.getTextInputValue("image-background") ||
-              settings.welcomer.backgroundImage,
             imageTitle:
               modalInteraction.fields.getTextInputValue("image-title") ||
               settings.welcomer.imageTitle,
