@@ -1,48 +1,21 @@
 import path from "path";
-import {
-  ApplicationCommandOptionType,
-  ApplicationCommandType,
-  REST,
-  Routes,
-} from "discord.js";
+import { REST, Routes } from "discord.js";
 import getLocal from "../helpers/getLocal";
 import {
   CommandInterface,
   ContextInterface,
 } from "../types/InteractionInterfaces";
+import { InteractionRegisterInteraface } from "../types/InteractionRegister";
 
 export default async () => {
-  interface CommandRegisterInterface {
-    name: string;
-    description: string;
-    options?: {
-      name: string;
-      description: string;
-      type: ApplicationCommandOptionType;
-      required: boolean;
-      choices?: {
-        name: string;
-        value: string;
-      }[];
-    }[];
-  }
-
-  interface ContextRegisterInterface {
-    name: string;
-    type: ApplicationCommandType;
-    contexts?: string[] | null;
-  }
-
-  let commands: (CommandRegisterInterface | ContextRegisterInterface)[] = [];
+  let commands: InteractionRegisterInteraface[] = [];
   const localCommands = getLocal<CommandInterface>(
     path.join(__dirname, "../commands"),
-    [],
-    "name"
+    []
   );
   const localContexts = getLocal<ContextInterface>(
     path.join(__dirname, "../contexts"),
-    [],
-    "name"
+    []
   );
 
   for (const localCommand of localCommands) {
