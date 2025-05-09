@@ -137,17 +137,13 @@ const select: SelectMenuInterface = {
               updatedBlockedUsers;
             await userSettings!.save();
 
-            const unblockedUsers = userIds.map(
-              (userId) =>
-                interaction.guild?.members.cache.get(userId)?.displayName ||
-                userId
-            );
-
             collectInteraction.editReply({
               embeds: [
                 CommonEmbedBuilder.success({
                   title: "> Unblocked Users",
-                  description: `Unblocked users: ${unblockedUsers.join(", ")}`,
+                  description: `Unblocked users: ${userIds
+                    .map((userId) => `<@${userId}>`)
+                    .join(", ")}`,
                 }),
               ],
             });

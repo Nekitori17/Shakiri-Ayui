@@ -91,7 +91,7 @@ const select: SelectMenuInterface = {
               CommonEmbedBuilder.success({
                 title: "> Blocked Users",
                 description: `Blocked users: ${users
-                  .map((user) => user.displayName)
+                  .map((user) => `<@${user.id}>`)
                   .join(", ")}`,
               }),
             ],

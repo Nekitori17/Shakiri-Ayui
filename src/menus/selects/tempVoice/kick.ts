@@ -61,6 +61,7 @@ const select: SelectMenuInterface = {
           (member) =>
             new StringSelectMenuOptionBuilder()
               .setLabel(member.displayName)
+              .setDescription(member.user.tag)
               .setValue(member.id)
         );
 
@@ -136,7 +137,7 @@ const select: SelectMenuInterface = {
               );
               if (member) {
                 await member.voice.disconnect();
-                kickedUsers.push(member.displayName);
+                kickedUsers.push(member);
               }
             }
 

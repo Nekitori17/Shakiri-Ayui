@@ -47,25 +47,30 @@ const select: SelectMenuInterface = {
       collector.on("collect", async (selectInteraction) => {
         await selectInteraction.deferReply({ flags: MessageFlags.Ephemeral });
 
-        let sentInviteMessageUsernames: string[] = [];
-        let cantSendInviteMessageUsernames: string[] = [];
+        let sentInviteMessageUsers: User[] = [];
+        let cantSendInviteMessageUsers: User[] = [];
 
         try {
           const users = selectInteraction.users;
+          const invitePromises = [];
 
-          users.forEach(async (user) => {
+          // Process each selected user
+          for (const user of users.values()) {
+            if (user.id === selectInteraction.user.id) continue;
+
             try {
-              if (user.id == selectInteraction.user.id) return;
-
               const userSettings = await UserSettings.findOne({
                 userId: user.id,
               });
+
               if (
                 userSettings?.temporaryVoiceChannel.blockedUsers.includes(
                   selectInteraction.user.id
                 )
-              )
-                return cantSendInviteMessageUsernames.push(user.displayName);
+              ) {
+                cantSendInviteMessageUsers.push(user);
+                continue;
+              }
 
               const confirmButton =
                 new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -92,7 +97,8 @@ const select: SelectMenuInterface = {
                 ],
                 components: [confirmButton],
               });
-              sentInviteMessageUsernames.push(user.displayName);
+
+              sentInviteMessageUsers.push(user);
 
               const userCollector = userSent.createMessageComponentCollector({
                 componentType: ComponentType.Button,
@@ -101,7 +107,7 @@ const select: SelectMenuInterface = {
               });
 
               userCollector.on("collect", async (userButtonInteraction) => {
-                const user = await selectInteraction.guild?.members.fetch(
+                const userMember = await selectInteraction.guild?.members.fetch(
                   userButtonInteraction.user.id
                 );
                 const renewUserVoiceChannel = (
@@ -111,7 +117,7 @@ const select: SelectMenuInterface = {
                 ).voice.channel;
 
                 try {
-                  if (!user)
+                  if (!userMember)
                     throw {
                       name: "UserNotInGuild",
                       message: "User is not in the guild",
@@ -182,7 +188,7 @@ const select: SelectMenuInterface = {
                         components: [],
                       });
 
-                    if (!user.voice) {
+                    if (!userMember.voice) {
                       return userSent.edit({
                         content: null,
                         embeds: [
@@ -201,7 +207,8 @@ const select: SelectMenuInterface = {
                     }
 
                     if (
-                      user.voice.channel?.guildId != userVoiceChannel.guild.id
+                      userMember.voice.channel?.guildId !=
+                      userVoiceChannel.guild.id
                     ) {
                       return userSent.edit({
                         content: null,
@@ -220,7 +227,7 @@ const select: SelectMenuInterface = {
                       });
                     }
 
-                    await user.voice.setChannel(userVoiceChannel!);
+                    await userMember.voice.setChannel(userVoiceChannel!);
                     await userSent.edit({
                       content: null,
                       embeds: [
@@ -282,22 +289,26 @@ const select: SelectMenuInterface = {
                 }
               });
             } catch (error) {
-              cantSendInviteMessageUsernames.push(user.displayName);
+              cantSendInviteMessageUsers.push(user);
               sendError(selectInteraction, error);
             }
-          });
+          }
 
-          selectInteraction.editReply({
+          await selectInteraction.editReply({
             content: null,
             embeds: [
               CommonEmbedBuilder.success({
                 title: "> Invited Users",
                 description:
-                  `Invited users: ${sentInviteMessageUsernames.join(", ")}` +
-                  +(cantSendInviteMessageUsernames.length > 0
-                    ? `\nCould not invite users: ${cantSendInviteMessageUsernames.join(
-                        ", "
-                      )}`
+                  `Invited users: ${
+                    sentInviteMessageUsers
+                      .map((user) => `<@${user.id}>`)
+                      .join(", ") || "None"
+                  }` +
+                  (cantSendInviteMessageUsers.length > 0
+                    ? `\nCan't send invite message to: ${cantSendInviteMessageUsers
+                        .map((user) => `<@${user.id}>`)
+                        .join(", ")}`
                     : ""),
               }),
             ],

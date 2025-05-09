@@ -13,7 +13,7 @@ import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     try {
       const userSettings = await UserSettings.findOne({
@@ -127,17 +127,13 @@ const command: CommandInterface = {
               updatedBlockedUsers;
             await userSettings!.save();
 
-            const unblockedUsers = userIds.map(
-              (userId) =>
-                interaction.guild?.members.cache.get(userId)?.displayName ||
-                userId
-            );
-
             collectInteraction.editReply({
               embeds: [
                 CommonEmbedBuilder.success({
                   title: "> Unblocked Users",
-                  description: `Unblocked users: ${unblockedUsers.join(", ")}`,
+                  description: `Unblocked users: ${userIds
+                    .map((userId) => `<@${userId}>`)
+                    .join(", ")}`,
                 }),
               ],
             });
