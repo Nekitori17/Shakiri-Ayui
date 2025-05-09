@@ -45,13 +45,14 @@ const command: CommandInterface = {
       }
 
       const createReply = (page: number) => {
-        const bannedUserSelectMenu = blockedUsersPartition[page].map((userId) =>
-          new StringSelectMenuOptionBuilder()
-            .setLabel(
-              interaction.guild?.members.cache.get(userId)?.displayName ||
-                userId
-            )
-            .setValue(userId)
+        const bannedUserSelectMenu = blockedUsersPartition[page].map(
+          (userId) => {
+            const user = client.users.cache.get(userId);
+            return new StringSelectMenuOptionBuilder()
+              .setLabel(user?.displayName ?? userId)
+              .setDescription(user?.tag ?? userId)
+              .setValue(userId);
+          }
         );
 
         const userSelectMenu =
