@@ -36,6 +36,16 @@ const tempVoiceSelectMenu = [
     .setEmoji("✅")
     .setValue("unblock"),
   new StringSelectMenuOptionBuilder()
+    .setLabel("Claim")
+    .setDescription("Claim the voice channel ownership.")
+    .setEmoji("👑")
+    .setValue("claim"),
+  new StringSelectMenuOptionBuilder()
+    .setLabel("Transfer")
+    .setDescription("Transfer the voice channel ownership.")
+    .setEmoji("🤝")
+    .setValue("transfer"),
+  new StringSelectMenuOptionBuilder()
     .setLabel("Region")
     .setDescription("Change the voice channel's region.")
     .setEmoji("🌐")
