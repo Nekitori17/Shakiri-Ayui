@@ -30,9 +30,9 @@ const event: DiscordEventInterface = async (
     await newState.member.voice.disconnect();
     newState.member.send({
       embeds: [
-        CommonEmbedBuilder.info({
+        CommonEmbedBuilder.warning({
           title: "You are blocked",
-          description: `You are blocked from joining the channel ${newState.channel.name}`,
+          description: `You are blocked from joining the channel`,
         }),
       ],
     });
