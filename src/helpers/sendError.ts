@@ -67,7 +67,9 @@ export default async (
           description: error.message,
         });
 
-  await interaction.followUp({
+  await interaction.editReply({
+    content: null,
+    components: [],
     embeds: [errorEmbed],
     files: moreErrorInfo,
   });
