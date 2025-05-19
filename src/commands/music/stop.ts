@@ -1,6 +1,6 @@
 import { EmbedBuilder, PermissionFlagsBits } from "discord.js";
 import { useQueue } from "discord-player";
-import sendError from "../../helpers/sendError";
+import sendError from "../../helpers/utils/sendError";
 import { musicPlayerStoreSession } from "../../musicPlayerStoreSession";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 

@@ -6,7 +6,7 @@ import {
   TextInputStyle,
 } from "discord.js";
 import { useQueue } from "discord-player";
-import sendError from "../../../helpers/sendError";
+import sendError from "../../../helpers/utils/sendError";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
 import { musicPlayerStoreSession } from "../../../musicPlayerStoreSession";
 

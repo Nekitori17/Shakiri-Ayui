@@ -1,7 +1,7 @@
 import config from "../../../config";
 import { GuildMember } from "discord.js";
-import generateWelcomeImage from "../../../helpers/generateWelcomeImage";
-import { genericVariableReplacer } from "../../../helpers/variableReplacer";
+import generateWelcomeImage from "../../../helpers/tools/generateWelcomeImage";
+import { genericVariableReplacer } from "../../../helpers/utils/variableReplacer";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
 const event: DiscordEventInterface = async (client, member: GuildMember) => {

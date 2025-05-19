@@ -4,9 +4,9 @@ import {
   MessageFlags,
 } from "discord.js";
 import UserSettings from "../../models/UserSettings";
-import sendError from "../../helpers/sendError";
+import sendError from "../../helpers/utils/sendError";
 import checkOwnTempVoice from "../../validator/checkOwnTempVoice";
-import CommonEmbedBuilder from "../../helpers/commonEmbedBuilder";
+import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {

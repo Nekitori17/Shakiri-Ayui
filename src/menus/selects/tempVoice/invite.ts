@@ -8,10 +8,10 @@ import {
   User,
   UserSelectMenuBuilder,
 } from "discord.js";
-import sendError from "../../../helpers/sendError";
+import sendError from "../../../helpers/utils/sendError";
 import UserSettings from "../../../models/UserSettings";
 import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
-import CommonEmbedBuilder from "../../../helpers/commonEmbedBuilder";
+import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
 const select: SelectMenuInterface = {

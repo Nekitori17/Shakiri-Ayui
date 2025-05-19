@@ -5,9 +5,9 @@ import {
   GuildMemberRoleManager,
   PermissionFlagsBits,
 } from "discord.js";
-import sendError from "../../helpers/sendError";
+import sendError from "../../helpers/utils/sendError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
-import { ModerationEmbedBuilder } from "../../helpers/moderationEmbedBuilder";
+import { ModerationEmbedBuilder } from "../../helpers/embeds/moderationEmbedBuilder";
 
 const command: CommandInterface = {
   async execute(interaction, client) {

@@ -1,8 +1,8 @@
 import path from "path";
 import jsonStore from "json-store-typed";
 import { GuildMember, MessageFlags } from "discord.js";
-import sendError from "../../../helpers/sendError";
-import CommonEmbedBuilder from "../../../helpers/commonEmbedBuilder";
+import sendError from "../../../helpers/utils/sendError";
+import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
 const select: SelectMenuInterface = {

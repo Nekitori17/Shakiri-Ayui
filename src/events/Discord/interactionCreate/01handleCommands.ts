@@ -5,9 +5,9 @@ import {
   GuildMember,
   PermissionsBitField,
 } from "discord.js";
-import getLocal from "../../../helpers/getLocal";
-import sendError from "../../../helpers/sendError";
-import CommonEmbedBuilder from "../../../helpers/commonEmbedBuilder";
+import { getLocal } from "../../../helpers/utils/getLocal";
+import sendError from "../../../helpers/utils/sendError";
+import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import { CommandInterface } from "../../../types/InteractionInterfaces";
 

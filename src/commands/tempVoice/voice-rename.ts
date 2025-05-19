@@ -4,10 +4,10 @@ import {
   MessageFlags,
 } from "discord.js";
 import UserSettings from "../../models/UserSettings";
-import sendError from "../../helpers/sendError";
-import CommonEmbedBuilder from "../../helpers/commonEmbedBuilder";
+import sendError from "../../helpers/utils/sendError";
+import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 import checkOwnTempVoice from "../../validator/checkOwnTempVoice";
-import { genericVariableReplacer } from "../../helpers/variableReplacer";
+import { genericVariableReplacer } from "../../helpers/utils/variableReplacer";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {

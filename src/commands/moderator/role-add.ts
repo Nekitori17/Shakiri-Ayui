@@ -4,7 +4,7 @@ import {
   GuildMemberRoleManager,
   PermissionFlagsBits,
 } from "discord.js";
-import sendError from "../../helpers/sendError";
+import sendError from "../../helpers/utils/sendError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {

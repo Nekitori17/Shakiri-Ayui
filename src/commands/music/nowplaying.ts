@@ -1,6 +1,6 @@
 import { EmbedBuilder, PermissionFlagsBits } from "discord.js";
 import { useQueue, TrackSource, QueueRepeatMode } from "discord-player";
-import sendError from "../../helpers/sendError";
+import sendError from "../../helpers/utils/sendError";
 import { musicPlayerStoreSession } from "../../musicPlayerStoreSession";
 import { repeatModeNames } from "../../constants/musicRepeatModes";
 import { musicSourceIcons } from "../../constants/musicSourceIcons";

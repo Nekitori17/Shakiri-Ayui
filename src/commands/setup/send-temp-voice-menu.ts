@@ -1,6 +1,6 @@
 import { EmbedBuilder, MessageFlags, PermissionFlagsBits } from "discord.js";
 import { CommandInterface } from "../../types/InteractionInterfaces";
-import sendError from "../../helpers/sendError";
+import sendError from "../../helpers/utils/sendError";
 import temporaryVoiceMenu from "../../components/temporaryVoiceMenu";
 
 const command: CommandInterface = {

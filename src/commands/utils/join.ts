@@ -4,8 +4,8 @@ import {
   VoiceConnectionStatus,
   entersState,
 } from "discord-voip";
-import sendError from "../../helpers/sendError";
-import CommonEmbedBuilder from "../../helpers/commonEmbedBuilder";
+import sendError from "../../helpers/utils/sendError";
+import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {

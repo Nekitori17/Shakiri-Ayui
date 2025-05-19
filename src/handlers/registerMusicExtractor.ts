@@ -1,5 +1,5 @@
 import { Player } from "discord-player";
-import isCanUseYoutube from "../helpers/isCanUseYoutube";
+import isCanUseYoutube from "../validator/isCanUseYoutube";
 import { YoutubeiExtractor } from "discord-player-youtubei";
 import { DefaultExtractors } from "@discord-player/extractor";
 

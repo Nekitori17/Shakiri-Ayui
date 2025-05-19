@@ -6,7 +6,7 @@ import {
   PermissionFlagsBits,
 } from "discord.js";
 import { QueryType, TrackSource, useMainPlayer } from "discord-player";
-import sendError from "../../helpers/sendError";
+import sendError from "../../helpers/utils/sendError";
 import { musicPlayerStoreSession } from "../../musicPlayerStoreSession";
 import { musicSourceIcons } from "../../constants/musicSourceIcons";
 import { CommandInterface } from "../../types/InteractionInterfaces";

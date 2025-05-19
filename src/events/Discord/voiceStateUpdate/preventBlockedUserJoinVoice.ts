@@ -2,7 +2,7 @@ import path from "path";
 import { VoiceState } from "discord.js";
 import jsonStore from "json-store-typed";
 import UserSettings from "../../../models/UserSettings";
-import CommonEmbedBuilder from "../../../helpers/commonEmbedBuilder";
+import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
 const event: DiscordEventInterface = async (

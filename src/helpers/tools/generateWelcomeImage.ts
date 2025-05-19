@@ -4,7 +4,7 @@ import axios from "axios";
 import { Vibrant } from "node-vibrant/node";
 import { Client, Guild, GuildMember, User } from "discord.js";
 import mediaConverter from "./mediaConverter";
-import { genericVariableReplacer } from "./variableReplacer";
+import { genericVariableReplacer } from "../utils/variableReplacer";
 
 export default async (
   payload: {

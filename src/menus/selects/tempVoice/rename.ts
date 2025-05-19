@@ -7,10 +7,10 @@ import {
   TextInputStyle,
 } from "discord.js";
 import UserSettings from "../../../models/UserSettings";
-import sendError from "../../../helpers/sendError";
+import sendError from "../../../helpers/utils/sendError";
 import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
-import CommonEmbedBuilder from "../../../helpers/commonEmbedBuilder";
-import { genericVariableReplacer } from "../../../helpers/variableReplacer";
+import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
+import { genericVariableReplacer } from "../../../helpers/utils/variableReplacer";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
 const select: SelectMenuInterface = {

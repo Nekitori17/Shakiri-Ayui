@@ -4,7 +4,7 @@ import {
   PermissionFlagsBits,
 } from "discord.js";
 import { useQueue, QueueRepeatMode } from "discord-player";
-import sendError from "../../helpers/sendError";
+import sendError from "../../helpers/utils/sendError";
 import { repeatModeNames } from "../../constants/musicRepeatModes";
 import { musicPlayerStoreSession } from "../../musicPlayerStoreSession";
 import { CommandInterface } from "../../types/InteractionInterfaces";

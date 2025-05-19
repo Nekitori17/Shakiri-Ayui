@@ -1,5 +1,5 @@
 import path from "path";
-import getAllFiles from "../helpers/getAllFiles";
+import getAllFiles from "../helpers/utils/getAllFiles";
 import { DiscordEventInterface } from "../types/EventInterfaces";
 
 export default (client: any): void => {

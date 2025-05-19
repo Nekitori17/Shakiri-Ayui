@@ -5,8 +5,8 @@ import {
   GuildMember,
   PermissionsBitField,
 } from "discord.js";
-import sendError from "../../../helpers/sendError";
-import getLocalById from "../../../helpers/getLocalById";
+import sendError from "../../../helpers/utils/sendError";
+import { getLocalById } from "../../../helpers/utils/getLocal";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
 

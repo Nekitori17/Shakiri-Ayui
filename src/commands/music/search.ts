@@ -11,7 +11,7 @@ import {
   StringSelectMenuOptionBuilder,
 } from "discord.js";
 import { QueryType, Track, TrackSource, useMainPlayer } from "discord-player";
-import sendError from "../../helpers/sendError";
+import sendError from "../../helpers/utils/sendError";
 import { musicPlayerStoreSession } from "../../musicPlayerStoreSession";
 import { musicSourceIcons } from "../../constants/musicSourceIcons";
 import { CommandInterface } from "../../types/InteractionInterfaces";

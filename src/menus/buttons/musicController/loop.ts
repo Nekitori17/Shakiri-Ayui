@@ -7,7 +7,7 @@ import {
   StringSelectMenuOptionBuilder,
 } from "discord.js";
 import { QueueRepeatMode, useQueue } from "discord-player";
-import sendError from "../../../helpers/sendError";
+import sendError from "../../../helpers/utils/sendError";
 import { musicPlayerStoreSession } from "../../../musicPlayerStoreSession";
 import { repeatModeNames } from "../../../constants/musicRepeatModes";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";

@@ -7,11 +7,11 @@ import {
   ButtonBuilder,
   ButtonStyle,
 } from "discord.js";
-import sendError from "../../../helpers/sendError";
+import sendError from "../../../helpers/utils/sendError";
 import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 import UserSettings from "../../../models/UserSettings";
-import CommonEmbedBuilder from "../../../helpers/commonEmbedBuilder";
+import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 
 const select: SelectMenuInterface = {
   async execute(interaction, client) {

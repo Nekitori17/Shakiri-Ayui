@@ -4,7 +4,7 @@ import {
   MessageContextMenuCommandInteraction,
   MessageFlags,
 } from "discord.js";
-import sendError from "../../helpers/sendError";
+import sendError from "../../helpers/utils/sendError";
 import UserSettings from "../../models/UserSettings";
 import { ContextInterface } from "../../types/InteractionInterfaces";
 

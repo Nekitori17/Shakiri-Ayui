@@ -1,6 +1,6 @@
 import path from "path";
 import { REST, Routes } from "discord.js";
-import getLocal from "../helpers/getLocal";
+import { getLocal } from "../helpers/utils/getLocal";
 import {
   CommandInterface,
   ContextInterface,

@@ -1,6 +1,6 @@
 import { AttachmentBuilder, MessageFlags } from "discord.js";
-import CommonEmbedBuilder from "./commonEmbedBuilder";
-import { AnyInteraction } from "../types/AnyIntreaction";
+import CommonEmbedBuilder from "../embeds/commonEmbedBuilder";
+import { AnyInteraction } from "../../types/AnyIntreaction";
 
 function convertErrorToString(error: unknown): string {
   if (typeof error !== "object" || error === null) {

@@ -6,8 +6,8 @@ import {
   ButtonBuilder,
   EmbedBuilder,
 } from "discord.js";
-import mediaConverter from "../../helpers/mediaConverter";
-import sendError from "../../helpers/sendError";
+import mediaConverter from "../../helpers/tools/mediaConverter";
+import sendError from "../../helpers/utils/sendError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {

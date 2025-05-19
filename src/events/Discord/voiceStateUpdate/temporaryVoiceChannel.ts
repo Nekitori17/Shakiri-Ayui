@@ -3,7 +3,7 @@ import config from "../../../config";
 import jsonStore from "json-store-typed";
 import { ChannelType, VoiceState } from "discord.js";
 import UserSettings from "../../../models/UserSettings";
-import { genericVariableReplacer } from "../../../helpers/variableReplacer";
+import { genericVariableReplacer } from "../../../helpers/utils/variableReplacer";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
 const event: DiscordEventInterface = async (

@@ -1,7 +1,7 @@
 import path from "path";
 import jsonStore from "json-store-typed";
 import { GuildMember } from "discord.js";
-import sendError from "../../../helpers/sendError";
+import sendError from "../../../helpers/utils/sendError";
 import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
