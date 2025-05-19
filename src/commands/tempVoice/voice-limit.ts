@@ -15,25 +15,23 @@ const command: CommandInterface = {
     const amountOfLimit = interaction.options.get("limit")?.value as number;
 
     try {
-      const userSettings = await UserSettings.findOne({
-        userId: interaction.user.id,
-      });
-
-      if (userSettings) {
-        userSettings.temporaryVoiceChannel.limitUser = amountOfLimit;
-        await userSettings.save();
-      } else {
-        const newUserSettings = new UserSettings({
+      const userSettings = await UserSettings.findOneAndUpdate(
+        {
           userId: interaction.user.id,
-          temporaryVoiceChannel: {
-            channelName: null,
-            blockedUsers: [],
-            limitUser: amountOfLimit,
+        },
+        {
+          $setOnInsert: {
+            userId: interaction.user.id,
           },
-        });
+        },
+        {
+          upsert: true,
+          new: true,
+        }
+      );
 
-        await newUserSettings.save();
-      }
+      userSettings.temporaryVoiceChannel.limitUser = amountOfLimit;
+      await userSettings.save();
 
       const userVoiceChannel = (interaction.member as GuildMember).voice
         .channel;

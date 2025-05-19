@@ -47,25 +47,23 @@ const select: SelectMenuInterface = {
       await modalInteraction.deferReply({ flags: MessageFlags.Ephemeral });
       const newName = modalInteraction.fields.getTextInputValue("new-name");
 
-      const userSettings = await UserSettings.findOne({
-        userId: interaction.user.id,
-      });
-
-      if (userSettings) {
-        userSettings.temporaryVoiceChannel.channelName = newName;
-        await userSettings.save();
-      } else {
-        const newUserSettings = new UserSettings({
+      const userSettings = await UserSettings.findOneAndUpdate(
+        {
           userId: interaction.user.id,
-          temporaryVoiceChannel: {
-            channelName: newName,
-            blockedUsers: [],
-            limitUser: 0,
+        },
+        {
+          $setOnInsert: {
+            userId: interaction.user.id,
           },
-        });
+        },
+        {
+          upsert: true,
+          new: true,
+        }
+      );
 
-        await newUserSettings.save();
-      }
+      userSettings.temporaryVoiceChannel.channelName = newName;
+      await userSettings.save();
 
       await userVoiceChannel?.setName(
         genericVariableReplacer(

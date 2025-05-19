@@ -46,32 +46,31 @@ const select: SelectMenuInterface = {
 
         try {
           const users = selectInteraction.users;
-          const userSettings = await UserSettings.findOne({
-            userId: interaction.user.id,
-          });
-
-          if (userSettings) {
-            users.forEach((user) => {
-              if (
-                !userSettings.temporaryVoiceChannel.blockedUsers.includes(
-                  user.id
-                ) &&
-                user.id != selectInteraction.user.id
-              )
-                userSettings.temporaryVoiceChannel.blockedUsers.push(user.id);
-            });
-            await userSettings.save();
-          } else {
-            const newUserSettings = new UserSettings({
-              userId: interaction.user.id,
-              temporaryVoiceChannel: {
-                channelName: null,
-                blockedUsers: users.map((user) => user.id),
-                limitUser: 0,
+          const userSettings = await UserSettings.findOneAndUpdate(
+            {
+              userId: selectInteraction.user.id,
+            },
+            {
+              $setOnInsert: {
+                userId: selectInteraction.user.id,
               },
-            });
-            await newUserSettings.save();
-          }
+            },
+            {
+              upsert: true,
+              new: true,
+            }
+          );
+
+          users.forEach((user) => {
+            if (
+              !userSettings.temporaryVoiceChannel.blockedUsers.includes(
+                user.id
+              ) &&
+              user.id != selectInteraction.user.id
+            )
+              userSettings.temporaryVoiceChannel.blockedUsers.push(user.id);
+          });
+          await userSettings.save();
 
           users.forEach(async (user) => {
             const member = await selectInteraction.guild?.members.fetch(

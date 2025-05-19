@@ -17,22 +17,23 @@ const command: CommandInterface = {
           message: "Please enter a valid language (Ex: en, vi, ja,...)",
         };
 
-      const userSettings = await UserSettings.findOne({
-        userId: interaction.user.id,
-      });
-
-      if (userSettings) {
-        userSettings.messageTranslateLang = language;
-
-        await userSettings.save();
-      } else {
-        const newUserSettings = new UserSettings({
+      const userSettings = await UserSettings.findOneAndUpdate(
+        {
           userId: interaction.user.id,
-          messageTranslateLang: language,
-        });
+        },
+        {
+          $setOnInsert: {
+            userId: interaction.user.id,
+          },
+        },
+        {
+          upsert: true,
+          new: true,
+        }
+      );
 
-        await newUserSettings.save();
-      }
+      userSettings.messageTranslateLang = language;
+      await userSettings.save();
 
       interaction.editReply(
         `> <:update:1309527728999104622> You have set your translate language to \`${translateLanguages[language]}\``

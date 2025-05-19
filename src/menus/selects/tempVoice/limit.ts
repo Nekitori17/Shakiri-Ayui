@@ -54,29 +54,27 @@ const select: SelectMenuInterface = {
             name: "ThisIsNotANumber",
             message: "Please try again with correct value",
           };
-  
+
         const amountOfLimit = Number(amountOfLimitStr);
-  
-        const userSettings = await UserSettings.findOne({
-          userId: interaction.user.id,
-        });
-  
-        if (userSettings) {
-          userSettings.temporaryVoiceChannel.limitUser = amountOfLimit;
-          await userSettings.save();
-        } else {
-          const newUserSettings = new UserSettings({
+
+        const userSettings = await UserSettings.findOneAndUpdate(
+          {
             userId: interaction.user.id,
-            temporaryVoiceChannel: {
-              channelName: null,
-              blockedUsers: [],
-              limitUser: amountOfLimit,
+          },
+          {
+            $setOnInsert: {
+              userId: interaction.user.id,
             },
-          });
-  
-          await newUserSettings.save();
-        }
-  
+          },
+          {
+            upsert: true,
+            new: true,
+          }
+        );
+
+        userSettings.temporaryVoiceChannel.limitUser = amountOfLimit;
+        await userSettings.save();
+
         await userVoiceChannel?.setUserLimit(amountOfLimit);
         modalInteraction.editReply({
           embeds: [

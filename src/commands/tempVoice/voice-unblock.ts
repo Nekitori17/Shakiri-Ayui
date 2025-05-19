@@ -16,9 +16,20 @@ const command: CommandInterface = {
     await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
     try {
-      const userSettings = await UserSettings.findOne({
-        userId: interaction.user.id,
-      });
+      const userSettings = await UserSettings.findOneAndUpdate(
+        {
+          userId: interaction.user.id,
+        },
+        {
+          $setOnInsert: {
+            userId: interaction.user.id,
+          },
+        },
+        {
+          upsert: true,
+          new: true,
+        }
+      );
 
       const blockedUsers =
         userSettings?.temporaryVoiceChannel.blockedUsers ?? [];

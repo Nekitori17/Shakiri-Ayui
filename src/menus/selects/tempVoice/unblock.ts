@@ -26,9 +26,20 @@ const select: SelectMenuInterface = {
         };
       }
 
-      const userSettings = await UserSettings.findOne({
-        userId: interaction.user.id,
-      });
+      const userSettings = await UserSettings.findOneAndUpdate(
+        {
+          userId: interaction.user.id,
+        },
+        {
+          $setOnInsert: {
+            userId: interaction.user.id,
+          },
+        },
+        {
+          upsert: true,
+          new: true,
+        }
+      );
 
       const blockedUsers =
         userSettings?.temporaryVoiceChannel.blockedUsers ?? [];

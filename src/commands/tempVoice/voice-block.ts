@@ -15,33 +15,31 @@ const command: CommandInterface = {
     const targetUserId = interaction.options.get("target")?.value as string;
 
     try {
-      const userSettings = await UserSettings.findOne({
-        userId: interaction.user.id,
-      });
-
-      if (userSettings) {
-        if (
-          userSettings.temporaryVoiceChannel.blockedUsers.includes(targetUserId)
-        )
-          throw {
-            name: "UserAlreadyBlocked",
-            message: "This user is already blocked",
-          };
-
-        userSettings.temporaryVoiceChannel.blockedUsers.push(targetUserId);
-        await userSettings.save();
-      } else {
-        const newUserSettings = new UserSettings({
+      const userSettings = await UserSettings.findOneAndUpdate(
+        {
           userId: interaction.user.id,
-          temporaryVoiceChannel: {
-            channelName: null,
-            blockedUsers: [targetUserId],
-            limitUser: 0,
+        },
+        {
+          $setOnInsert: {
+            userId: interaction.user.id,
           },
-        });
+        },
+        {
+          upsert: true,
+          new: true,
+        }
+      );
 
-        await newUserSettings.save();
-      }
+      if (
+        userSettings.temporaryVoiceChannel.blockedUsers.includes(targetUserId)
+      )
+        throw {
+          name: "UserAlreadyBlocked",
+          message: "This user is already blocked",
+        };
+
+      userSettings.temporaryVoiceChannel.blockedUsers.push(targetUserId);
+      await userSettings.save();
 
       const userVoiceChannel = (interaction.member as GuildMember).voice
         .channel;

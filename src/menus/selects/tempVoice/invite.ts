@@ -54,17 +54,16 @@ const select: SelectMenuInterface = {
           const users = selectInteraction.users;
           const invitePromises = [];
 
-          // Process each selected user
           for (const user of users.values()) {
             if (user.id === selectInteraction.user.id) continue;
 
             try {
-              const userSettings = await UserSettings.findOne({
+              const userInviteSettings = await UserSettings.findOne({
                 userId: user.id,
               });
 
               if (
-                userSettings?.temporaryVoiceChannel.blockedUsers.includes(
+                userInviteSettings?.temporaryVoiceChannel.blockedUsers.includes(
                   selectInteraction.user.id
                 )
               ) {
@@ -245,26 +244,26 @@ const select: SelectMenuInterface = {
                     userButtonInteraction.customId ==
                     "invite-temp-voice-confirm-block"
                   ) {
-                    const userSettings = await UserSettings.findOne({
-                      userId: userButtonInteraction.user.id,
-                    });
-
-                    if (userSettings) {
-                      userSettings.temporaryVoiceChannel.blockedUsers.push(
-                        selectInteraction.user.id
-                      );
-                      await userSettings.save();
-                    } else {
-                      const newUserSettings = new UserSettings({
+                    const userSettings = await UserSettings.findOneAndUpdate(
+                      {
                         userId: userButtonInteraction.user.id,
-                        temporaryVoiceChannel: {
-                          channelName: null,
-                          blockedUsers: [selectInteraction.user.id],
-                          limitUser: 0,
+                      },
+                      {
+                        $setOnInsert: {
+                          userId: userButtonInteraction.user.id,
                         },
-                      });
-                      await newUserSettings.save();
-                    }
+                      },
+                      {
+                        upsert: true,
+                        new: true,
+                      }
+                    );
+
+                    userSettings.temporaryVoiceChannel.blockedUsers.push(
+                      selectInteraction.user.id
+                    );
+                    await userSettings.save();
+
                     await userSent.edit({
                       content: null,
                       embeds: [
