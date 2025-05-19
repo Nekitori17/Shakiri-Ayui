@@ -131,6 +131,14 @@ const select: SelectMenuInterface = {
           try {
             const userId = collectInteraction.values[0];
 
+            if ((await client.users.fetch(userId)).bot)
+              throw {
+                name: "CannotTransferToBot",
+                message:
+                  "Ahhhh. I don't think they can do something with this.",
+                type: "warning",
+              };
+
             temporaryChannels.set(userVoiceChannel.id, userId);
             collectInteraction.editReply({
               embeds: [

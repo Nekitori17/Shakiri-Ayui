@@ -9,6 +9,13 @@ const command: CommandInterface = {
     const userTarget = interaction.options.get("user")?.value as string;
 
     try {
+      if ((await client.users.fetch(userTarget)).bot)
+        throw {
+          name: "BotUser",
+          message: "Bro think they's a humman 💀🙏",
+          type: "warning",
+        };
+
       const userDatas = await UserDatas.findOneAndUpdate(
         {
           userId: userTarget || interaction.user.id,

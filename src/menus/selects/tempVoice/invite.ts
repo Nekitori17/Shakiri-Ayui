@@ -56,6 +56,7 @@ const select: SelectMenuInterface = {
 
           for (const user of users.values()) {
             if (user.id === selectInteraction.user.id) continue;
+            if (user.bot) continue;
 
             try {
               const userInviteSettings = await UserSettings.findOne({
