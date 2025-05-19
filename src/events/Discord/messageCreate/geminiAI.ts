@@ -12,7 +12,9 @@ const event: DiscordEventInterface = async (client, msg: Message) => {
   if (msg.channelId !== settings.geminiAI.channelSet) return;
   if (msg.content.startsWith(settings.geminiAI.ignorePrefix)) return;
 
-  const sent = await msg.reply("> 💭 Ayui is thinking...");
+  const sent = await msg.reply(
+    "> <a:aithinking:1373927153313513512> Ayui is thinking..."
+  );
 
   try {
     const response = await axios
