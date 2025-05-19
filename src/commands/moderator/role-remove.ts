@@ -42,12 +42,14 @@ const command: CommandInterface = {
           name: "RolePositionError",
           message:
             "You cannot remove a role that is higher than your highest role",
+          type: "warning",
         };
 
       if (botRolePosition! < targetRolePosition) {
         throw {
           name: "RolePositionError",
           message: "I cannot remove a role that is higher than my highest role",
+          type: "warning",
         };
       }
 

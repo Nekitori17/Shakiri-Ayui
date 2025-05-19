@@ -33,12 +33,14 @@ const command: CommandInterface = {
         throw {
           name: "OwnerIsMuted?",
           message: "Nahhh. I don't think owner can be muted",
+          type: "warning",
         };
 
       if (targetUser.id === interaction.guild?.members.me?.id)
         throw {
           name: "OhhhMyGod...",
           message: "I even can't do that",
+          type: "warning",
         };
 
       const requestUserRolePosition = (
@@ -52,12 +54,14 @@ const command: CommandInterface = {
         throw {
           name: "InsufficientPermissions",
           message: "They have the same/higher role than you",
+          type: "warning",
         };
 
       if (targetUserRolePosition >= botRolePosition!)
         throw {
           name: "InsufficientPermissions",
           message: "They have the same/higher role than me",
+          type: "warning",
         };
 
       await targetUser.timeout(null, reason);

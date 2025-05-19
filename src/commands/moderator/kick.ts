@@ -28,12 +28,14 @@ const command: CommandInterface = {
         throw {
           name: "Can'tKickOwner",
           message: "Why you would want to kick the owner of this server 🤨",
+          type: "warning",
         };
 
       if (targetUser.id === interaction.guild?.members.me?.id)
         throw {
           name: "Can'tKickMe",
           message: "Why you would want to kick me 😭",
+          type: "warning",
         };
 
       const requestUserRolePosition = (
@@ -47,12 +49,14 @@ const command: CommandInterface = {
         throw {
           name: "InsufficientPermissions",
           message: "They have the same/higher role than you",
+          type: "warning",
         };
 
       if (targetUserRolePosition >= botRolePosition!)
         throw {
           name: "InsufficientPermissions",
           message: "They have the same/higher role than me",
+          type: "warning",
         };
 
       await targetUser.kick(reason);

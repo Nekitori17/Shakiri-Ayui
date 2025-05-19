@@ -48,6 +48,7 @@ const select: SelectMenuInterface = {
         throw {
           name: "NoUserBlocked",
           message: "You have not blocked any users. Nice",
+          type: "info",
         };
       }
 

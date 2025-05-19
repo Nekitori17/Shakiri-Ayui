@@ -28,12 +28,14 @@ const command: CommandInterface = {
         throw {
           name: "Can'tBanOwner",
           message: "Why you would want to ban the owner of this server 🤨",
+          type: "warning",
         };
 
       if (targetUser.id === interaction.guild?.members.me?.id)
         throw {
           name: "Can'tBanMe",
           message: "Why you would want to ban me 😭",
+          type: "warning",
         };
 
       const requestUserRolePosition = (
@@ -47,12 +49,14 @@ const command: CommandInterface = {
         throw {
           name: "InsufficientPermissions",
           message: "They have the same/higher role than you",
+          type: "warning",
         };
 
       if (targetUserRolePosition >= botRolePosition!)
         throw {
           name: "InsufficientPermissions",
           message: "They have the same/higher role than me",
+          type: "warning",
         };
 
       await targetUser.ban({ reason });

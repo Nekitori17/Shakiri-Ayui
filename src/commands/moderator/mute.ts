@@ -34,18 +34,21 @@ const command: CommandInterface = {
         throw {
           name: "UserNotFound",
           message: "That user does not exist in this server",
+          type: "warning",
         };
 
       if (targetUser.id === interaction.guild?.ownerId)
         throw {
           name: "Can'tMuteOwner",
           message: "Why you would want to mute the owner of this server 🤨",
+          type: "warning",
         };
 
       if (targetUser.id === interaction.guild?.members.me?.id)
         throw {
           name: "Can'tMuteMe",
           message: "Why you would want to mute me 😭",
+          type: "warning",
         };
 
       const requestUserRolePosition = (
@@ -59,12 +62,14 @@ const command: CommandInterface = {
         throw {
           name: "InsufficientPermissions",
           message: "They have the same/higher role than you",
+          type: "warning",
         };
 
       if (targetUserRolePosition >= botRolePosition!)
         throw {
           name: "InsufficientPermissions",
           message: "They have the same/higher role than me",
+          type: "warning",
         };
 
       const userIsMuted = targetUser.isCommunicationDisabled();

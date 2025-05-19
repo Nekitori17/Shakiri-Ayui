@@ -22,6 +22,7 @@ const select: SelectMenuInterface = {
         throw {
           name: "AlreadyOwner",
           message: "You are already the owner of this channel.",
+          type: "info",
         };
       if (
         userVoiceChannel?.members.find(
@@ -31,6 +32,7 @@ const select: SelectMenuInterface = {
         throw {
           name: "OwnerInChannel",
           message: "The owner of this channel is still in the channel.",
+          type: "warning",
         };
 
       temporaryChannels.set(userVoiceChannel?.id, interaction.user.id);

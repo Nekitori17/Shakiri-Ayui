@@ -22,7 +22,7 @@ function convertErrorToString(error: unknown): string {
 interface CustomError {
   name: string;
   message: string;
-  type: "error" | "warning";
+  type: "error" | "warning" | "info";
 }
 
 export default async (
@@ -59,6 +59,11 @@ export default async (
   const errorEmbed =
     (error as CustomError)?.type === "warning"
       ? CommonEmbedBuilder.warning({
+          title: error.name,
+          description: error.message,
+        })
+      : (error as CustomError)?.type == "info"
+      ? CommonEmbedBuilder.info({
           title: error.name,
           description: error.message,
         })

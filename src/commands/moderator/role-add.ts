@@ -41,12 +41,14 @@ const command: CommandInterface = {
           name: "RolePositionError",
           message:
             "You cannot add a role that is higher than your highest role",
+          type: "warning",
         };
 
       if (botRolePosition! < targetRolePosition) {
         throw {
           name: "RolePositionError",
           message: "I cannot add a role that is higher than my highest role",
+          type: "warning",
         };
       }
 
