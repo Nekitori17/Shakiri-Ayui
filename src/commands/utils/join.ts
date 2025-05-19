@@ -61,20 +61,6 @@ const command: CommandInterface = {
       description: "Chose the mode to join the voice channel",
       type: ApplicationCommandOptionType.String,
       required: true,
-      choices: [
-        {
-          name: "Speak",
-          value: "speak",
-        },
-        {
-          name: "Listen",
-          value: "listen",
-        },
-        {
-          name: "Both",
-          value: "both",
-        },
-      ],
     },
   ],
   voiceChannel: true,
