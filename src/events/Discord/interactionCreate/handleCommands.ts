@@ -10,6 +10,7 @@ import sendError from "../../../helpers/utils/sendError";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import { CommandInterface } from "../../../types/InteractionInterfaces";
+import isCooldowned from "../../../validator/isCooldowned";
 
 const event: DiscordEventInterface = async (
   client,
@@ -39,6 +40,22 @@ const event: DiscordEventInterface = async (
           ],
         });
       }
+
+    if (commandObject.cooldown) {
+      const { cooldowned, nextTime } = isCooldowned(
+        interaction.commandName,
+        "command",
+        commandObject.cooldown,
+        interaction.user.id
+      );
+
+      if (!cooldowned && nextTime)
+        throw {
+          name: "Cooldown",
+          message: `Please wait <t:${nextTime}:R> before using this command again.`,
+          type: "warning",
+        };
+    }
 
     if (commandObject.voiceChannel) {
       if (!(interaction.member as GuildMember).voice.channel)

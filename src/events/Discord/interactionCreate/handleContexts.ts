@@ -6,15 +6,16 @@ import sendError from "../../../helpers/utils/sendError";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import { ContextInterface } from "../../../types/InteractionInterfaces";
+import isCooldowned from "../../../validator/isCooldowned";
 
 const event: DiscordEventInterface = (client, interaction: any) => {
   if (!interaction.isContextMenuCommand()) return;
-  
+
   try {
     const localContexts = getLocal<ContextInterface>(
       path.join(__dirname, "../../../contexts")
     );
-    
+
     const contextObject = localContexts.find(
       (command) => command.name === interaction.commandName
     );
@@ -32,6 +33,22 @@ const event: DiscordEventInterface = (client, interaction: any) => {
           ],
         });
       }
+
+    if (contextObject.cooldown) {
+      const { cooldowned, nextTime } = isCooldowned(
+        interaction.commandName,
+        "command",
+        contextObject.cooldown,
+        interaction.user.id
+      );
+
+      if (!cooldowned && nextTime)
+        throw {
+          name: "Cooldown",
+          message: `Please wait <t:${nextTime}:R> before using this context menu again.`,
+          type: "warning",
+        };
+    }
 
     contextObject.botPermissions?.push(...config.defaultPermissions);
     if (contextObject.botPermissions?.length) {

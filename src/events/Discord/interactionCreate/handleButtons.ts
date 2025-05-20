@@ -9,6 +9,7 @@ import sendError from "../../../helpers/utils/sendError";
 import { getLocalById } from "../../../helpers/utils/getLocal";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
+import isCooldowned from "../../../validator/isCooldowned";
 
 const event: DiscordEventInterface = async (
   client,
@@ -19,7 +20,7 @@ const event: DiscordEventInterface = async (
 
   try {
     const [category, customId] = interaction.customId.split("_");
-    
+
     const buttonObject = getLocalById<ButtonInterface>(
       path.join(__dirname, "../../../menus/buttons"),
       category.replace("$", ""),
@@ -33,6 +34,22 @@ const event: DiscordEventInterface = async (
         throw {
           name: "NoVoiceChannel",
           message: "To use this command, you must be in a voice channel",
+        };
+    }
+
+    if (buttonObject.cooldown) {
+      const { cooldowned, nextTime } = isCooldowned(
+        interaction.customId.slice(1),
+        "button",
+        buttonObject.cooldown,
+        interaction.user.id
+      );
+
+      if (!cooldowned && nextTime)
+        throw {
+          name: "Cooldown",
+          message: `Please wait <t:${nextTime}:R> before using this button again.`,
+          type: "warning",
         };
     }
 

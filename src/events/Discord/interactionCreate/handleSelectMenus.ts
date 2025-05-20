@@ -9,6 +9,7 @@ import sendError from "../../../helpers/utils/sendError";
 import { getLocalById } from "../../../helpers/utils/getLocal";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
+import isCooldowned from "../../../validator/isCooldowned";
 
 const event: DiscordEventInterface = async (
   client,
@@ -34,6 +35,22 @@ const event: DiscordEventInterface = async (
         throw {
           name: "NoVoiceChannel",
           message: "To use this command, you must be in a voice channel",
+        };
+    }
+
+    if (selectMenuObject.cooldown) {
+      const { cooldowned, nextTime } = isCooldowned(
+        interaction.customId.slice(1),
+        "button",
+        selectMenuObject.cooldown,
+        interaction.user.id
+      );
+
+      if (!cooldowned && nextTime)
+        throw {
+          name: "Cooldown",
+          message: `Please wait <t:${nextTime}:R> before using this select menu again.`,
+          type: "warning",
         };
     }
 
