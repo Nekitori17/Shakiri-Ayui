@@ -53,16 +53,8 @@ const command: CommandInterface = {
     }
   },
   name: "join",
-  description: "Join the voice channel you are currently in. (Not Available yet)",
+  description: "Join the voice channel you are currently in.",
   deleted: false,
-  options: [
-    {
-      name: "mode",
-      description: "Chose the mode to join the voice channel",
-      type: ApplicationCommandOptionType.String,
-      required: true,
-    },
-  ],
   voiceChannel: true,
 };
 
