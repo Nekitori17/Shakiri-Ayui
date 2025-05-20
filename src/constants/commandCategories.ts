@@ -20,6 +20,11 @@ export const commandCategories = Object.fromEntries(
       emoji: "🎶",
       description: "Commands for music playback and control",
     },
+    miniGames: {
+      label: "Mini Games",
+      emoji: "🎲",
+      description: "Commands for playing mini games",
+    },
     tempVoice: {
       label: "Temporary Voice",
       emoji: "🎤",
