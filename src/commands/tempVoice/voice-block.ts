@@ -36,6 +36,7 @@ const command: CommandInterface = {
         throw {
           name: "UserAlreadyBlocked",
           message: "This user is already blocked",
+          type: "info",
         };
 
       userSettings.temporaryVoiceChannel.blockedUsers.push(targetUserId);

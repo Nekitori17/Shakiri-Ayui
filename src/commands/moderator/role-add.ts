@@ -56,6 +56,7 @@ const command: CommandInterface = {
         throw {
           name: "RoleAlreadyAdded",
           message: "That user already has that role",
+          type: "info",
         };
 
       await targetUser.roles.add(targetRole);

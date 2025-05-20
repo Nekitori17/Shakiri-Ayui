@@ -57,6 +57,7 @@ const command: CommandInterface = {
         throw {
           name: "RoleNotAssigned",
           message: "That user does not have that role",
+          type: "warning",
         };
 
       await targetUser.roles.remove(targetRole);

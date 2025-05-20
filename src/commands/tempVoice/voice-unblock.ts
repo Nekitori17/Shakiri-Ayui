@@ -38,6 +38,7 @@ const command: CommandInterface = {
         throw {
           name: "NoUserBlocked",
           message: "You have not blocked any users. Nice",
+          type: "info",
         };
       }
 
