@@ -30,6 +30,7 @@ const command: CommandInterface = {
       userDatas.dailyStreak += 1;
       if (userDatas.dailyStreak > userDatas.longestStreak)
         userDatas.longestStreak = userDatas.dailyStreak;
+      userDatas.lastDaily = new Date(Date.now());
 
       await userDatas.save();
 
