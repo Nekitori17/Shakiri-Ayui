@@ -77,9 +77,9 @@ const command: CommandInterface = {
                 "\n" +
                 `**Bot Info**:` +
                 "\n" +
-                `* <:owner:1309527278090457178>  The Official Bot For Nameless Realm Server.` +
+                `* <:owner:1309527278090457178>  Small bot with some utilities.` +
                 "\n" +
-                `* <:code:1309526212544036986>  Code By Nekitori17.` +
+                `* <:code:1309526212544036986>  Code By [Nekitori17](https://github.com/Nekitori17).` +
                 "\n" +
                 `* <:card:1309526027663442001>  Host by: sillydev.co.uk` +
                 "\n" +
