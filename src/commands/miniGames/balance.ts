@@ -38,7 +38,7 @@ const command: CommandInterface = {
               `> ${
                 userTarget
                   ? client.users.cache.get(userTarget) || "Unknown User"
-                  : interaction.user
+                  : interaction.user.displayName
               }'s Balance`
             )
             .setDescription(
