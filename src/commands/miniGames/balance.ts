@@ -1,5 +1,5 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from "discord.js";
-import UserDatas from "../../models/UserDatas";
+import MiniGameUserDatas from "../../models/MiniGameUserDatas";
 import sendError from "../../helpers/utils/sendError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -12,11 +12,11 @@ const command: CommandInterface = {
       if (userTarget && (await client.users.fetch(userTarget)).bot)
         throw {
           name: "BotUser",
-          message: "Bro think they's a humman 💀🙏",
+          message: "Bro think they can play minigame 💀🙏",
           type: "warning",
         };
 
-      const userDatas = await UserDatas.findOneAndUpdate(
+      const userDatas = await MiniGameUserDatas.findOneAndUpdate(
         {
           userId: userTarget || interaction.user.id,
         },
@@ -37,12 +37,15 @@ const command: CommandInterface = {
             .setTitle(
               `> ${
                 userTarget
-                  ? client.users.cache.get(userTarget) || "Unknown User"
+                  ? client.users.cache.get(userTarget)?.displayName ||
+                    "Unknown User"
                   : interaction.user.displayName
               }'s Balance`
             )
             .setDescription(
               `🔥 Daily Streak: ${userDatas.dailyStreak} days` +
+                "\n" +
+                `🎇 Longest Streak: ${userDatas.longestStreak} days` +
                 "\n" +
                 `💵 Balance: ${
                   userDatas?.balance || 0
@@ -60,7 +63,7 @@ const command: CommandInterface = {
             )
             .setFooter({
               text: client.user?.displayName!,
-              iconURL: "https://files.catbox.moe/fw1c0d.gif",
+              iconURL: "https://files.catbox.moe/6j940t.gif",
             })
             .setTimestamp(),
         ],

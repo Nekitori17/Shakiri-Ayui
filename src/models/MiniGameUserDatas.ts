@@ -9,12 +9,13 @@ const userDatasSchema = new Schema({
       capacity: { type: Number, default: 1000 },
       profit: { type: Number, default: 0.05 },
     },
-    default: {}
+    default: {},
   },
   dailyStreak: { type: Number, default: 0 },
+  lastDaily: { type: Date },
   longestStreak: { type: Number, default: 0 },
   inventory: { type: [String], default: [] },
 });
 
 type UserDatasType = InferSchemaType<typeof userDatasSchema>;
-export default model<UserDatasType>("UserDatas", userDatasSchema);
+export default model<UserDatasType>("MiniGameUserDatas", userDatasSchema);

@@ -1,11 +1,11 @@
-import UserDatas from "../../../models/UserDatas";
+import MiniGameUserDatas from "../../../models/MiniGameUserDatas";
 import { TimeEventInterface } from "../../../types/EventInterfaces";
 
 const schedule: TimeEventInterface = {
   async execute(client) {
     const cutoffDate = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
 
-    const userDatas = await UserDatas.find({
+    const userDatas = await MiniGameUserDatas.find({
       lastDaily: { $lte: cutoffDate },
     });
 
