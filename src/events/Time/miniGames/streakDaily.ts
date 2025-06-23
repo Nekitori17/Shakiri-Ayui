@@ -3,25 +3,25 @@ import { TimeEventInterface } from "../../../types/EventInterfaces";
 
 const schedule: TimeEventInterface = {
   async execute(client) {
-    const cutoffDate = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - 2);
+    cutoffDate.setHours(0, 0, 0, 0);
 
-    const userDatas = await MiniGameUserDatas.find({
-      lastDaily: { $lte: cutoffDate },
-    });
-
-    for (const userData of userDatas) {
-      userData.lastDaily = null;
-      userData.dailyStreak = 0;
-      await userData.save();
-    }
+    await MiniGameUserDatas.updateMany(
+      {
+        lastDaily: {
+          $exists: true,
+          $ne: null,
+          $lt: cutoffDate,
+        },
+      },
+      { $set: { lastDaily: null, dailyStreak: 0 } }
+    );
   },
   mode: "INTERVAL",
   schedule: {
     interval: 86400,
-    startTime: {
-      hours: 23,
-      minutes: 0,
-    }
+    startTime: { hours: 0, minutes: 0 },
   },
 };
 
