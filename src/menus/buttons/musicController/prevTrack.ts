@@ -20,7 +20,7 @@ const button: ButtonInterface = {
         embeds: [
           new EmbedBuilder()
             .setAuthor({
-              name: "🎶 The previous will start to play",
+              name: "<:neonmusic:1387059800721981473> The previous will start to play",
               iconURL: "https://img.icons8.com/color/512/first.png",
             })
             .setColor("#73ff00"),

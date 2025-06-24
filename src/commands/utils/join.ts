@@ -43,7 +43,7 @@ const command: CommandInterface = {
       await interaction.editReply({
         embeds: [
           CommonEmbedBuilder.info({
-            title: "✅ Joined Voice Channel",
+            title: "<:neonok:1387055447214915634>Joined Voice Channel",
             description: `Joined ${userVoiceChannel.name} voice channel.`,
           }),
         ],

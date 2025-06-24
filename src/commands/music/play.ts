@@ -30,7 +30,9 @@ const command: CommandInterface = {
         };
 
       await interaction.editReply(
-        `> 🎶 Loading ${result.playlist ? "playlist" : "track"}...`
+        `> <:neoniphonespinner:1387059563974365266> Loading ${
+          result.playlist ? "playlist" : "track"
+        }...`
       );
 
       const settings = await config.modules(interaction.guildId!);
@@ -60,7 +62,7 @@ const command: CommandInterface = {
         embeds: [
           new EmbedBuilder()
             .setAuthor({
-              name: `🎶 | Added ${track.title} by ${track.author} to the queue!`,
+              name: `<:neonmusic:1387059800721981473> | Added ${track.title} by ${track.author} to the queue!`,
               iconURL: track.thumbnail,
               url: track.url,
             })

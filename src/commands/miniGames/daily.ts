@@ -46,13 +46,15 @@ const command: CommandInterface = {
             })
             .setTitle(`> 🎁 Daily Reward Claimed!`)
             .setDescription(
-              `* Your New Balance: ${newBalance.toLocaleString()} <:nyen:1373967798790783016> (+ ${actualRewardGained.toLocaleString()} <:nyen:1373967798790783016>)` +
+              `* <:neonwallet:1387054333333471242> Your New Balance: ${newBalance.toLocaleString()} <:nyen:1373967798790783016> (+ ${actualRewardGained.toLocaleString()} <:nyen:1373967798790783016>)` +
                 "\n" +
-                `* Multiplier: ${multiplier.toFixed(1)}x` +
+                `* <:neonmultiply:1387055043043131504> Multiplier: ${multiplier.toFixed(
+                  1
+                )}x` +
                 "\n" +
-                `* Daily Streak: ${userDatas.dailyStreak} days` +
+                `* <:neonfire:1387053968340942898> Daily Streak: ${userDatas.dailyStreak} days` +
                 "\n" +
-                `* Longest Streak: ${userDatas.longestStreak} days`
+                `* <:neoncampfire:1387054129204953118> Longest Streak: ${userDatas.longestStreak} days`
             )
             .setColor("Aqua")
             .setThumbnail(interaction.user.displayAvatarURL())

@@ -24,7 +24,7 @@ const command: CommandInterface = {
         embeds: [
           new EmbedBuilder()
             .setAuthor({
-              name: "🎶 Queue has been stopped!",
+              name: "<:neonmusic:1387059800721981473> Queue has been stopped!",
               iconURL: "https://img.icons8.com/color/512/do-not-disturb.png",
             })
             .setColor("#ff3131"),

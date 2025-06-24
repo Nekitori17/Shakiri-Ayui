@@ -20,7 +20,7 @@ const command: CommandInterface = {
         embeds: [
           new EmbedBuilder()
             .setAuthor({
-              name: "🎶 The track has been skipped!",
+              name: "<:neonmusic:1387059800721981473> The track has been skipped!",
               iconURL: "https://img.icons8.com/color/512/last.png",
             })
             .setColor("#73ff00"),

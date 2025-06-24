@@ -17,7 +17,7 @@ const command: CommandInterface = {
 
     try {
       await interaction.editReply(
-        `> 🔎 [1/3] | Fetching chart information at */chart/${idChart}`
+        `> <:neonsearch:1387052551719092365> [1/3] | Fetching chart information at */chart/${idChart}`
       );
 
       const chartInfo = await axios
@@ -31,7 +31,7 @@ const command: CommandInterface = {
         });
 
       await interaction.editReply(
-        `> 🔎 [2/3] | Fetching uploader information at */user/${chartInfo.uploader}`
+        `> <:neonsearch:1387052551719092365> [2/3] | Fetching uploader information at */user/${chartInfo.uploader}`
       );
 
       const uploaderInfo = await axios
@@ -44,7 +44,9 @@ const command: CommandInterface = {
           };
         });
 
-      await interaction.editReply("🔀 [3/3] | Converting some file..");
+      await interaction.editReply(
+        "> <:neondocument:1387052807361925180> [3/3] | Converting some file.."
+      );
 
       const illustration = await mediaConverter({
         url: chartInfo.illustration as string,
@@ -81,22 +83,24 @@ const command: CommandInterface = {
       const buttonRow = [
         new ButtonBuilder()
           .setLabel("Download")
-          .setEmoji("📥")
+          .setEmoji("1387053076116017222")
           .setStyle(ButtonStyle.Link)
           .setURL(chartInfo.file as string),
         new ButtonBuilder()
           .setLabel("Beatmap")
-          .setEmoji("🗺️")
+          .setEmoji("1387053401870700684")
           .setStyle(ButtonStyle.Link)
           .setURL(`https://phira.moe/chart/${chartInfo.id}`),
         new ButtonBuilder()
           .setLabel("Uploader")
-          .setEmoji("👤")
+          .setEmoji("1387053696529072299")
           .setStyle(ButtonStyle.Link)
           .setURL(`https://phira.moe/user/${uploaderInfo.id}`),
       ];
 
-      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(buttonRow);
+      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+        buttonRow
+      );
 
       interaction.editReply({
         content: null,

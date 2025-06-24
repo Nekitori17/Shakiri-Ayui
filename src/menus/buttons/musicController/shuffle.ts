@@ -26,7 +26,7 @@ const button: ButtonInterface = {
         embeds: [
           new EmbedBuilder()
             .setAuthor({
-              name: "🎶 Shake, shake, shake. Now it's random!",
+              name: "<:neonmusic:1387059800721981473> Shake, shake, shake. Now it's random!",
               iconURL: "https://img.icons8.com/fluency/512/shuffle.png",
             })
             .setColor("#a6ff00"),

@@ -20,7 +20,7 @@ const command: CommandInterface = {
       await interaction.editReply({
         embeds: [
           CommonEmbedBuilder.info({
-            title: "✅ Left Voice Channel",
+            title: "<:neonexport:1387061808988160090> Left Voice Channel",
             description: "Left the voice channel.",
           }),
         ],

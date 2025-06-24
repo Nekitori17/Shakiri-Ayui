@@ -9,7 +9,7 @@ const event: MusicEventInterface = (player) => {
     musicPlayerStoreSession.volume.del(queue.guild.id);
 
     (queue.metadata.channel as TextChannel).send(
-      "> ✌ | Looks like my job here is done. Leaving now!"
+      "> <:neonsoso:1387064200886620382> | Looks like my job here is done. Leaving now!"
     );
   });
 };

@@ -50,7 +50,8 @@ const command: CommandInterface = {
       interaction.editReply({
         embeds: [
           CommonEmbedBuilder.success({
-            title: "> Changed Temporary Channel Name",
+            title:
+              "> <:decorename:1373929390278443079> Changed Temporary Channel Name",
             description: `Changed to name: \`${newName}\``,
           }),
         ],

@@ -41,17 +41,17 @@ const command: CommandInterface = {
           components: [
             new ButtonBuilder()
               .setCustomId("music-queue-page-previous")
-              .setEmoji("⬅️")
-              .setStyle(ButtonStyle.Primary)
+              .setEmoji("1387060739344306367")
+              .setStyle(ButtonStyle.Secondary)
               .setDisabled(page === 0),
             new ButtonBuilder()
               .setCustomId("music-queue-page-current")
               .setLabel(`${page + 1}/${maxPage}`)
-              .setStyle(ButtonStyle.Secondary),
+              .setStyle(ButtonStyle.Primary),
             new ButtonBuilder()
               .setCustomId("music-queue-page-next")
-              .setEmoji("➡️")
-              .setStyle(ButtonStyle.Primary)
+              .setEmoji("1387060517700632656")
+              .setStyle(ButtonStyle.Secondary)
               .setDisabled(page >= maxPage - 1),
           ],
         });
@@ -62,7 +62,7 @@ const command: CommandInterface = {
                 name: interaction.user.displayName,
                 iconURL: interaction.user.displayAvatarURL(),
               })
-              .setTitle("> 🎶 Queue")
+              .setTitle("> <:neonmusic:1387059800721981473> Queue")
               .setDescription(
                 queuePartition[page]
                   .map(

@@ -3,6 +3,7 @@ import {
   ActionRowBuilder,
   ComponentType,
   EmbedBuilder,
+  Emoji,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from "discord.js";
@@ -38,23 +39,27 @@ const command: CommandInterface = {
       function commandListEmbed(category: string): EmbedBuilder {
         const commandCategory =
           commandCategories[category as keyof typeof commandCategories];
+        let categoryEmoji: string | Emoji = commandCategory.emoji;
+
+        if (!isNaN(Number(categoryEmoji))) {
+          const emojiFromBot = client.emojis.cache.get(categoryEmoji);
+          categoryEmoji = emojiFromBot || categoryEmoji;
+        }
+
+        const commands = getAllFiles(path.join(__dirname, "..", category)).map(
+          (file) => {
+            const command = require(file).default as CommandInterface;
+            return `🔹 </${command.name}:0>`;
+          }
+        );
+
         return new EmbedBuilder()
           .setAuthor({
             name: interaction.user.displayName,
             iconURL: interaction.user.displayAvatarURL(),
           })
-          .setTitle(`> ${commandCategory.emoji} ${commandCategory.label}`)
-          .setDescription(
-            getAllFiles(path.join(__dirname, "..", category))
-              .map(
-                (file) =>
-                  `* </${
-                    (require(file) as { default: CommandInterface }).default
-                      .name
-                  }:0>`
-              )
-              .join("\n")
-          )
+          .setTitle(`> ${categoryEmoji} ${commandCategory.label}`)
+          .setDescription(commands.join("\n"))
           .setFooter({
             text: interaction.guild?.name || client.user?.displayName!,
             iconURL:
@@ -77,13 +82,13 @@ const command: CommandInterface = {
                 "\n" +
                 `**Bot Info**:` +
                 "\n" +
-                `* <:owner:1309527278090457178>  Small bot with some utilities.` +
+                `* 💠 Small bot with **some utilities.**` +
                 "\n" +
-                `* <:code:1309526212544036986>  Code By [Nekitori17](https://github.com/Nekitori17).` +
+                `* 💠  Code By **[Nekitori17](https://github.com/Nekitori17).**` +
                 "\n" +
-                `* <:card:1309526027663442001>  Host by: sillydev.co.uk` +
+                `* 💠  Host by: \`sillydev.co.uk\`` +
                 "\n" +
-                `* <:share:1309527583695699968>  Source Code: https://github.com/Nekitori17/Shakiri-Ayui` +
+                `* 💠  Source Code: __https://github.com/Nekitori17/Shakiri-Ayui__` +
                 "\n"
             )
             .setFooter({

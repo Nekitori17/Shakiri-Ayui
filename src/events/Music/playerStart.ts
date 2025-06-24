@@ -25,13 +25,15 @@ const event: MusicEventInterface = (player) => {
           })
           .setTitle(`> ${track.title}`)
           .setDescription(
-            `* Requested by ${track.requestedBy}` +
+            `* <:neongenderneutraluser:1387064583805472969> Requested by ${track.requestedBy}` +
               "\n" +
-              `* Volume: ${volume.toString()}%` +
+              `* <:neonsynchronize:1387059275423027351> <:neonvolume:1387059134372773908> Volume: ${volume.toString()}%` +
               "\n" +
-              `* Loop: ${repeatModeNames[repeatMode || 0]}` +
+              `* <:neonsynchronize:1387059275423027351> Loop: ${
+                repeatModeNames[repeatMode || 0]
+              }` +
               "\n" +
-              `* Shuffled: ${
+              `* <:neonshuffle:1387059433322053813> Shuffled: ${
                 shuffeledTimes > 1
                   ? `${shuffeledTimes} times`
                   : `${shuffeledTimes} time`

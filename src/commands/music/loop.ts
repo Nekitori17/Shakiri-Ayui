@@ -31,7 +31,7 @@ const command: CommandInterface = {
         embeds: [
           new EmbedBuilder()
             .setAuthor({
-              name: `🎶 Set loop mode to ${repeatModeName}`,
+              name: `<:neonmusic:1387059800721981473> Set loop mode to ${repeatModeName}`,
               iconURL: "https://img.icons8.com/fluency/512/repeat.png",
             })
             .setColor("#5a01ff"),

@@ -83,11 +83,14 @@ const command: CommandInterface = {
           "## Wordle"
         );
         const todayDateComponent = new TextDisplayBuilder().setContent(
-          `📅 **Date: ${new Date().toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}**`
+          `<:neoncalendar:1387055610427609099> **Date: ${new Date().toLocaleDateString(
+            "en-US",
+            {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }
+          )}**`
         );
         const wordleLogoComponent = new ThumbnailBuilder()
           .setURL("https://files.catbox.moe/vtppxo.png")
@@ -98,13 +101,13 @@ const command: CommandInterface = {
           .setThumbnailAccessory(wordleLogoComponent);
 
         const statusComponent = new TextDisplayBuilder().setContent(
-          "🔷 **Status:** " +
+          "<:neonok:1387055447214915634> **Status:** " +
             game.status[0].toUpperCase() +
             game.status.slice(1).toLowerCase()
         );
 
         const guessedLabelComponent = new TextDisplayBuilder().setContent(
-          "🔠 **Guessed Words:** "
+          "<:neonrubikscube:1387055812467359856> **Guessed Words:** "
         );
 
         const guesses = game.getGuesses();
@@ -151,7 +154,7 @@ const command: CommandInterface = {
         if (game.status === "playing") {
           const potentialReward = calculateReward(game.getGuesses().length + 1);
           rewardComponent = new TextDisplayBuilder().setContent(
-            `💰 **Potential Reward:** ${potentialReward} nyan (next guess)`
+            `<:neonprize:1387056183256420424> **Potential Reward:** ${potentialReward} nyan (next guess)`
           );
         } else if (game.status === "won") {
           const earnedReward = calculateReward(game.getGuesses().length);
@@ -162,13 +165,13 @@ const command: CommandInterface = {
 
         const guessButton = new ButtonBuilder()
           .setCustomId("wordle-guess-button")
-          .setEmoji("✋")
+          .setEmoji("1387056450278264904")
           .setLabel("Guess")
           .setStyle(ButtonStyle.Primary)
           .setDisabled(game.status != "playing");
         const showAnswerButton = new ButtonBuilder()
           .setCustomId("wordle-show-answer-button")
-          .setEmoji("👁")
+          .setEmoji("1387056651546394835")
           .setLabel("Show Answer")
           .setStyle(ButtonStyle.Secondary)
           .setDisabled(game.status == "playing");
@@ -230,8 +233,7 @@ const command: CommandInterface = {
 
             const sentButton = await buttonInteraction.reply({
               content:
-                "💭 Enter the word to guess in the chat bar below within 10 seconds.",
-              flags: MessageFlags.Ephemeral,
+                "<:neonlighton:1387056993558200451> Enter the word to guess in the chat bar below within 10 seconds.",
               components: [actionRow],
             });
 

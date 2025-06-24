@@ -42,7 +42,8 @@ const command: CommandInterface = {
       interaction.editReply({
         embeds: [
           CommonEmbedBuilder.success({
-            title: "> Changed Temporary Channel Limit User",
+            title:
+              "> <:decogroups:1373929660596883466> Changed Temporary Channel Limit User",
             description: `Changed to amount: \`${amountOfLimit}\``,
           }),
         ],

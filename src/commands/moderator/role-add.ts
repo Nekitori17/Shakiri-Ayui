@@ -69,7 +69,7 @@ const command: CommandInterface = {
               iconURL: targetUser.displayAvatarURL(),
             })
             .setColor("Green")
-            .setTitle("Role Added")
+            .setTitle("🎭 Role Added")
             .setDescription(
               `Successfully Added the role ${targetRole} to ${targetUser}`
             )

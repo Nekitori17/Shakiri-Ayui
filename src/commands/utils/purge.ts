@@ -24,7 +24,9 @@ const command: CommandInterface = {
         interaction.channel as TextChannel
       ).bulkDelete(amount);
 
-      interaction.editReply(`> 🚮 Deleted ${deletedMessages.size} message.`);
+      interaction.editReply(
+        `> <:neondeleteforever:1387062051519729674> Deleted ${deletedMessages.size} message.`
+      );
     } catch (error) {
       sendError(interaction, error);
     }

@@ -70,7 +70,7 @@ const command: CommandInterface = {
               iconURL: targetUser.displayAvatarURL(),
             })
             .setColor("Orange")
-            .setTitle("Role removed")
+            .setTitle("🍥 Role removed")
             .setDescription(
               `Successfully removed the role ${targetRole} from ${targetUser}`
             )

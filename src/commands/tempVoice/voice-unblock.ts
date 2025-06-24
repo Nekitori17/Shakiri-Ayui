@@ -98,7 +98,7 @@ const command: CommandInterface = {
 
         return {
           content:
-            "> Select a user to unblock from your temporary voice channel",
+            "> ✅ Select a user to unblock from your temporary voice channel",
           components: [userSelectMenu, buttonsPage],
         };
       };
@@ -142,7 +142,8 @@ const command: CommandInterface = {
             collectInteraction.editReply({
               embeds: [
                 CommonEmbedBuilder.success({
-                  title: "> Unblocked Users",
+                  title:
+                    "> <:decounblockuser:1373931479595352147> Unblocked Users",
                   description: `Unblocked users: ${userIds
                     .map((userId) => `<@${userId}>`)
                     .join(", ")}`,

@@ -36,7 +36,7 @@ const command: CommandInterface = {
       await userSettings.save();
 
       interaction.editReply(
-        `> <:update:1309527728999104622> You have set your translate language to \`${translateLanguages[language]}\``
+        `> <:neonwrench:1387061424722808923> You have set your translate language to \`${translateLanguages[language]}\``
       );
     } catch (error) {
       sendError(interaction, error);

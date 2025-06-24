@@ -60,7 +60,7 @@ const button: ButtonInterface = {
             embeds: [
               new EmbedBuilder()
                 .setAuthor({
-                  name: `🎶 Set loop mode to ${repeatModeNames[repeatMode]}`,
+                  name: `<:neonmusic:1387059800721981473> Set loop mode to ${repeatModeNames[repeatMode]}`,
                   iconURL: "https://img.icons8.com/fluency/512/repeat.png",
                 })
                 .setColor("#5a01ff"),

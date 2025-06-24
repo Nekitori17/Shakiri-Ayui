@@ -43,17 +43,19 @@ const command: CommandInterface = {
               }'s Balance`
             )
             .setDescription(
-              `🔥 Daily Streak: ${userDatas.dailyStreak} days` +
+              `<:neonfire:1387053968340942898> Daily Streak: ${userDatas.dailyStreak} days` +
                 "\n" +
-                `🎇 Longest Streak: ${userDatas.longestStreak} days` +
+                `<:neoncampfire:1387054129204953118> Longest Streak: ${userDatas.longestStreak} days` +
                 "\n" +
-                `💵 Balance: ${
+                `<:neonwallet:1387054333333471242> Balance: ${
                   userDatas?.balance || 0
                 } <:nyen:1373967798790783016>` +
                 "\n" +
-                `🏦 Bank: ${userDatas.bank.balance}/${userDatas.bank.capacity} <:nyen:1373967798790783016>` +
+                `<:neonbank:1387054510861586572> Bank: ${userDatas.bank.balance}/${userDatas.bank.capacity} <:nyen:1373967798790783016>` +
                 "\n" +
-                `📈 Profit: ${userDatas.bank.profit * 100}%`
+                `<:neoneconomicimprovement:1387054670278688888> Profit: ${
+                  userDatas.bank.profit * 100
+                }%`
             )
             .setColor("Aqua")
             .setThumbnail(
