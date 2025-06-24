@@ -26,7 +26,7 @@
     "axios": "^1.10.0",
     "discord-player": "^7.1.0",
     "discord-player-youtubei": "^1.4.6",
-    "discord.js": "^14.20.0",
+    "discord.js": "14.19.3",
     "dotenv": "^16.5.0",
     "ffmpeg-static": "^5.2.0",
     "json-store-typed": "^1.1.0",
