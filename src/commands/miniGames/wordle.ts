@@ -167,7 +167,7 @@ const command: CommandInterface = {
           .setCustomId("wordle-guess-button")
           .setEmoji("1387056450278264904")
           .setLabel("Guess")
-          .setStyle(ButtonStyle.Primary)
+          .setStyle(ButtonStyle.Success)
           .setDisabled(game.status != "playing");
         const showAnswerButton = new ButtonBuilder()
           .setCustomId("wordle-show-answer-button")
@@ -222,19 +222,19 @@ const command: CommandInterface = {
 
         try {
           if (buttonInteraction.customId == "wordle-guess-button") {
-            const cancelButton = new ButtonBuilder()
-              .setCustomId("wordle-cancel-button")
-              .setEmoji("❌")
-              .setLabel("Cancel")
-              .setStyle(ButtonStyle.Danger);
+            // const cancelButton = new ButtonBuilder()
+            //   .setCustomId("wordle-cancel-button")
+            //   .setEmoji("❌")
+            //   .setLabel("Cancel")
+            //   .setStyle(ButtonStyle.Danger);
 
-            const actionRow =
-              new ActionRowBuilder<ButtonBuilder>().addComponents(cancelButton);
+            // const actionRow =
+            //   new ActionRowBuilder<ButtonBuilder>().addComponents(cancelButton);
 
             const sentButton = await buttonInteraction.reply({
               content:
                 "<:neonlighton:1387056993558200451> Enter the word to guess in the chat bar below within 10 seconds.",
-              components: [actionRow],
+              /* components: [actionRow],*/
             });
 
             let messageListenerActive = true;
@@ -304,20 +304,20 @@ const command: CommandInterface = {
 
             client.on("messageCreate", messageListener);
 
-            const buttonCollector = sentButton.createMessageComponentCollector({
-              componentType: ComponentType.Button,
-              time: 10000,
-              filter: (i) => i.user.id === buttonInteraction.user.id,
-            });
+            // const buttonCollector = sentButton.createMessageComponentCollector({
+            //   componentType: ComponentType.Button,
+            //   time: 10000,
+            //   filter: (i) => i.user.id === buttonInteraction.user.id,
+            // });
 
-            buttonCollector.on("collect", async (cancelButtonInteraction) => {
-              if (cancelButtonInteraction.customId == "wordle-cancel-button") {
-                console.log("cancel");
-                messageListenerActive = false;
-                client.off("messageCreate", messageListener);
-                cancelButtonInteraction.deferUpdate();
-              }
-            });
+            // buttonCollector.on("collect", async (cancelButtonInteraction) => {
+            //   console.log("cancel");
+            //   if (cancelButtonInteraction.customId == "wordle-cancel-button") {
+            //     messageListenerActive = false;
+            //     client.off("messageCreate", messageListener);
+            //     cancelButtonInteraction.deferUpdate();
+            //   }
+            // });
 
             setTimeout(async () => {
               messageListenerActive = false;
