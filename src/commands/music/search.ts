@@ -15,6 +15,7 @@ import sendError from "../../helpers/utils/sendError";
 import { musicPlayerStoreSession } from "../../musicPlayerStoreSession";
 import { musicSourceIcons } from "../../constants/musicSourceIcons";
 import { CommandInterface } from "../../types/InteractionInterfaces";
+import _ from "lodash";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
@@ -38,36 +39,34 @@ const command: CommandInterface = {
 
       const AMOUNT_TRACK_IN_PAGE = 5;
       const tracksPartition: Track[][] = [];
-      let currentPage = 0;
-      const tracksArray = result.tracks || [];
-      const maxPage = Math.ceil(tracksArray.length / AMOUNT_TRACK_IN_PAGE);
-      for (let i = 0; i < maxPage; i++) {
-        tracksPartition.push(
-          tracksArray.slice(
-            i * AMOUNT_TRACK_IN_PAGE,
-            (i + 1) * AMOUNT_TRACK_IN_PAGE
-          )
-        );
-      }
 
+      const tracksArray = result.tracks || [];
+      const totalTracks = tracksArray.length;
+
+      const maxPages = Math.floor(totalTracks / AMOUNT_TRACK_IN_PAGE) || 1;
+      const chunkSize = Math.ceil(totalTracks / maxPages);
+
+      tracksPartition.push(..._.chunk(tracksArray, chunkSize));
+
+      let currentPage = 0;
       function createReply(page: number) {
         const buttonsPage = new ActionRowBuilder<ButtonBuilder>({
           components: [
             new ButtonBuilder()
               .setCustomId("search-result-page-previous")
-              .setEmoji("⬅️")
+              .setEmoji("1387296301867073576")
               .setStyle(ButtonStyle.Primary)
               .setDisabled(page === 0),
             new ButtonBuilder()
               .setCustomId("search-result-page-current")
-              .setLabel(`${page + 1}/${maxPage}`)
+              .setLabel(`${page + 1}/${maxPages}`)
               .setStyle(ButtonStyle.Secondary)
               .setDisabled(false),
             new ButtonBuilder()
               .setCustomId("search-result-page-next")
-              .setEmoji("➡️")
+              .setEmoji("1387296195256254564")
               .setStyle(ButtonStyle.Primary)
-              .setDisabled(page >= maxPage - 1),
+              .setDisabled(page >= maxPages - 1),
           ],
         });
 
@@ -108,7 +107,7 @@ const command: CommandInterface = {
               .setTitle(
                 `> <:colormusic:1387285617599184977> Search Results (Page ${
                   page + 1
-                }/${maxPage})`
+                }/${maxPages})`
               )
               .setDescription(
                 tracksPartition[page]

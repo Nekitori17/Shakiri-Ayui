@@ -1,3 +1,4 @@
+import _ from "lodash";
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -24,35 +25,33 @@ const command: CommandInterface = {
 
       const AMOUNT_TRACK_IN_PAGE = 10;
       const queuePartition: Track[][] = [];
-      let currentPage = 0;
-      const tracksArray = queue?.tracks.toArray() || [];
-      const maxPage = Math.ceil(tracksArray.length / AMOUNT_TRACK_IN_PAGE);
-      for (let i = 0; i < maxPage; i++) {
-        queuePartition.push(
-          tracksArray.slice(
-            i * AMOUNT_TRACK_IN_PAGE,
-            (i + 1) * AMOUNT_TRACK_IN_PAGE
-          )
-        );
-      }
 
+      const tracksArray = queue?.tracks.toArray() || [];
+      const totalTracks = tracksArray.length;
+
+      const maxPages = Math.floor(totalTracks / AMOUNT_TRACK_IN_PAGE) || 1;
+      const chunkSize = Math.ceil(totalTracks / maxPages);
+
+      queuePartition.push(..._.chunk(tracksArray, chunkSize));
+
+      let currentPage = 0;
       function createReply(page: number) {
         const buttonsPage = new ActionRowBuilder<ButtonBuilder>({
           components: [
             new ButtonBuilder()
               .setCustomId("music-queue-page-previous")
-              .setEmoji("1387060739344306367")
+              .setEmoji("1387296301867073576")
               .setStyle(ButtonStyle.Secondary)
               .setDisabled(page === 0),
             new ButtonBuilder()
               .setCustomId("music-queue-page-current")
-              .setLabel(`${page + 1}/${maxPage}`)
+              .setLabel(`${page + 1}/${maxPages}`)
               .setStyle(ButtonStyle.Primary),
             new ButtonBuilder()
               .setCustomId("music-queue-page-next")
-              .setEmoji("1387060517700632656")
+              .setEmoji("1387296195256254564")
               .setStyle(ButtonStyle.Secondary)
-              .setDisabled(page >= maxPage - 1),
+              .setDisabled(page >= maxPages - 1),
           ],
         });
         return {

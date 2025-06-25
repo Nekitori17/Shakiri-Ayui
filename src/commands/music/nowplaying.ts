@@ -24,9 +24,9 @@ const command: CommandInterface = {
 
       const track = queue.currentTrack!;
       const progress = queue.node.createProgressBar({
-        indicator: "▒",
-        leftChar: "▓",
-        rightChar: "░",
+        indicator: "<:colormusicindicator:1387293562328060115>",
+        leftChar: "<:colormusicleftchar:1387293293192417290>",
+        rightChar: "<:colormusicrightchar:1387293480761425982>",
         timecodes: true,
         length: 20,
       });
@@ -49,7 +49,9 @@ const command: CommandInterface = {
               name: `Requested by: ${track.requestedBy?.displayName}`,
               iconURL: track.requestedBy?.displayAvatarURL(),
             })
-            .setTitle("> 🎼 Now playing")
+            .setTitle(
+              "> <:coloraigeneratedmusic:1387292099963125821> Now playing"
+            )
             .setDescription(
               `* <:colordocumentheader:1387282793037303834> Title: ${track.title}` +
                 "\n" +

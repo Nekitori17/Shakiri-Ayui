@@ -1,3 +1,4 @@
+import _ from "lodash";
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -44,18 +45,15 @@ const command: CommandInterface = {
 
       const AMOUNT_USER_IN_PAGE = 25;
       const blockedUsersPartition: string[][] = [];
+
+      const totalUsers = blockedUsers.length;
+
+      const maxPages = Math.floor(totalUsers / AMOUNT_USER_IN_PAGE) || 1;
+      const chunkSize = Math.ceil(totalUsers / maxPages);
+
+      blockedUsersPartition.push(..._.chunk(blockedUsers, chunkSize));
+
       let currentPage = 0;
-      const maxPage = Math.ceil(blockedUsers.length / AMOUNT_USER_IN_PAGE);
-
-      for (let i = 0; i < maxPage; i++) {
-        blockedUsersPartition.push(
-          blockedUsers.slice(
-            i * AMOUNT_USER_IN_PAGE,
-            (i + 1) * AMOUNT_USER_IN_PAGE
-          )
-        );
-      }
-
       const createReply = (page: number) => {
         const bannedUserSelectMenu = blockedUsersPartition[page].map(
           (userId) => {
@@ -81,24 +79,24 @@ const command: CommandInterface = {
         const buttonsPage = new ActionRowBuilder<ButtonBuilder>().addComponents(
           new ButtonBuilder()
             .setCustomId("temp-voice-unblock-previous")
-            .setEmoji("⬅️")
+            .setEmoji("1387296301867073576")
             .setStyle(ButtonStyle.Primary)
             .setDisabled(page === 0),
           new ButtonBuilder()
             .setCustomId("temp-voice-unblock-current")
-            .setLabel(`${page + 1}/${maxPage}`)
+            .setLabel(`${page + 1}/${maxPages}`)
             .setStyle(ButtonStyle.Secondary)
             .setDisabled(true),
           new ButtonBuilder()
             .setCustomId("temp-voice-unblock-next")
-            .setEmoji("➡️")
+            .setEmoji("1387296195256254564")
             .setStyle(ButtonStyle.Primary)
-            .setDisabled(page >= maxPage - 1)
+            .setDisabled(page >= maxPages - 1)
         );
 
         return {
           content:
-            "> ✅ Select a user to unblock from your temporary voice channel",
+            "> <:colorok:1387277169817817209> Select a user to unblock from your temporary voice channel",
           components: [userSelectMenu, buttonsPage],
         };
       };

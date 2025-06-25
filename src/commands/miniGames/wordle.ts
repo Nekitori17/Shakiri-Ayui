@@ -1,3 +1,4 @@
+import _ from "lodash";
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -93,9 +94,9 @@ const command: CommandInterface = {
           )}**`
         );
         const statusComponent = new TextDisplayBuilder().setContent(
-          "<:colorok:1387277169817817209> **Status:** " +
-            game.status[0].toUpperCase() +
-            game.status.slice(1).toLowerCase()
+          `<:colorok:1387277169817817209> **Status:** ${_.capitalize(
+            game.status
+          )}`
         );
 
         const wordleLogoComponent = new ThumbnailBuilder()
@@ -163,7 +164,7 @@ const command: CommandInterface = {
         } else if (game.status === "won") {
           const earnedReward = calculateReward(game.getGuesses().length);
           rewardComponent = new TextDisplayBuilder().setContent(
-            `🎉 **Earned Reward:** ${earnedReward} nyan`
+            `🎉 **Earned Reward:** ${earnedReward} <:nyen:1373967798790783016>`
           );
         }
 
