@@ -25,7 +25,7 @@ const command: CommandInterface = {
         embeds: [
           new EmbedBuilder()
             .setAuthor({
-              name: `<:neonmusic:1387059800721981473> Skipped to track at ${index}`,
+              name: `🎶 Skipped to track at ${index}`,
               iconURL: "https://img.icons8.com/color/512/last.png",
             })
             .setColor("#73ff00"),

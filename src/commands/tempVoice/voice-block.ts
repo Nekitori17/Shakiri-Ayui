@@ -59,7 +59,7 @@ const command: CommandInterface = {
       interaction.editReply({
         embeds: [
           CommonEmbedBuilder.success({
-            title: "> <:decoblockuser:1373931203887108098> Blocked User",
+            title: "> <:colorroadblock:1387286123868586054> Blocked User",
             description: `Blocked user: <@${targetUserId}>`,
           }),
         ],

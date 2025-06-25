@@ -25,7 +25,7 @@ const command: CommandInterface = {
         embeds: [
           new EmbedBuilder()
             .setAuthor({
-              name: `<:neonmusic:1387059800721981473> Track name: ${track?.title} has been remove!`,
+              name:  `🎶 Track name: ${track?.title} has been remove!`,
               iconURL: "https://img.icons8.com/fluency/512/filled-trash.png",
             })
             .setColor("#ff3131"),

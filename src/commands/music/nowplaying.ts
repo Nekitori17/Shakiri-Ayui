@@ -51,15 +51,17 @@ const command: CommandInterface = {
             })
             .setTitle("> 🎼 Now playing")
             .setDescription(
-              `* <:neonpricetag:1387058829359058954> Title: ${track.title}` +
+              `* <:colordocumentheader:1387282793037303834> Title: ${track.title}` +
                 "\n" +
-                `* <:neondj:1387058994144870621> Artist: ${track.author}` +
+                `* <:colordj:1387283095820046456> Artist: ${track.author}` +
                 "\n" +
-                `* <:neonvolume:1387059134372773908> Volume: ${volume.toString()}%` +
+                `* <:colorvolume:1387283301202526269> Volume: ${volume.toString()}%` +
                 "\n" +
-                `* <:neonsynchronize:1387059275423027351> Loop: ${repeatModeNames[repeatMode || 0]}` +
+                `* <:colorsynchronize:1387283489883164733> Loop: ${
+                  repeatModeNames[repeatMode || 0]
+                }` +
                 "\n" +
-                `* <:neonshuffle:1387059433322053813> Shuffled: ${
+                `* <:colorshuffle:1387283637191442553> Shuffled: ${
                   shuffeledTimes > 1
                     ? `${shuffeledTimes} times`
                     : `${shuffeledTimes} time`

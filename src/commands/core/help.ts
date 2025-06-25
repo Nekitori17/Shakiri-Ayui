@@ -3,7 +3,6 @@ import {
   ActionRowBuilder,
   ComponentType,
   EmbedBuilder,
-  Emoji,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from "discord.js";
@@ -39,12 +38,6 @@ const command: CommandInterface = {
       function commandListEmbed(category: string): EmbedBuilder {
         const commandCategory =
           commandCategories[category as keyof typeof commandCategories];
-        let categoryEmoji: string | Emoji = commandCategory.emoji;
-
-        if (!isNaN(Number(categoryEmoji))) {
-          const emojiFromBot = client.emojis.cache.get(categoryEmoji);
-          categoryEmoji = emojiFromBot || categoryEmoji;
-        }
 
         const commands = getAllFiles(path.join(__dirname, "..", category)).map(
           (file) => {
@@ -58,7 +51,7 @@ const command: CommandInterface = {
             name: interaction.user.displayName,
             iconURL: interaction.user.displayAvatarURL(),
           })
-          .setTitle(`> ${categoryEmoji} ${commandCategory.label}`)
+          .setTitle(`> ${commandCategory.emoji} ${commandCategory.label}`)
           .setDescription(commands.join("\n"))
           .setFooter({
             text: interaction.guild?.name || client.user?.displayName!,
@@ -82,13 +75,13 @@ const command: CommandInterface = {
                 "\n" +
                 `**Bot Info**:` +
                 "\n" +
-                `* 💠 Small bot with **some utilities.**` +
+                `* <:colorbot:1387267699133911051> Small bot with **some utilities.**` +
                 "\n" +
-                `* 💠  Code By **[Nekitori17](https://github.com/Nekitori17).**` +
+                `* <:colorundercomputer:1387268012599672852>  Code By **[Nekitori17](https://github.com/Nekitori17).**` +
                 "\n" +
-                `* 💠  Host by: \`sillydev.co.uk\`` +
+                `* <:colorserver:1387268206078591046>  Host by: \`sillydev.co.uk\`` +
                 "\n" +
-                `* 💠  Source Code: __https://github.com/Nekitori17/Shakiri-Ayui__` +
+                `* <:colorsourcecode:1387267855937966152> Source Code: __https://github.com/Nekitori17/Shakiri-Ayui__` +
                 "\n"
             )
             .setFooter({

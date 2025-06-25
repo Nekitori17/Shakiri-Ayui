@@ -7,7 +7,7 @@ const event: MusicEventInterface = (player) => {
       embeds: [
         new EmbedBuilder()
           .setAuthor({
-            name: "<:neonmusic:1387059800721981473> | Queue is now empty!",
+            name: "🎶 | Queue is now empty!",
             iconURL: "https://img.icons8.com/fluency/512/end.png",
           }
           )

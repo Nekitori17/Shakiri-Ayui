@@ -51,7 +51,7 @@ const command: CommandInterface = {
         embeds: [
           CommonEmbedBuilder.success({
             title:
-              "> <:decorename:1373929390278443079> Changed Temporary Channel Name",
+              "> <:colorrename:1387286560722128987> Changed Temporary Channel Name",
             description: `Changed to name: \`${newName}\``,
           }),
         ],

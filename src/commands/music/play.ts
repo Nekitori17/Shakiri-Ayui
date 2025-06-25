@@ -30,7 +30,7 @@ const command: CommandInterface = {
         };
 
       await interaction.editReply(
-        `> <:neoniphonespinner:1387059563974365266> Loading ${
+        `> <a:colorhombusloader:1387284665177608252> Loading ${
           result.playlist ? "playlist" : "track"
         }...`
       );
@@ -62,7 +62,7 @@ const command: CommandInterface = {
         embeds: [
           new EmbedBuilder()
             .setAuthor({
-              name: `<:neonmusic:1387059800721981473> | Added ${track.title} by ${track.author} to the queue!`,
+              name: `🎶 | Added ${track.title} by ${track.author} to the queue!`,
               iconURL: track.thumbnail,
               url: track.url,
             })

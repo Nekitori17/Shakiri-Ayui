@@ -20,7 +20,7 @@ const command: CommandInterface = {
         embeds: [
           new EmbedBuilder()
             .setAuthor({
-              name: "<:neonmusic:1387059800721981473> Queue has been cleared!",
+              name: "🎶 Queue has been cleared!",
               iconURL: "https://img.icons8.com/fluency/512/filled-trash.png",
             })
             .setColor("#ff3131"),

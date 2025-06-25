@@ -62,7 +62,7 @@ const command: CommandInterface = {
                 name: interaction.user.displayName,
                 iconURL: interaction.user.displayAvatarURL(),
               })
-              .setTitle("> <:neonmusic:1387059800721981473> Queue")
+              .setTitle("> <:colorplaylist:1387285287872237719> Queue")
               .setDescription(
                 queuePartition[page]
                   .map(

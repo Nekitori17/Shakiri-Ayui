@@ -43,7 +43,7 @@ const command: CommandInterface = {
         embeds: [
           CommonEmbedBuilder.success({
             title:
-              "> <:decogroups:1373929660596883466> Changed Temporary Channel Limit User",
+              "> <:colorconferencecall:1387286329003479213> Changed Temporary Channel Limit User",
             description: `Changed to amount: \`${amountOfLimit}\``,
           }),
         ],

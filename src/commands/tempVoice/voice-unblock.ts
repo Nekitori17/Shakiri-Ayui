@@ -142,8 +142,7 @@ const command: CommandInterface = {
             collectInteraction.editReply({
               embeds: [
                 CommonEmbedBuilder.success({
-                  title:
-                    "> <:decounblockuser:1373931479595352147> Unblocked Users",
+                  title: "> <:colorok:1387277169817817209> Unblocked Users",
                   description: `Unblocked users: ${userIds
                     .map((userId) => `<@${userId}>`)
                     .join(", ")}`,

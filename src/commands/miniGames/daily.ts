@@ -44,17 +44,19 @@ const command: CommandInterface = {
               name: "Daily Reward",
               iconURL: "https://img.icons8.com/fluency/512/today.png",
             })
-            .setTitle(`> 🎁 Daily Reward Claimed!`)
+            .setTitle(
+              `> <:colorgift:1387275742798287051> Daily Reward Claimed!`
+            )
             .setDescription(
-              `* <:neonwallet:1387054333333471242> Your New Balance: ${newBalance.toLocaleString()} <:nyen:1373967798790783016> (+ ${actualRewardGained.toLocaleString()} <:nyen:1373967798790783016>)` +
+              `* <:colorwallet:1387275109844389928> Your New Balance: ${newBalance.toLocaleString()} <:nyen:1373967798790783016> (+ ${actualRewardGained.toLocaleString()} <:nyen:1373967798790783016>)` +
                 "\n" +
-                `* <:neonmultiply:1387055043043131504> Multiplier: ${multiplier.toFixed(
+                `* <:colorpositivedynamic:1387276176900358164> Multiplier: ${multiplier.toFixed(
                   1
                 )}x` +
                 "\n" +
-                `* <:neonfire:1387053968340942898> Daily Streak: ${userDatas.dailyStreak} days` +
+                `* <:colorfire:1387269037830049994> Daily Streak: ${userDatas.dailyStreak} days` +
                 "\n" +
-                `* <:neoncampfire:1387054129204953118> Longest Streak: ${userDatas.longestStreak} days`
+                `* <:colorcampfire:1387274928981676165> Longest Streak: ${userDatas.longestStreak} days`
             )
             .setColor("Aqua")
             .setThumbnail(interaction.user.displayAvatarURL())

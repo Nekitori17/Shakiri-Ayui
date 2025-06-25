@@ -27,7 +27,7 @@ const command: CommandInterface = {
         embeds: [
           new EmbedBuilder()
             .setAuthor({
-              name: `<:neonmusic:1387059800721981473> Volume set to ${level}!`,
+              name: `🎶 Volume set to ${level}!`,
               iconURL: "https://img.icons8.com/color/512/low-volume.png",
             })
             .setColor("#73ff00"),

@@ -83,7 +83,7 @@ const command: CommandInterface = {
           "## Wordle"
         );
         const todayDateComponent = new TextDisplayBuilder().setContent(
-          `<:neoncalendar:1387055610427609099> **Date: ${new Date().toLocaleDateString(
+          `<:colorcalendar:1387276860735492237> **Date: ${new Date().toLocaleDateString(
             "en-US",
             {
               year: "numeric",
@@ -92,22 +92,26 @@ const command: CommandInterface = {
             }
           )}**`
         );
+        const statusComponent = new TextDisplayBuilder().setContent(
+          "<:colorok:1387277169817817209> **Status:** " +
+            game.status[0].toUpperCase() +
+            game.status.slice(1).toLowerCase()
+        );
+
         const wordleLogoComponent = new ThumbnailBuilder()
           .setURL("https://files.catbox.moe/vtppxo.png")
           .setDescription("Wordle Logo");
 
         const headerSection = new SectionBuilder()
-          .addTextDisplayComponents(gameTitleComponent, todayDateComponent)
+          .addTextDisplayComponents(
+            gameTitleComponent,
+            todayDateComponent,
+            statusComponent
+          )
           .setThumbnailAccessory(wordleLogoComponent);
 
-        const statusComponent = new TextDisplayBuilder().setContent(
-          "<:neonok:1387055447214915634> **Status:** " +
-            game.status[0].toUpperCase() +
-            game.status.slice(1).toLowerCase()
-        );
-
         const guessedLabelComponent = new TextDisplayBuilder().setContent(
-          "<:neonrubikscube:1387055812467359856> **Guessed Words:** "
+          "<:colorrubikscube:1387280984592089179> **Guessed Words:** "
         );
 
         const guesses = game.getGuesses();
@@ -154,7 +158,7 @@ const command: CommandInterface = {
         if (game.status === "playing") {
           const potentialReward = calculateReward(game.getGuesses().length + 1);
           rewardComponent = new TextDisplayBuilder().setContent(
-            `<:neonprize:1387056183256420424> **Potential Reward:** ${potentialReward} nyan (next guess)`
+            `<:colorprize:1387281192096759828>**Potential Reward:** ${potentialReward} <:nyen:1373967798790783016> (Next guess)`
           );
         } else if (game.status === "won") {
           const earnedReward = calculateReward(game.getGuesses().length);
@@ -165,13 +169,13 @@ const command: CommandInterface = {
 
         const guessButton = new ButtonBuilder()
           .setCustomId("wordle-guess-button")
-          .setEmoji("1387056450278264904")
+          .setEmoji("1387281520594653204")
           .setLabel("Guess")
           .setStyle(ButtonStyle.Success)
           .setDisabled(game.status != "playing");
         const showAnswerButton = new ButtonBuilder()
           .setCustomId("wordle-show-answer-button")
-          .setEmoji("1387056651546394835")
+          .setEmoji("1387281699859070976")
           .setLabel("Show Answer")
           .setStyle(ButtonStyle.Secondary)
           .setDisabled(game.status == "playing");
@@ -183,8 +187,6 @@ const command: CommandInterface = {
 
         const container = new ContainerBuilder()
           .addSectionComponents(headerSection)
-          .addSeparatorComponents(separatorComponent)
-          .addTextDisplayComponents(statusComponent)
           .addSeparatorComponents(separatorComponent)
           .addTextDisplayComponents(guessedLabelComponent)
           .addSectionComponents(guessedWordComponents)
@@ -233,7 +235,7 @@ const command: CommandInterface = {
 
             const sentButton = await buttonInteraction.reply({
               content:
-                "<:neonlighton:1387056993558200451> Enter the word to guess in the chat bar below within 10 seconds.",
+                "<:coloridea:1387282119746785423> Enter the word to guess in the chat bar below within 10 seconds.",
               /* components: [actionRow],*/
             });
 

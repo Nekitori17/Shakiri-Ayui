@@ -17,7 +17,7 @@ const command: CommandInterface = {
 
     try {
       await interaction.editReply(
-        `> <:neonsearch:1387052551719092365> [1/3] | Fetching chart information at */chart/${idChart}`
+        `> <:colorsearch:1387268634380075069> [1/3] | Fetching chart information at */chart/${idChart}`
       );
 
       const chartInfo = await axios
@@ -31,7 +31,7 @@ const command: CommandInterface = {
         });
 
       await interaction.editReply(
-        `> <:neonsearch:1387052551719092365> [2/3] | Fetching uploader information at */user/${chartInfo.uploader}`
+        `> <:colorsearch:1387268634380075069> [2/3] | Fetching uploader information at */user/${chartInfo.uploader}`
       );
 
       const uploaderInfo = await axios
@@ -45,7 +45,7 @@ const command: CommandInterface = {
         });
 
       await interaction.editReply(
-        "> <:neondocument:1387052807361925180> [3/3] | Converting some file.."
+        "> <:colorfile:1387268836977410181> [3/3] | Converting some file.."
       );
 
       const illustration = await mediaConverter({

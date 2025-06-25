@@ -106,7 +106,7 @@ const command: CommandInterface = {
                 iconURL: interaction.user.displayAvatarURL(),
               })
               .setTitle(
-                `> <:neonmusic:1387059800721981473> Search Results (Page ${
+                `> <:colormusic:1387285617599184977> Search Results (Page ${
                   page + 1
                 }/${maxPage})`
               )
