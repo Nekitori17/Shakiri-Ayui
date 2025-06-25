@@ -48,15 +48,15 @@ const command: CommandInterface = {
               `> <:colorgift:1387275742798287051> Daily Reward Claimed!`
             )
             .setDescription(
-              `* <:colorwallet:1387275109844389928> Your New Balance: ${newBalance.toLocaleString()} <:nyen:1373967798790783016> (+ ${actualRewardGained.toLocaleString()} <:nyen:1373967798790783016>)` +
+              `* <:colorwallet:1387275109844389928> **Your New Balance**: ${newBalance.toLocaleString()} <:nyen:1373967798790783016> (+ ${actualRewardGained.toLocaleString()} <:nyen:1373967798790783016>)` +
                 "\n" +
-                `* <:colorpositivedynamic:1387276176900358164> Multiplier: ${multiplier.toFixed(
+                `* <:colorpositivedynamic:1387276176900358164> **Multiplier**: ${multiplier.toFixed(
                   1
                 )}x` +
                 "\n" +
-                `* <:colorfire:1387269037830049994> Daily Streak: ${userDatas.dailyStreak} days` +
+                `* <:colorfire:1387269037830049994> **Daily Streak**: ${userDatas.dailyStreak} days` +
                 "\n" +
-                `* <:colorcampfire:1387274928981676165> Longest Streak: ${userDatas.longestStreak} days`
+                `* <:colorcampfire:1387274928981676165> **Longest Streak**: ${userDatas.longestStreak} days`
             )
             .setColor("Aqua")
             .setThumbnail(interaction.user.displayAvatarURL())

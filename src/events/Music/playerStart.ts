@@ -25,15 +25,17 @@ const event: MusicEventInterface = (player) => {
           })
           .setTitle(`> ${track.title}`)
           .setDescription(
-            `* <:colorgenderneutraluser:1387288588798005248> Requested by ${track.requestedBy}` +
+            `* <:colorgenderneutraluser:1387288588798005248> **Requested by** ${track.requestedBy}` +
               "\n" +
-              `* <:colorvolume:1387283301202526269> Volume: ${volume.toString()}%` +
+              `* <:colorvolume:1387283301202526269> **Volume**: ${volume.toString()}%` +
               "\n" +
-              `* <:colorsynchronize:1387283489883164733> Loop: ${
+              `* <:colorvisible:1387281699859070976> **View**: ${track.views.toLocaleString()}` +
+              "\n" +
+              `* <:colorsynchronize:1387283489883164733> **Loop**: ${
                 repeatModeNames[repeatMode || 0]
               }` +
               "\n" +
-              `* <:colorshuffle:1387283637191442553> Shuffled: ${
+              `* <:colorshuffle:1387283637191442553> **Shuffled**: ${
                 shuffeledTimes > 1
                   ? `${shuffeledTimes} times`
                   : `${shuffeledTimes} time`

@@ -28,7 +28,7 @@ const command: CommandInterface = {
         leftChar: "<:colormusicleftchar:1387293293192417290>",
         rightChar: "<:colormusicrightchar:1387293480761425982>",
         timecodes: true,
-        length: 20,
+        length: 11,
       });
       const volume =
         (musicPlayerStoreSession.volume.get(interaction.guildId!) as Number) ||
@@ -53,17 +53,19 @@ const command: CommandInterface = {
               "> <:coloraigeneratedmusic:1387292099963125821> Now playing"
             )
             .setDescription(
-              `* <:colordocumentheader:1387282793037303834> Title: ${track.title}` +
+              `* <:colordocumentheader:1387282793037303834> **Title**: ${track.title}` +
                 "\n" +
-                `* <:colordj:1387283095820046456> Artist: ${track.author}` +
+                `* <:colordj:1387283095820046456> **Artist**: ${track.author}` +
                 "\n" +
-                `* <:colorvolume:1387283301202526269> Volume: ${volume.toString()}%` +
+                `* <:colorvisible:1387281699859070976> **View**: ${track.views.toLocaleString()}` +
                 "\n" +
-                `* <:colorsynchronize:1387283489883164733> Loop: ${
+                `* <:colorvolume:1387283301202526269> **Volume**: ${volume.toString()}%` +
+                "\n" +
+                `* <:colorsynchronize:1387283489883164733> **Loop**: ${
                   repeatModeNames[repeatMode || 0]
                 }` +
                 "\n" +
-                `* <:colorshuffle:1387283637191442553> Shuffled: ${
+                `* <:colorshuffle:1387283637191442553> **Shuffled**: ${
                   shuffeledTimes > 1
                     ? `${shuffeledTimes} times`
                     : `${shuffeledTimes} time`
