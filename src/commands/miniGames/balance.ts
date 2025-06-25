@@ -35,7 +35,7 @@ const command: CommandInterface = {
         embeds: [
           new EmbedBuilder()
             .setTitle(
-              `> ${
+              `> <:colorcoin:1387339346889281596> ${
                 userTarget
                   ? client.users.cache.get(userTarget)?.displayName ||
                     "Unknown User"
