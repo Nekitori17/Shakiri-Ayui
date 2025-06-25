@@ -10,7 +10,7 @@ const userDatasSchema = new Schema({
     type: {
       balance: { type: Number, default: 0 },
       capacity: { type: Number, default: 1000 },
-      profit: { type: Number, default: 0.05 },
+      interestRate: { type: Number, default: 0.01 },
     },
     default: {},
   },

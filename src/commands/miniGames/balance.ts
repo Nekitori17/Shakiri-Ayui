@@ -53,8 +53,8 @@ const command: CommandInterface = {
                 "\n" +
                 `* <:colorbank:1387275317076562000> **Bank**: ${userDatas.bank.balance}/${userDatas.bank.capacity} <:nyen:1373967798790783016>` +
                 "\n" +
-                `* <:coloreconomicimprovement:1387275487637803039> **Profit**: ${
-                  userDatas.bank.profit * 100
+                `* <:coloreconomicimprovement:1387275487637803039> **Interest Rate**: ${
+                  userDatas.bank.interestRate * 100
                 }%`
             )
             .setColor("Aqua")
