@@ -6,9 +6,13 @@ const schedule: TimeEventInterface = {
     const allUserMinigameData = await MiniGameUserDatas.find();
 
     const bulkOperations = allUserMinigameData.map((userData) => {
-      const newBalance =
+      let newBalance =
         userData.bank.balance +
         Math.floor(userData.bank.balance * userData.bank.interestRate);
+
+      if (newBalance > userData.bank.capacity) {
+        newBalance = userData.bank.capacity;
+      }
 
       return {
         updateOne: {
