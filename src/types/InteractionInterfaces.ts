@@ -2,15 +2,15 @@ import {
   ApplicationCommandOptionType,
   ApplicationCommandType,
   ButtonInteraction,
+  ChatInputCommandInteraction,
   Client,
-  CommandInteraction,
   MessageContextMenuCommandInteraction,
   StringSelectMenuInteraction,
   UserContextMenuCommandInteraction,
 } from "discord.js";
 
 export interface CommandInterface {
-  execute: (interaction: CommandInteraction, client: Client) => void;
+  execute: (interaction: ChatInputCommandInteraction, client: Client) => void;
   name: string;
   description: string;
   deleted: boolean;
