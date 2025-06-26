@@ -23,7 +23,7 @@ const command: CommandInterface = {
         userId: interaction.user.id,
       });
 
-      if (!senderData)
+      if (!userMiniGameDatas)
         throw {
           name: "NoAccount",
           message:
