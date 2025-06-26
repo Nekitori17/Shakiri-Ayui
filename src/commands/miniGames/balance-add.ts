@@ -11,6 +11,14 @@ const command: CommandInterface = {
     const amount = interaction.options.get("amount")?.value as number;
 
     try {
+      if (amount <= 0) {
+        throw {
+          name: "InvalidAmount",
+          message: "You cannot add a negative or zero amount.",
+          type: "warning",
+        };
+      }
+
       const userMiniGameDatas = await MiniGameUserDatas.findOneAndUpdate(
         {
           userId: userTarget,

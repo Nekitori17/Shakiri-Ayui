@@ -11,20 +11,24 @@ const command: CommandInterface = {
     const amount = interaction.options.get("amount")?.value as number;
 
     try {
-      const userMiniGameDatas = await MiniGameUserDatas.findOneAndUpdate(
-        {
-          userId: userTarget,
-        },
-        {
-          $setOnInsert: {
-            userId: userTarget,
-          },
-        },
-        {
-          upsert: true,
-          new: true,
-        }
-      );
+      if (amount <= 0) {
+        throw {
+          name: "InvalidAmount",
+          message: "You cannot remove a negative or zero amount.",
+          type: "warning",
+        };
+      }
+
+      const userMiniGameDatas = await MiniGameUserDatas.findOne({
+        userId: interaction.user.id,
+      });
+
+      if (!senderData)
+        throw {
+          name: "NoAccount",
+          message:
+            "You don't have an account yet. Please use the daily command to create one.",
+        };
 
       userMiniGameDatas.balance -= amount;
       await userMiniGameDatas.save();
