@@ -6,53 +6,66 @@ import {
   UserSelectMenuBuilder,
 } from "discord.js";
 import sendError from "../../../helpers/utils/sendError";
-import UserSettings from "../../../models/UserSettings";
 import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
+import UserSettings from "../../../models/UserSettings";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
 const select: SelectMenuInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-    const userVoiceChannel = (interaction.member as GuildMember).voice.channel;
-
+    // Get the user's voice channel
+    const userVoiceChannel = (interaction.member as GuildMember).voice
+      .channel;
+      
     try {
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+      // Check if the temporary voice channel belongs to the interacting user
       if (!checkOwnTempVoice(userVoiceChannel?.id!, interaction.user.id))
         throw {
           name: "NotOwnTempVoiceError",
           message: "This temporary voice channel does not belong to you.",
         };
 
-      const row = new ActionRowBuilder<UserSelectMenuBuilder>().setComponents(
-        new UserSelectMenuBuilder()
-          .setCustomId("temp-voice-block")
-          .setPlaceholder("Select a user to block")
-          .setMinValues(1)
-          .setMaxValues(10)
-      );
+      // Create an ActionRow with a UserSelectMenu for blocking users
+      const allUserSelectRow =
+        new ActionRowBuilder<UserSelectMenuBuilder>().setComponents(
+          new UserSelectMenuBuilder()
+            .setCustomId("temp-voice-block")
+            .setPlaceholder("Select a user to block")
+            .setMinValues(1)
+            .setMaxValues(10)
+        );
 
-      const sent = await interaction.editReply({
+      // Edit the deferred reply to display the user selection menu
+      const selectUserReply = await interaction.editReply({
         content: "> Select a user to block from your temporary voice channel",
-        components: [row],
+        components: [allUserSelectRow],
       });
 
-      const collector = sent.createMessageComponentCollector({
-        componentType: ComponentType.UserSelect,
-        time: 60_000,
-      });
+      // Create a message component collector for the user selection menu
+      const selectUserCollector =
+        selectUserReply.createMessageComponentCollector({
+          componentType: ComponentType.UserSelect,
+          time: 60_000,
+        });
 
-      collector.on("collect", async (selectInteraction) => {
-        await selectInteraction.deferReply({ flags: MessageFlags.Ephemeral });
-
+      // Handle the collection of selected users
+      selectUserCollector.on("collect", async (userSelectInteraction) => {
+        // Handle the collection of selected users
         try {
-          const users = selectInteraction.users;
-          const userSettings = await UserSettings.findOneAndUpdate(
+          await userSelectInteraction.deferReply({
+            flags: MessageFlags.Ephemeral,
+          });
+
+          const users = userSelectInteraction.users;
+          const userSetting = await UserSettings.findOneAndUpdate(
             {
-              userId: selectInteraction.user.id,
+              userId: userSelectInteraction.user.id,
             },
             {
               $setOnInsert: {
-                userId: selectInteraction.user.id,
+                userId: userSelectInteraction.user.id,
               },
             },
             {
@@ -61,31 +74,36 @@ const select: SelectMenuInterface = {
             }
           );
 
+          // Add selected users to the blockedUsers list in user settings
           users.forEach((user) => {
             if (
-              !userSettings.temporaryVoiceChannel.blockedUsers.includes(
+              !userSetting.temporaryVoiceChannel.blockedUsers.includes(
                 user.id
               ) &&
-              user.id != selectInteraction.user.id
+              user.id != userSelectInteraction.user.id
             )
-              userSettings.temporaryVoiceChannel.blockedUsers.push(user.id);
+              userSetting.temporaryVoiceChannel.blockedUsers.push(user.id);
           });
-          await userSettings.save();
+
+          // Save the updated user settings
+          await userSetting.save();
 
           users.forEach(async (user) => {
-            const member = await selectInteraction.guild?.members.fetch(
+            // Disconnect blocked users from the voice channel if they are in it
+            const member = await userSelectInteraction.guild?.members.fetch(
               user.id
             );
             if (
               member &&
               member?.voice.channelId === userVoiceChannel?.id &&
-              user.id != selectInteraction.user.id
+              user.id != userSelectInteraction.user.id
             ) {
               await member.voice.disconnect();
             }
           });
 
-          selectInteraction.editReply({
+          // Edit the reply to confirm the blocked users
+          userSelectInteraction.editReply({
             embeds: [
               CommonEmbedBuilder.success({
                 title: "> Blocked Users",
@@ -96,7 +114,7 @@ const select: SelectMenuInterface = {
             ],
           });
         } catch (error) {
-          sendError(selectInteraction, error, true);
+          sendError(userSelectInteraction, error, true);
         }
       });
     } catch (error) {
@@ -104,7 +122,8 @@ const select: SelectMenuInterface = {
     }
   },
   disabled: false,
-  voiceChannel: true,
+  devOnly: true,
+  requiredVoiceChannel: true,
 };
 
 export default select;

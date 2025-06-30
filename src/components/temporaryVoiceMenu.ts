@@ -1,3 +1,7 @@
+/**
+ * This file contains the temporary voice menu components.
+ */
+
 import {
   ActionRowBuilder,
   StringSelectMenuBuilder,

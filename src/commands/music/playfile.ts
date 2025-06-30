@@ -4,6 +4,7 @@ import {
   EmbedBuilder,
   GuildMember,
   PermissionFlagsBits,
+  SlashCommandAttachmentOption,
 } from "discord.js";
 import { QueryType, TrackSource, useMainPlayer } from "discord-player";
 import sendError from "../../helpers/utils/sendError";
@@ -13,32 +14,36 @@ import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-    const attachment = interaction.options.get("attachment")?.attachment!;
-
     try {
+      await interaction.deferReply();
+      const attachmentOption = interaction.options.getAttachment("attachment", true);
+      
+      // Get the main player instance
       const player = useMainPlayer();
-      const result = await player.search(attachment.url, {
+      // Search for the file based on the attachment URL
+      const fileResult = await player.search(attachmentOption.url, {
         requestedBy: interaction.user,
         searchEngine: QueryType.ARBITRARY,
       });
 
-      if (!result.hasTracks())
+      if (!fileResult.hasTracks())
         throw {
           name: "NoResults",
           message: "Please try again or try a different query or platform",
         };
 
+      // Inform the user that the file is loading
       await interaction.editReply(
         `> <a:colorhombusloader:1387284665177608252> Loading ${
-          result.playlist ? "playlist" : "track"
+          fileResult.playlist ? "playlist" : "track"
         }...`
       );
 
-      const settings = await config.modules(interaction.guildId!);
+      // Get guild settings for music playback
+      const guildSetting = await config.modules(interaction.guildId!);
       const { track } = await player.play(
         (interaction.member as GuildMember).voice.channel!,
-        result,
+        fileResult,
         {
           requestedBy: interaction.user,
           nodeOptions: {
@@ -48,15 +53,16 @@ const command: CommandInterface = {
             volume:
               (musicPlayerStoreSession.volume.get(
                 interaction.guildId!
-              ) as number) || settings.music.volume,
-            leaveOnEmpty: settings.music.leaveOnEmpty,
-            leaveOnEmptyCooldown: settings.music.leaveOnEmptyCooldown,
-            leaveOnEnd: settings.music.leaveOnEnd,
-            leaveOnEndCooldown: settings.music.leaveOnEndCooldown,
+              ) as number) || guildSetting.music.volume,
+            leaveOnEmpty: guildSetting.music.leaveOnEmpty,
+            leaveOnEmptyCooldown: guildSetting.music.leaveOnEmptyCooldown,
+            leaveOnEnd: guildSetting.music.leaveOnEnd,
+            leaveOnEndCooldown: guildSetting.music.leaveOnEndCooldown,
           },
         }
       );
 
+      // Edit the reply to confirm the track has been added to the queue
       interaction.editReply({
         content: null,
         embeds: [
@@ -77,10 +83,11 @@ const command: CommandInterface = {
       sendError(interaction, error);
     }
   },
+  alias: "pf",
   name: "playfile",
   description: "Play a song from attachment",
   deleted: false,
-  voiceChannel: true,
+  devOnly: false,
   options: [
     {
       name: "attachment",
@@ -89,8 +96,13 @@ const command: CommandInterface = {
       required: true,
     },
   ],
-  permissionsRequired: [PermissionFlagsBits.Connect],
-  botPermissions: [PermissionFlagsBits.Connect, PermissionFlagsBits.Speak],
+  useInDm: false,
+  requiredVoiceChannel: true,
+  userPermissionsRequired: [PermissionFlagsBits.Connect],
+  botPermissionsRequired: [
+    PermissionFlagsBits.Connect,
+    PermissionFlagsBits.Speak,
+  ],
 };
 
 export default command;

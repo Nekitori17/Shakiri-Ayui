@@ -1,21 +1,12 @@
-
 <h1 align="center" style="font-weight: bold;">Shakiri Ayui 🤖</h1>
 
 <p align="center">
 <a href="#tech">Technologies</a>
 <a href="#started">Getting Started</a>
 
-
- 
 </p>
-
 
 <p align="center">A Source Code Of My Small Discord Bot</p>
-
-
-<p align="center">
-<a href="https://github.com/Nekitori17">📱 My Profile</a>
-</p>
 
 <h2 id="technologies">💻 Technologies</h2>
 
@@ -45,7 +36,7 @@ git clone https://github.com/Nekitori17/Shakiri-Ayui
 
 <h3>Config .env variables</h2>
 
-Use the `.env.example` as reference to create your configuration file `.env.development` for development and `.env.production` for deploy bot with your Discord Bot Token And MongoDB Connection String
+Use the `.env.example` as reference to create your configuration file `.env.development` for development and `.env.production` for production with your Discord Bot Token And MongoDB Connection String
 
 ```yaml
 # Bot token from discord application
@@ -61,35 +52,37 @@ GEMINI_AI_TOKEN = ""
 CUSTOM_URL_API_BASE = ""
 
 # # MongoDB connection string
-MONGODB_URI = ""
+MONGODB_CONNECTION_URI = ""
 ```
 
 <h3>Starting</h3>
 
 How to start your project
 
-* First Install Dependence Packages:
+- First Install Dependence Packages:
+
 ```bash
 cd Shakiri-Ayui
 npm i
 ```
 
-* For Development with .env.development:
+- For Development with .env.development:
+
 ```bash
 npm run dev
 ```
 
-* For Deployment with .env.production:
+- For Deployment with .env.production:
+
 ```bash
 npm start
 ```
-
 
 <h2 id="contribute">📫 Contribute</h2>
 
 Here you will explain how other developers can contribute to your project. For example, explaining how can create their branches, which patterns to follow and how to open an pull request
 
-1. `git clone https://github.com/Fernanda-Kipper/text-editor.git`
+1. `git clone https://github.com/Nekitori17/Shakiri-Ayui`
 2. `git checkout -b feature/NAME`
 3. Follow commit patterns
 4. Open a Pull Request explaining the problem solved or feature made, if exists, append screenshot of visual modifications and wait for the review!

@@ -6,28 +6,34 @@ import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-    const logging = interaction.options.get("enabled")?.value as boolean;
-    const loggingChannel = interaction.options.get("channel")?.value as string;
-
     try {
-      const settings = await config.modules(interaction.guildId!);
+      await interaction.deferReply();
+      const enabledOption = interaction.options.getBoolean("enabled", true);
+      const loggingChannelOption = interaction.options.getChannel("channel");
 
-      settings.moderator = {
-        logging: logging,
-        loggingChannel: loggingChannel || settings.moderator.loggingChannel,
+      // Fetch the current guild settings
+      const guildSetting = await config.modules(interaction.guildId!);
+
+      // Update moderator settings
+      guildSetting.moderator = {
+        logging: enabledOption,
+        loggingChannel:
+          loggingChannelOption?.id || guildSetting.moderator.loggingChannel,
       };
-      await settings.save();
 
+      // Save the updated settings
+      await guildSetting.save();
+
+      // Send a success message
       interaction.editReply({
         embeds: [
           CommonEmbedBuilder.success({
             title: `Updated **Moderator Logging** module settings`,
             description: `**Logging**: \`${
-              settings.moderator.logging
+              guildSetting.moderator.logging
             }\`, **Channel Logging**: ${
-              settings.moderator.loggingChannel
-                ? `<#${settings.moderator.loggingChannel}>`
+              guildSetting.moderator.loggingChannel
+                ? `<#${guildSetting.moderator.loggingChannel}>`
                 : "`None`"
             }`,
           }),
@@ -40,6 +46,7 @@ const command: CommandInterface = {
   name: "set-moderator-log",
   description: "Settings for moderator log module",
   deleted: false,
+  devOnly: false,
   options: [
     {
       name: "enabled",
@@ -54,7 +61,9 @@ const command: CommandInterface = {
       required: false,
     },
   ],
-  permissionsRequired: [PermissionFlagsBits.ManageGuild],
+  useInDm: false,
+  requiredVoiceChannel: false,
+  userPermissionsRequired: [PermissionFlagsBits.ManageGuild],
 };
 
 export default command;

@@ -10,18 +10,21 @@ import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-    const enabled = interaction.options.get("enabled")?.value as boolean;
-    const channelSend = interaction.options.get("channel")?.value as string;
-    const reset = interaction.options.get("reset")?.value as boolean;
-
     try {
-      const settings = await config.modules(interaction.guildId!);
+      await interaction.deferReply();
+      const enabledOption = interaction.options.getBoolean("enabled", true);
+      const channelSendOption = interaction.options.getChannel("channel");
+      const resetOption = interaction.options.getBoolean("reset");
 
-      if (reset) {
-        settings.welcomer = {
+      // Fetch the current guild settings
+      const guildSetting = await config.modules(interaction.guildId!);
+
+      // Check if the reset option is true
+      if (resetOption) {
+        guildSetting.welcomer = {
           enabled: false,
           channelSend: undefined,
+          // Set default values for welcomer settings
           message: "> Welcome {user} to __{guild.name}__.",
           imageTitle: "Welcome #{guild.count}",
           imageBody: "{user.displayName}",
@@ -29,53 +32,60 @@ const command: CommandInterface = {
         };
       }
 
-      settings.welcomer = {
-        enabled,
-        channelSend: channelSend || settings.welcomer.channelSend,
-        message: settings.welcomer.message,
-        imageTitle: settings.welcomer.imageTitle,
-        imageBody: settings.welcomer.imageBody,
-        imageFooter: settings.welcomer.imageFooter,
+      // Update welcomer settings
+      guildSetting.welcomer = {
+        enabled: enabledOption,
+        channelSend: channelSendOption?.id || guildSetting.welcomer.channelSend,
+        message: guildSetting.welcomer.message,
+        imageTitle: guildSetting.welcomer.imageTitle,
+        imageBody: guildSetting.welcomer.imageBody,
+        imageFooter: guildSetting.welcomer.imageFooter,
       };
 
-      await settings.save();
+      // Save the updated settings
+      await guildSetting.save();
 
+      // Prepare the advanced settings text for attachment
       const advancedSettingsTxt =
         ">> Custom Message <<" +
         "\n" +
-        settings.welcomer.message +
+        guildSetting.welcomer.message +
         "\n" +
         ">> Image Title <<" +
         "\n" +
-        settings.welcomer.imageTitle +
+        guildSetting.welcomer.imageTitle +
         "\n" +
         ">> Image Body <<" +
         "\n" +
-        settings.welcomer.imageBody +
+        guildSetting.welcomer.imageBody +
         "\n" +
         ">> Image Footer <<" +
         "\n" +
-        settings.welcomer.imageFooter;
+        guildSetting.welcomer.imageFooter;
 
-      const fileContent = Buffer.from(advancedSettingsTxt, "utf-8");
-      const attachment = new AttachmentBuilder(fileContent, {
-        name: "customize-setting-data.md",
-      });
+      // Create an attachment with the advanced settings data
+      const advancedSettingFileAttachment = new AttachmentBuilder(
+        Buffer.from(advancedSettingsTxt, "utf-8"),
+        {
+          name: "customize-setting-data.md",
+        }
+      );
 
+      // Send a success message with the updated settings and attachment
       interaction.editReply({
         embeds: [
           CommonEmbedBuilder.success({
             title: "Updated **Welcomer** module settings",
             description: `**Enabled**: \`${
-              settings.welcomer.enabled
+              guildSetting.welcomer.enabled
             }\`, **Channel Send**: ${
-              settings.welcomer.channelSend
-                ? `<#${settings.welcomer.channelSend}>`
+              guildSetting.welcomer.channelSend
+                ? `<#${guildSetting.welcomer.channelSend}>`
                 : "`None`"
             }`,
           }),
         ],
-        files: [attachment],
+        files: [advancedSettingFileAttachment],
       });
     } catch (error) {
       sendError(interaction, error);
@@ -84,6 +94,7 @@ const command: CommandInterface = {
   name: "set-welcomer",
   description: "Settings for welcomer module",
   deleted: false,
+  devOnly: false,
   options: [
     {
       name: "enabled",
@@ -104,7 +115,9 @@ const command: CommandInterface = {
       required: false,
     },
   ],
-  permissionsRequired: [PermissionFlagsBits.ManageGuild],
+  useInDm: false,
+  requiredVoiceChannel: false,
+  userPermissionsRequired: [PermissionFlagsBits.ManageGuild],
 };
 
 export default command;

@@ -6,18 +6,22 @@ import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-    const language = interaction.options.get("lang")
-      ?.value as keyof typeof translateLanguages;
-
     try {
-      if (!Object.keys(translateLanguages).includes(language))
+      await interaction.deferReply();
+      const languageOption = interaction.options.getString(
+        "lang",
+        true
+      ) as keyof typeof translateLanguages;
+
+      // Check if the provided language option is valid
+      if (!Object.keys(translateLanguages).includes(languageOption))
         throw {
           name: "LanguageNotFound",
           message: "Please enter a valid language (Ex: en, vi, ja,...)",
         };
 
-      const userSettings = await UserSettings.findOneAndUpdate(
+      // Find the user's settings, or create new settings if they don't exist
+      const userSetting = await UserSettings.findOneAndUpdate(
         {
           userId: interaction.user.id,
         },
@@ -32,11 +36,13 @@ const command: CommandInterface = {
         }
       );
 
-      userSettings.messageTranslateLang = language;
-      await userSettings.save();
+      // Update the user's translate language setting
+      userSetting.messageTranslateLang = languageOption;
+      await userSetting.save();
 
       interaction.editReply(
-        `> <:colorwrench:1387287084099833977> You have set your translate language to \`${translateLanguages[language]}\``
+        // Send a confirmation message to the user
+        `> <:colorwrench:1387287084099833977> You have set your translate language to \`${translateLanguages[languageOption]}\``
       );
     } catch (error) {
       sendError(interaction, error);
@@ -45,7 +51,7 @@ const command: CommandInterface = {
   name: "translate-set",
   description: "Set translate language",
   deleted: false,
-  canUseInDm: true,
+  devOnly: false,
   options: [
     {
       name: "lang",
@@ -54,6 +60,8 @@ const command: CommandInterface = {
       required: true,
     },
   ],
+  useInDm: true,
+  requiredVoiceChannel: false,
 };
 
 export default command;

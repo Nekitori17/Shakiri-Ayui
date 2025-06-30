@@ -5,31 +5,36 @@ import { musicPlayerStoreSession } from "../../musicPlayerStoreSession";
 import { repeatModeNames } from "../../constants/musicRepeatModes";
 import { musicSourceIcons } from "../../constants/musicSourceIcons";
 import {
-  extendMusicControllerButtonsRow,
-  mainMusicControllerButtonsRow,
+  extendMusicControllerButtonRow,
+  mainMusicControllerButtonRow,
 } from "../../components/musicControllerMenu";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-
     try {
+      await interaction.deferReply();
+
+      // Retrieve the queue for the guild
       const queue = useQueue(interaction.guildId!);
       if (!queue || !queue.isPlaying())
+        // Throw error if no song is playing
         throw {
           name: "NoSongPlaying",
           message: "There is no song playing",
         };
 
       const track = queue.currentTrack!;
-      const progress = queue.node.createProgressBar({
+      const progressBar = queue.node.createProgressBar({
+        // Progress bar customization
         indicator: "<:colormusicindicator:1387293562328060115>",
         leftChar: "<:colormusicleftchar:1387293293192417290>",
         rightChar: "<:colormusicrightchar:1387293480761425982>",
         timecodes: true,
         length: 11,
       });
+
+      // Retrieve volume, repeat mode, and shuffle count from session store or queue
       const volume =
         (musicPlayerStoreSession.volume.get(interaction.guildId!) as Number) ||
         queue.node.volume;
@@ -37,11 +42,12 @@ const command: CommandInterface = {
         (musicPlayerStoreSession.loop.get(
           interaction.guildId!
         ) as QueueRepeatMode) || queue.repeatMode;
-      const shuffeledTimes =
-        (musicPlayerStoreSession.shuffeld.get(
+      const shuffledTimes =
+        (musicPlayerStoreSession.shuffled.get(
           interaction.guildId!
         ) as number) || 0;
 
+      // Edit the reply with the now playing embed and music controller buttons
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
@@ -66,12 +72,12 @@ const command: CommandInterface = {
                 }` +
                 "\n" +
                 `* <:colorshuffle:1387283637191442553> **Shuffled**: ${
-                  shuffeledTimes > 1
-                    ? `${shuffeledTimes} times`
-                    : `${shuffeledTimes} time`
+                  shuffledTimes > 1
+                    ? `${shuffledTimes} times`
+                    : `${shuffledTimes} time`
                 }` +
                 "\n" +
-                progress
+                progressBar
             )
             .setThumbnail(track.thumbnail)
             .setFooter({
@@ -82,20 +88,26 @@ const command: CommandInterface = {
             .setColor("#00a2ff"),
         ],
         components: [
-          mainMusicControllerButtonsRow,
-          extendMusicControllerButtonsRow,
+          mainMusicControllerButtonRow,
+          extendMusicControllerButtonRow,
         ],
       });
     } catch (error) {
       sendError(interaction, error);
     }
   },
+  alias: "np",
   name: "nowplaying",
   description: "Get info about the current song",
   deleted: false,
-  voiceChannel: true,
-  permissionsRequired: [PermissionFlagsBits.Connect],
-  botPermissions: [PermissionFlagsBits.Connect, PermissionFlagsBits.Speak],
+  devOnly: false,
+  useInDm: false,
+  requiredVoiceChannel: true,
+  userPermissionsRequired: [PermissionFlagsBits.Connect],
+  botPermissionsRequired: [
+    PermissionFlagsBits.Connect,
+    PermissionFlagsBits.Speak,
+  ],
 };
 
 export default command;

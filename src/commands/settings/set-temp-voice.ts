@@ -1,52 +1,79 @@
 import config from "../../config";
-import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
+import {
+  ApplicationCommandOptionType,
+  ChannelType,
+  PermissionFlagsBits,
+} from "discord.js";
+import sendError from "../../helpers/utils/sendError";
 import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
-import sendError from "../../helpers/utils/sendError";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-    const enabled = interaction.options.get("enabled")?.value as boolean;
-    const channelSet = interaction.options.get("channel")?.value as string;
-    const categorySet = interaction.options.get("category")?.value as string;
-
     try {
-      const settings = await config.modules(interaction.guildId!);
+      await interaction.deferReply();
+      const enabledOption = interaction.options.getBoolean("enabled", true);
+      const channelSetOption = interaction.options.getChannel("channel");
+      const categorySetOption = interaction.options.getChannel("category");
 
-      settings.temporaryVoiceChannel = {
-        enabled,
-        channelSet: channelSet || settings.temporaryVoiceChannel.channelSet,
-        nameChannelSyntax: settings.temporaryVoiceChannel.nameChannelSyntax!,
-        categorySet: categorySet || settings.temporaryVoiceChannel.categorySet,
+      if (channelSetOption && channelSetOption?.type != ChannelType.GuildVoice)
+        throw {
+          name: "InvalidChannelType",
+          message: "Channel must be a voice channel!",
+        };
+
+      if (categorySetOption && categorySetOption?.type != ChannelType.GuildCategory)
+        throw {
+          name: "InvalidChannelType",
+          message: "Category must be a category channel!",
+        };
+      // Fetch the current guild settings from the configuration
+      const guildSetting = await config.modules(interaction.guildId!);
+
+      // Update the temporary voice channel settings
+      guildSetting.temporaryVoiceChannel = {
+        enabled: enabledOption,
+        channelSet:
+          channelSetOption?.id || guildSetting.temporaryVoiceChannel.channelSet,
+        nameChannelSyntax:
+          guildSetting.temporaryVoiceChannel.nameChannelSyntax!,
+        categorySet:
+          categorySetOption?.id ||
+          guildSetting.temporaryVoiceChannel.categorySet,
       };
 
-      await settings.save();
+      // Save the updated settings to the database
+      await guildSetting.save();
 
+      // Send a success message to the user
       interaction.editReply({
         embeds: [
           CommonEmbedBuilder.success({
             title: `Updated **Temporary Voice Channel** settings`,
             description: `**Enabled**: \`${
-              settings.temporaryVoiceChannel.enabled
+              guildSetting.temporaryVoiceChannel.enabled
             }\`, **Channel Set**: ${
-              settings.temporaryVoiceChannel.channelSet
-                ? `<#${settings.temporaryVoiceChannel.channelSet}>`
+              guildSetting.temporaryVoiceChannel.channelSet
+                ? `<#${guildSetting.temporaryVoiceChannel.channelSet}>`
                 : "`None`"
             }, **Category Set**: ${
-              settings.temporaryVoiceChannel.categorySet
-                ? `<#${settings.temporaryVoiceChannel.categorySet}>`
+              guildSetting.temporaryVoiceChannel.categorySet
+                ? `<#${guildSetting.temporaryVoiceChannel.categorySet}>`
                 : "`None`"
             }`,
           }),
         ],
       });
     } catch (error) {
+      // Catch any errors that occur during the process
+      // Send an error message to the user
       sendError(interaction, error);
     }
   },
   name: "set-temp-voice",
   description: "Set temporary voice channel",
+  deleted: false,
+  devOnly: false,
   options: [
     {
       name: "enabled",
@@ -67,8 +94,9 @@ const command: CommandInterface = {
       required: false,
     },
   ],
-  deleted: false,
-  permissionsRequired: [PermissionFlagsBits.ManageGuild],
+  useInDm: false,
+  requiredVoiceChannel: false,
+  userPermissionsRequired: [PermissionFlagsBits.ManageGuild],
 };
 
 export default command;

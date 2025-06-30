@@ -6,27 +6,34 @@ import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
 const button: ButtonInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
     try {
+      await interaction.deferReply();
+
+      // Get the queue for the current guild
       const queue = useQueue(interaction.guildId!);
+      // Check if a queue exists and has tracks
       if (!queue || queue.tracks.size === 0)
         throw {
           name: "NoQueue",
           message: "There is no queue to resume",
         };
 
-      musicPlayerStoreSession.shuffeld.set(
+      // Increment the shuffle count for the guild in the session store
+      musicPlayerStoreSession.shuffled.set(
         interaction.guildId!,
-        ((musicPlayerStoreSession.shuffeld.get(
+        ((musicPlayerStoreSession.shuffled.get(
           interaction.guildId!
         ) as number) || 0) + 1
       );
+
+      // Shuffle the tracks in the queue
       queue.tracks.shuffle();
+      // Edit the reply with an embed confirming the shuffle
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
             .setAuthor({
-              name:  "🎶 Shake, shake, shake. Now it's random!",
+              name: "🎶 Shake, shake, shake. Now it's random!",
               iconURL: "https://img.icons8.com/fluency/512/shuffle.png",
             })
             .setColor("#a6ff00"),
@@ -37,7 +44,8 @@ const button: ButtonInterface = {
     }
   },
   disabled: false,
-  voiceChannel: true,
+  devOnly: false,
+  requiredVoiceChannel: true,
 };
 
 export default button;

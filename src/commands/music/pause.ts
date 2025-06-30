@@ -5,28 +5,38 @@ import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-
     try {
+      await interaction.deferReply();
+
+      // Get the music queue for the current guild
       const queue = useQueue(interaction.guildId!);
+      // If no queue exists, throw an error
       if (!queue)
         throw {
           name: "NoQueue",
           message: "There is no queue to pause",
         };
 
+      // Pause the current track in the queue
       queue.node.setPaused(true);
+      // Delete the deferred reply, as the action is immediate and doesn't require a persistent message
       interaction.deleteReply();
     } catch (error) {
       sendError(interaction, error);
     }
   },
+  alias: "ps",
   name: "pause",
   description: "Pause the current song",
   deleted: false,
-  voiceChannel: true,
-  permissionsRequired: [PermissionFlagsBits.Connect],
-  botPermissions: [PermissionFlagsBits.Connect, PermissionFlagsBits.Speak],
+  devOnly: false,
+  useInDm: false,
+  requiredVoiceChannel: true,
+  userPermissionsRequired: [PermissionFlagsBits.Connect],
+  botPermissionsRequired: [
+    PermissionFlagsBits.Connect,
+    PermissionFlagsBits.Speak,
+  ],
 };
 
 export default command;

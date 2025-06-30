@@ -1,26 +1,26 @@
 import config from "../../../config";
 import path from "path";
-import {
-  ButtonInteraction,
-  GuildMember,
-  PermissionsBitField,
-} from "discord.js";
+import { GuildMember, Interaction, PermissionsBitField } from "discord.js";
 import sendError from "../../../helpers/utils/sendError";
+import isCooledDown from "../../../validator/isCooledDown";
 import { getLocalById } from "../../../helpers/utils/getLocal";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
-import isCooldowned from "../../../validator/isCooldowned";
 
 const event: DiscordEventInterface = async (
   client,
-  interaction: ButtonInteraction
+  interaction: Interaction
 ) => {
+  // Check if the interaction is a button interaction
   if (!interaction.isButton()) return;
+  // Check if the customId starts with "$"
   if (!interaction.customId.startsWith("$")) return;
 
   try {
+    // Split the customId to get category and actual customId
     const [category, customId] = interaction.customId.split("_");
 
+    // Get the button object from local files
     const buttonObject = getLocalById<ButtonInterface>(
       path.join(__dirname, "../../../menus/buttons"),
       category.replace("$", ""),
@@ -29,7 +29,12 @@ const event: DiscordEventInterface = async (
 
     if (!buttonObject) return;
 
-    if (buttonObject.voiceChannel) {
+    // Check if the button is for developers only
+    if (buttonObject.devOnly) {
+    }
+
+    // Check if the user is required to be in a voice channel
+    if (buttonObject.requiredVoiceChannel) {
       if (!(interaction.member as GuildMember).voice.channel)
         throw {
           name: "NoVoiceChannel",
@@ -37,15 +42,17 @@ const event: DiscordEventInterface = async (
         };
     }
 
+    // Check for button cooldown
     if (buttonObject.cooldown) {
-      const { cooldowned, nextTime } = isCooldowned(
+      const { cooledDown, nextTime } = isCooledDown(
         interaction.customId.slice(1),
         "button",
         buttonObject.cooldown,
         interaction.user.id
       );
 
-      if (!cooldowned && nextTime)
+      // If the button is not cooledDown, throw an error
+      if (!cooledDown && nextTime)
         throw {
           name: "Cooldown",
           message: `Please wait <t:${nextTime}:R> before using this button again.`,
@@ -53,26 +60,34 @@ const event: DiscordEventInterface = async (
         };
     }
 
-    buttonObject.botPermissions?.push(...config.defaultPermissions);
-    if (buttonObject.botPermissions?.length) {
-      for (const permission of buttonObject.botPermissions) {
-        if (
-          !(
-            interaction.guild?.members.me?.permissions as PermissionsBitField
-          ).has(permission)
-        ) {
-          throw {
-            name: "MissingPermissions",
-            message: `I'am missing the \`${new PermissionsBitField(permission)
-              .toArray()
-              .join(", ")}\` permission to use this command.`,
-          };
-        }
+    // Add default permissions to botPermissionsRequired if it exists, otherwise initialize it
+    if (buttonObject.botPermissionsRequired)
+      buttonObject.botPermissionsRequired.push(
+        ...config.defaultBotPermissionsRequired
+      );
+    else
+      buttonObject.botPermissionsRequired =
+        config.defaultBotPermissionsRequired;
+
+    // Check for bot permissions
+    for (const permission of buttonObject.botPermissionsRequired) {
+      if (
+        !(
+          interaction.guild?.members.me?.permissions as PermissionsBitField
+        ).has(permission)
+      ) {
+        throw {
+          name: "MissingPermissions",
+          message: `I'am missing the \`${new PermissionsBitField(permission)
+            .toArray()
+            .join(", ")}\` permission to use this command.`,
+        };
       }
     }
 
-    if (buttonObject.permissionsRequired?.length) {
-      for (const permission of buttonObject.permissionsRequired) {
+    // Check for user permissions
+    if (buttonObject.userPermissionsRequired) {
+      for (const permission of buttonObject.userPermissionsRequired) {
         if (
           !(interaction.member?.permissions as PermissionsBitField).has(
             permission
@@ -89,11 +104,12 @@ const event: DiscordEventInterface = async (
       }
     }
 
+    // Execute the button's action
     buttonObject.execute(interaction, client);
-  } catch (error: { name: string; message: string } | any) {
+  } catch (error) {
     if (error instanceof Error) {
       console.log(
-        `\x1b[31m\x1b[1m|> ${error.name} (Command Interaction)\x1b[0m`
+        `\x1b[31m\x1b[1m|> ${error.name} (Button Interaction)\x1b[0m`
       );
       console.log(`\x1b[32m${error.message}\x1b[0m`);
       console.log(error);

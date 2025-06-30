@@ -1,28 +1,30 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from "discord.js";
-import MiniGameUserDatas from "../../models/MiniGameUserDatas";
 import sendError from "../../helpers/utils/sendError";
+import MiniGameUserData from "../../models/MiniGameUserData";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-    const userTarget = interaction.options.get("user")?.value as string;
-
     try {
-      if (userTarget && (await client.users.fetch(userTarget)).bot)
+      await interaction.deferReply();
+      const targetUserOption = interaction.options.getUser("user");
+
+      // Check if the user is a bot
+      if (targetUserOption && targetUserOption.bot)
         throw {
           name: "BotUser",
-          message: "Bro think they can play minigame 💀🙏",
+          message: "Bro think they can play mini game 💀🙏",
           type: "warning",
         };
 
-      const userDatas = await MiniGameUserDatas.findOneAndUpdate(
+      // Get mini game data of user
+      const miniGameUserData = await MiniGameUserData.findOneAndUpdate(
         {
-          userId: userTarget || interaction.user.id,
+          userId: targetUserOption?.id || interaction.user.id,
         },
         {
           $setOnInsert: {
-            userId: userTarget || interaction.user.id,
+            userId: targetUserOption?.id || interaction.user.id,
           },
         },
         {
@@ -31,37 +33,32 @@ const command: CommandInterface = {
         }
       );
 
+      // Send success message
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
             .setTitle(
               `> <:colorcoin:1387339346889281596> ${
-                userTarget
-                  ? client.users.cache.get(userTarget)?.displayName ||
-                    "Unknown User"
-                  : interaction.user.displayName
+                targetUserOption || interaction.user
               }'s Balance`
             )
             .setDescription(
-              `* <:colorfire:1387269037830049994> **Daily Streak**: ${userDatas.dailyStreak} days` +
+              `* <:colorfire:1387269037830049994> **Daily Streak**: ${miniGameUserData.dailyStreak} days` +
                 "\n" +
-                `* <:colorcampfire:1387274928981676165> **Longest Streak**: ${userDatas.longestStreak} days` +
+                `* <:colorcampfire:1387274928981676165> **Longest Streak**: ${miniGameUserData.longestStreak} days` +
                 "\n" +
-                `* <:colorwallet:1387275109844389928> Balance: ${
-                  userDatas?.balance || 0
-                } <:nyen:1373967798790783016>` +
+                `* <:colorwallet:1387275109844389928> Balance: ${miniGameUserData.balance} <:nyen:1373967798790783016>` +
                 "\n" +
-                `* <:colorbank:1387275317076562000> **Bank**: ${userDatas.bank.balance}/${userDatas.bank.capacity} <:nyen:1373967798790783016>` +
+                `* <:colorbank:1387275317076562000> **Bank**: ${miniGameUserData.bank.balance}/${miniGameUserData.bank.capacity} <:nyen:1373967798790783016>` +
                 "\n" +
                 `* <:coloreconomicimprovement:1387275487637803039> **Interest Rate**: ${
-                  userDatas.bank.interestRate * 100
+                  miniGameUserData.bank.interestRate * 100
                 }%`
             )
             .setColor("Aqua")
             .setThumbnail(
-              (userTarget
-                ? client.users.cache.get(userTarget)?.displayAvatarURL()
-                : interaction.user.displayAvatarURL())!
+              targetUserOption?.displayAvatarURL() ||
+                interaction.user.displayAvatarURL()
             )
             .setFooter({
               text: client.user?.displayName!,
@@ -77,6 +74,7 @@ const command: CommandInterface = {
   name: "balance",
   description: "Check your balance or someone else's balance",
   deleted: false,
+  devOnly: false,
   options: [
     {
       name: "user",
@@ -85,7 +83,8 @@ const command: CommandInterface = {
       required: false,
     },
   ],
-  canUseInDm: true,
+  useInDm: true,
+  requiredVoiceChannel: false,
 };
 
 export default command;

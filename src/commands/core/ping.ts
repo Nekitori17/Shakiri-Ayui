@@ -4,7 +4,9 @@ const command: CommandInterface = {
   async execute(interaction, client) {
     await interaction.reply("> ⌛ Pinging...");
     const reply = await interaction.fetchReply();
-    const ping: number = reply.createdTimestamp - interaction.createdTimestamp;
+
+    // Calculate latency
+    const ping = reply.createdTimestamp - interaction.createdTimestamp;
     await interaction.editReply(
       `> 🏓 Pong! Bot Latency is \`${ping}ms\` | API Latency is \`${client.ws.ping}\`ms.`
     );
@@ -12,7 +14,9 @@ const command: CommandInterface = {
   name: "ping",
   description: "Get the bot's ping",
   deleted: false,
-  canUseInDm: true,
+  devOnly: false,
+  useInDm: true,
+  requiredVoiceChannel: false,
 };
 
 export default command;

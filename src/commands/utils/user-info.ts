@@ -4,11 +4,12 @@ import { CommandInterface } from "./../../types/InteractionInterfaces";
 const command: CommandInterface = {
   async execute(interaction, client) {
     await interaction.deferReply();
-    const user = interaction.options.get("user")?.value as string;
-    const userObject = await interaction.guild?.members.fetch(
-      user || interaction.user.id
+    const targetUserOption = interaction.options.getUser("user", true);
+    const targetUser = await interaction.guild?.members.fetch(
+      targetUserOption.id || interaction.user.id
     );
 
+    // TODO: Add field to display list of role user has
     interaction.editReply({
       embeds: [
         new EmbedBuilder()
@@ -18,36 +19,36 @@ const command: CommandInterface = {
           })
           .setTitle("🙍‍♂️ User Information")
           .setDescription(
-            `* **Display name**: ${userObject?.displayName}` +
+            `* **Display name**: ${targetUser?.displayName}` +
               "\n" +
-              `* **Username**: ${userObject?.user.username}` +
+              `* **Username**: ${targetUser?.user.username}` +
               "\n" +
-              `* **Type**: ${userObject?.user.bot ? "Bot" : "User"}` +
+              `* **Type**: ${targetUser?.user.bot ? "Bot" : "User"}` +
               "\n" +
               `* **Joined Discord**: <t:${
-                userObject?.user.createdTimestamp || 0 / 1000
+                targetUser?.user.createdTimestamp || 0 / 1000
               }:F>` +
               "\n" +
               `* **Joined Server**: <t:${
-                userObject?.joinedTimestamp || 0 / 1000
+                targetUser?.joinedTimestamp || 0 / 1000
               }:F>` +
               "\n" +
-              `* **Avatar**: [View](${userObject?.displayAvatarURL({
+              `* **Avatar**: [View](${targetUser?.displayAvatarURL({
                 extension: "png",
                 forceStatic: true,
               })})` +
               "\n" +
               `* **Subscription**: ${
-                userObject?.premiumSinceTimestamp
-                  ? "<t:" + userObject.premiumSinceTimestamp / 1000 + ":F>"
+                targetUser?.premiumSinceTimestamp
+                  ? "<t:" + targetUser.premiumSinceTimestamp / 1000 + ":F>"
                   : "None"
               }` +
               "\n" +
-              `* **Hightest Role**: ${userObject?.roles.highest}`
+              `* **Hightest Role**: ${targetUser?.roles.highest}`
           )
-          .setThumbnail(userObject?.displayAvatarURL() || null)
+          .setThumbnail(targetUser?.displayAvatarURL() || null)
           .setFooter({
-            text: `User ID: ${userObject?.id}`,
+            text: `User ID: ${targetUser?.id}`,
           })
           .setTimestamp()
           .setColor("#00f2ff"),
@@ -57,6 +58,7 @@ const command: CommandInterface = {
   name: "user-info",
   description: "Get info about a user in the server",
   deleted: false,
+  devOnly: false,
   options: [
     {
       name: "user",
@@ -65,6 +67,8 @@ const command: CommandInterface = {
       required: false,
     },
   ],
+  useInDm: false,
+  requiredVoiceChannel: false,
 };
 
 export default command;

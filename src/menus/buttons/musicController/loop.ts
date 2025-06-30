@@ -16,6 +16,8 @@ const button: ButtonInterface = {
   async execute(interaction, client) {
     try {
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+      // Get the queue for the current guild
       const queue = useQueue(interaction.guildId!);
       if (!queue)
         throw {
@@ -23,40 +25,53 @@ const button: ButtonInterface = {
           message: "There is no queue to resume",
         };
 
-      const loopModeSelectMenu = Object.entries(repeatModeNames).map((mode) =>
-        new StringSelectMenuOptionBuilder().setLabel(mode[1]).setValue(mode[0])
+      // Create options for the loop mode select menu
+      const loopModeSelectMenuOption = Object.entries(repeatModeNames).map(
+        (mode) =>
+          new StringSelectMenuOptionBuilder()
+            .setLabel(mode[1])
+            .setValue(mode[0])
       );
 
-      const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-        new StringSelectMenuBuilder()
-          .setCustomId("music-controller-set-loop-mode")
-          .setPlaceholder("Select a loop mode")
-          .addOptions(loopModeSelectMenu)
-      );
+      // Create the select menu for loop modes
+      const loopModeSelectMenuRow =
+        new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+          new StringSelectMenuBuilder()
+            .setCustomId("music-controller-set-loop-mode")
+            .setPlaceholder("Select a loop mode")
+            .addOptions(loopModeSelectMenuOption)
+        );
 
-      const sent = await interaction.editReply({
+      // Send the reply with the select menu
+      const loopModeMenuReply = await interaction.editReply({
         content: "Select a loop mode",
-        components: [row],
+        components: [loopModeSelectMenuRow],
       });
 
-      const collector = sent.createMessageComponentCollector({
-        componentType: ComponentType.StringSelect,
-        filter: (i) => i.user.id === interaction.user.id,
-        time: 15000,
-      });
+      // Create a collector for the select menu interaction
+      const loopModeMenuCollector =
+        loopModeMenuReply.createMessageComponentCollector({
+          componentType: ComponentType.StringSelect,
+          filter: (i) => i.user.id === interaction.user.id,
+          time: 15000,
+        });
 
-      collector.on("collect", async (selectInteraction) => {
-        await selectInteraction.deferReply();
-
+      // Handle collection of a select menu interaction
+      loopModeMenuCollector.on("collect", async (loopModeSelectInteraction) => {
         try {
+          await loopModeSelectInteraction.deferReply();
+
+          // Get the selected repeat mode from the interaction
           const repeatMode = parseInt(
-            selectInteraction.values[0]
+            loopModeSelectInteraction.values[0]
           ) as QueueRepeatMode;
 
+          // Set the repeat mode for the queue and store it in session
           queue.setRepeatMode(repeatMode);
           musicPlayerStoreSession.loop.set(interaction.guildId!, repeatMode);
 
-          interaction.editReply({
+          // Edit the reply to confirm the loop mode change
+          loopModeMenuReply.edit({
             embeds: [
               new EmbedBuilder()
                 .setAuthor({
@@ -65,9 +80,10 @@ const button: ButtonInterface = {
                 })
                 .setColor("#5a01ff"),
             ],
+            components: [],
           });
         } catch (error) {
-          sendError(selectInteraction, error);
+          sendError(loopModeSelectInteraction, error);
         }
       });
     } catch (error) {
@@ -75,7 +91,8 @@ const button: ButtonInterface = {
     }
   },
   disabled: false,
-  voiceChannel: true,
+  devOnly: false,
+  requiredVoiceChannel: true,
 };
 
 export default button;

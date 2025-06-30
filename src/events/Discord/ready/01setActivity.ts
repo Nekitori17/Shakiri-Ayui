@@ -2,14 +2,16 @@ import config from "../../../config";
 import { ActivityType } from "discord.js";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
-const execute: DiscordEventInterface = async (client) => {
+const event: DiscordEventInterface = async (client) => {
+  // Define the structure for a status object
   interface statusObject {
     name: string;
     type: ActivityType;
     status: "idle" | "dnd" | "online";
   }
 
-  const statusArray: statusObject[] = [
+  // List of statuses to cycle through
+  const statusList: statusObject[] = [
     {
       name: "/help",
       type: ActivityType.Listening,
@@ -27,20 +29,21 @@ const execute: DiscordEventInterface = async (client) => {
     },
   ];
 
-  let nth: number = 0;
+  // Initialize index for cycling through statuses
+  let index: number = 0;
   setInterval((): void => {
-    if (nth === statusArray.length) nth = 0;
+    if (index === statusList.length) index = 0;
     client.user?.setPresence({
       activities: [
         {
-          name: statusArray[nth].name,
-          type: statusArray[nth].type,
+          name: statusList[index].name,
+          type: statusList[index].type,
         },
       ],
-      status: statusArray[nth].status,
+      status: statusList[index].status,
     });
-    nth++;
+    index++;
   }, config.statusIntervalTime);
 };
 
-export default execute;
+export default event;

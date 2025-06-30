@@ -1,3 +1,7 @@
+/**
+ * RTC regions and their display names.
+ */
+
 export const rtcRegionList = {
   null: "Automatic",
   "brazil": "Brazil",

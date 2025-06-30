@@ -13,33 +13,45 @@ import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-
     try {
+      await interaction.deferReply();
+
+      // Get the music queue for the current guild
       const queue = useQueue(interaction.guildId!);
+      // If no queue exists or it's empty, throw an error
       if (queue?.tracks.size == 0)
         throw {
           name: "NoQueue",
           message: "There is no queue to show",
         };
 
+      // Define the number of tracks to display per page
       const AMOUNT_TRACK_IN_PAGE = 10;
+      // Initialize an array to store tracks partitioned into pages
       const queuePartition: Track[][] = [];
 
+      // Get all tracks in the queue and calculate total tracks
       const tracksArray = queue?.tracks.toArray() || [];
       const totalTracks = tracksArray.length;
 
+      // Calculate the maximum number of pages and chunk size for partitioning
       const maxPages = Math.floor(totalTracks / AMOUNT_TRACK_IN_PAGE) || 1;
       const chunkSize = Math.ceil(totalTracks / maxPages);
 
       queuePartition.push(..._.chunk(tracksArray, chunkSize));
 
       let currentPage = 0;
+      /**
+       * Creates a reply object containing an EmbedBuilder and ActionRowBuilder for displaying the music queue.
+       * @param page The current page number to display.
+       * @returns An object with `embeds` and `components` properties.
+       */
       function createReply(page: number) {
-        const buttonsPage = new ActionRowBuilder<ButtonBuilder>({
+        // Create navigation buttons for the queue pages
+        const buttonsPageRow = new ActionRowBuilder<ButtonBuilder>({
           components: [
             new ButtonBuilder()
-              .setCustomId("music-queue-page-previous")
+              .setCustomId("music-queue-page-prev")
               .setEmoji("1387296301867073576")
               .setStyle(ButtonStyle.Secondary)
               .setDisabled(page === 0),
@@ -54,6 +66,7 @@ const command: CommandInterface = {
               .setDisabled(page >= maxPages - 1),
           ],
         });
+        // Return the embed and components for the current page
         return {
           embeds: [
             new EmbedBuilder()
@@ -81,44 +94,68 @@ const command: CommandInterface = {
               .setTimestamp()
               .setColor("#00ffc8"),
           ],
-          components: [buttonsPage],
+          components: [buttonsPageRow],
         };
       }
 
-      const reply = await interaction.editReply(createReply(currentPage));
+      // Send the initial reply with the first page of the queue
+      const queueEmbedReply = await interaction.editReply(
+        createReply(currentPage)
+      );
 
-      const collector = reply.createMessageComponentCollector({
-        componentType: ComponentType.Button,
-        filter: (i) => i.user.id === interaction.user.id,
-        time: 60_000,
-      });
+      // Create a message component collector for button interactions
+      const queueEmbedCollector =
+        queueEmbedReply.createMessageComponentCollector({
+          componentType: ComponentType.Button,
+          filter: (i) => i.user.id === interaction.user.id,
+          time: 60_000,
+        });
 
-      collector.on("collect", async (inter) => {
-        if (inter.customId === "music-queue-page-previous") {
-          currentPage -= 1;
-          reply.edit(createReply(currentPage));
-          inter.deferUpdate();
+      // Handle interactions from the queue navigation buttons
+      queueEmbedCollector.on(
+        "collect",
+        async (queuePageNavButtonInteraction) => {
+          // If 'current' button is clicked, just defer update (no change)
+          if (
+            queuePageNavButtonInteraction.customId == "music-queue-page-current"
+          )
+            return queuePageNavButtonInteraction.deferUpdate();
+
+          // If 'previous' button is clicked, decrement page and update reply
+          if (
+            queuePageNavButtonInteraction.customId === "music-queue-page-prev"
+          ) {
+            currentPage -= 1;
+            queueEmbedReply.edit(createReply(currentPage));
+            queuePageNavButtonInteraction.deferUpdate();
+          }
+
+          // If 'next' button is clicked, increment page and update reply
+          if (
+            queuePageNavButtonInteraction.customId === "music-queue-page-next"
+          ) {
+            currentPage += 1;
+            queueEmbedReply.edit(createReply(currentPage));
+            queuePageNavButtonInteraction.deferUpdate();
+          }
         }
-
-        if (inter.customId == "music-queue-page-current")
-          return inter.deferUpdate();
-
-        if (inter.customId === "music-queue-page-next") {
-          currentPage += 1;
-          reply.edit(createReply(currentPage));
-          inter.deferUpdate();
-        }
-      });
+      );
     } catch (error) {
       sendError(interaction, error);
     }
   },
+  alias: "qe",
   name: "queue",
   description: "List tracks in queue",
   deleted: false,
-  voiceChannel: true,
-  permissionsRequired: [PermissionFlagsBits.Connect],
-  botPermissions: [PermissionFlagsBits.Connect, PermissionFlagsBits.Speak],
+  devOnly: false,
+  useInDm: false,
+  requiredVoiceChannel: true,
+  userPermissionsRequired: [PermissionFlagsBits.Connect],
+  botPermissionsRequired: [
+    PermissionFlagsBits.Connect,
+    PermissionFlagsBits.Speak,
+  ],
 };
 
 export default command;

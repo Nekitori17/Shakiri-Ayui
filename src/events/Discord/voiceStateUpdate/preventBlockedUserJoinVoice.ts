@@ -10,20 +10,23 @@ const event: DiscordEventInterface = async (
   oldState: VoiceState,
   newState: VoiceState
 ) => {
+  // Initialize a JSON store for temporary voice channels
   const temporaryChannels = jsonStore(
     path.join(__dirname, "../../../../database/temporaryVoiceChannels.json")
   );
 
+  // If the user is not in a new channel, or there's no member, return
   if (!newState.channel) return;
   if (!newState.member) return;
+  // If the new channel is not a temporary channel, return
   if (!temporaryChannels.get(newState.channel.id)) return;
 
-  const userSettings = await UserSettings.findOne({
+  const userSetting = await UserSettings.findOne({
     userId: temporaryChannels.get(newState.channel.id),
   });
 
   if (
-    userSettings?.temporaryVoiceChannel.blockedUsers.includes(
+    userSetting?.temporaryVoiceChannel.blockedUsers.includes(
       newState.member.id
     )
   ) {

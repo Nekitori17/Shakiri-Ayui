@@ -13,32 +13,37 @@ import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-    const query = interaction.options.get("query")?.value as string;
-
     try {
+      await interaction.deferReply();
+      const queryOption = interaction.options.getString("query", true);
+   
+      // Get the main player instance
       const player = useMainPlayer();
-      const result = await player.search(query, {
+      // Search for the track or playlist based on the query
+      const searchResult = await player.search(queryOption, {
         requestedBy: interaction.user,
         searchEngine: QueryType.AUTO,
       });
 
-      if (!result.hasTracks())
+      if (!searchResult.hasTracks())
         throw {
           name: "NoResults",
           message: "Please try again or try a different query or platform",
         };
-
+ 
+      // Inform the user that the track/playlist is loading
       await interaction.editReply(
         `> <a:colorhombusloader:1387284665177608252> Loading ${
-          result.playlist ? "playlist" : "track"
+          searchResult.playlist ? "playlist" : "track"
         }...`
       );
-
-      const settings = await config.modules(interaction.guildId!);
+ 
+      // Get guild settings for music playback
+      const guildSetting = await config.modules(interaction.guildId!);
+      // Play the track or playlist in the user's voice channel
       const { track } = await player.play(
         (interaction.member as GuildMember).voice.channel!,
-        result,
+        searchResult,
         {
           requestedBy: interaction.user,
           nodeOptions: {
@@ -48,14 +53,14 @@ const command: CommandInterface = {
             volume:
               (musicPlayerStoreSession.volume.get(
                 interaction.guildId!
-              ) as number) || settings.music.volume,
-            leaveOnEmpty: settings.music.leaveOnEmpty,
-            leaveOnEmptyCooldown: settings.music.leaveOnEmptyCooldown,
-            leaveOnEnd: settings.music.leaveOnEnd,
-            leaveOnEndCooldown: settings.music.leaveOnEndCooldown,
+              ) as number) || guildSetting.music.volume,
+            leaveOnEmpty: guildSetting.music.leaveOnEmpty,
+            leaveOnEmptyCooldown: guildSetting.music.leaveOnEmptyCooldown,
+            leaveOnEnd: guildSetting.music.leaveOnEnd,
+            leaveOnEndCooldown: guildSetting.music.leaveOnEndCooldown,
           },
         }
-      );
+      ); // Edit the reply to confirm the track has been added to the queue
 
       interaction.editReply({
         content: null,
@@ -77,10 +82,11 @@ const command: CommandInterface = {
       sendError(interaction, error);
     }
   },
+  alias: "p",
   name: "play",
   description: "Let the bot play a song",
   deleted: false,
-  voiceChannel: true,
+  devOnly: false,
   options: [
     {
       name: "query",
@@ -89,8 +95,13 @@ const command: CommandInterface = {
       required: true,
     },
   ],
-  permissionsRequired: [PermissionFlagsBits.Connect],
-  botPermissions: [PermissionFlagsBits.Connect, PermissionFlagsBits.Speak],
+  useInDm: false,
+  requiredVoiceChannel: true,
+  userPermissionsRequired: [PermissionFlagsBits.Connect],
+  botPermissionsRequired: [
+    PermissionFlagsBits.Connect,
+    PermissionFlagsBits.Speak,
+  ],
 };
 
 export default command;

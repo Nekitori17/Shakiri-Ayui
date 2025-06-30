@@ -1,3 +1,8 @@
+/**
+ *  Command categories and their properties. 
+ */
+ 
+
 export const commandCategories = Object.fromEntries(
   Object.entries({
     core: {

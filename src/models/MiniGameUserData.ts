@@ -3,7 +3,7 @@ import { model, Schema, InferSchemaType } from "mongoose";
 const guessBoxEnum = ["🟩", "🟨", "⬜", "⬛"] as const;
 const statusEnum = ["playing", "won", "lost"] as const;
 
-const userDatasSchema = new Schema({
+const userDataSchema = new Schema({
   userId: { type: String, required: true, unique: true },
   balance: { type: Number, default: 0 },
   bank: {
@@ -20,10 +20,14 @@ const userDatasSchema = new Schema({
   inventory: { type: [String], default: [] },
   wordleGame: {
     type: {
+      date: { type: Date },
       word: { type: String },
       board: {
         type: [[{ type: String, enum: guessBoxEnum }]],
-        default: () => Array(6).fill(null).map(() => Array(5).fill("⬛")),
+        default: () =>
+          Array(6)
+            .fill(null)
+            .map(() => Array(5).fill("⬛")),
       },
       guessedWords: { type: [String], default: [] },
       wrongChars: { type: [String], default: [] },
@@ -32,5 +36,5 @@ const userDatasSchema = new Schema({
   },
 });
 
-type UserDatasType = InferSchemaType<typeof userDatasSchema>;
-export default model<UserDatasType>("MiniGameUserDatas", userDatasSchema);
+type UserDataType = InferSchemaType<typeof userDataSchema>;
+export default model<UserDataType>("MiniGameUserData", userDataSchema);

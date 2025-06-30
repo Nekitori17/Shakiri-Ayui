@@ -1,4 +1,4 @@
-import MiniGameUserDatas from "../../../models/MiniGameUserDatas";
+import MiniGameUserData from "../../../models/MiniGameUserData";
 import { TimeEventInterface } from "../../../types/EventInterfaces";
 
 const schedule: TimeEventInterface = {
@@ -7,7 +7,7 @@ const schedule: TimeEventInterface = {
     cutoffDate.setDate(cutoffDate.getDate() - 2);
     cutoffDate.setHours(0, 0, 0, 0);
 
-    await MiniGameUserDatas.updateMany(
+    await MiniGameUserData.updateMany(
       {
         lastDaily: {
           $exists: true,

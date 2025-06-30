@@ -11,13 +11,15 @@ import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-    const repeatMode = interaction.options.get("mode")
-      ?.value as QueueRepeatMode;
-    const repeatModeName =
-      repeatModeNames[repeatMode as keyof typeof repeatModeNames];
-
     try {
+      await interaction.deferReply();
+      const repeatModeOption = interaction.options.getInteger(
+        "mode",
+        true
+      ) as QueueRepeatMode;
+      const repeatModeName =
+        repeatModeNames[repeatModeOption as keyof typeof repeatModeNames];
+
       const queue = useQueue(interaction.guildId!);
       if (!queue)
         throw {
@@ -25,8 +27,8 @@ const command: CommandInterface = {
           message: "There is no queue to loop",
         };
 
-      queue.setRepeatMode(repeatMode);
-      musicPlayerStoreSession.loop.set(interaction.guildId!, repeatMode);
+      queue.setRepeatMode(repeatModeOption);
+      musicPlayerStoreSession.loop.set(interaction.guildId!, repeatModeOption);
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
@@ -43,36 +45,41 @@ const command: CommandInterface = {
   },
   name: "loop",
   description: "Set the loop mode",
+  deleted: false,
+  devOnly: false,
   options: [
     {
       name: "mode",
       description: "Loop mode",
-      type: ApplicationCommandOptionType.Number,
+      type: ApplicationCommandOptionType.Integer,
       required: true,
       choices: [
         {
           name: "Off",
-          value: "0",
+          value: 0,
         },
         {
           name: "Track",
-          value: "1",
+          value: 1,
         },
         {
           name: "Queue",
-          value: "2",
+          value: 2,
         },
         {
           name: "Autoplay",
-          value: "3",
+          value: 3,
         },
       ],
     },
   ],
-  deleted: false,
-  voiceChannel: true,
-  permissionsRequired: [PermissionFlagsBits.Connect],
-  botPermissions: [PermissionFlagsBits.Connect, PermissionFlagsBits.Speak],
+  useInDm: false,
+  requiredVoiceChannel: true,
+  userPermissionsRequired: [PermissionFlagsBits.Connect],
+  botPermissionsRequired: [
+    PermissionFlagsBits.Connect,
+    PermissionFlagsBits.Speak,
+  ],
 };
 
 export default command;

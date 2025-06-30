@@ -3,6 +3,7 @@ import { MusicEventInterface } from "../../types/EventInterfaces";
 
 const event: MusicEventInterface = (player) => {
   player.events.on("emptyQueue", (queue) => {
+    // Send a message to the channel indicating the queue is empty
     (queue.metadata.channel as TextChannel).send({
       embeds: [
         new EmbedBuilder()

@@ -5,17 +5,21 @@ import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
 const button: ButtonInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-
     try {
-      const history = useHistory(interaction.guildId!);
-      if (!history)
+      await interaction.deferReply();
+
+      // Get the queue history for the current guild
+      const queueHistory = useHistory(interaction.guildId!);
+      // Check if a queue history exists
+      if (!queueHistory)
         throw {
           name: "NoQueue",
           message: "There is no queue to play",
         };
 
-      await history.previous();
+      // Play the previous track in the history
+      await queueHistory.previous();
+      // Edit the reply with an embed confirming the previous track will play
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
@@ -31,7 +35,8 @@ const button: ButtonInterface = {
     }
   },
   disabled: false,
-  voiceChannel: true,
+  devOnly: false,
+  requiredVoiceChannel: true,
 };
 
 export default button;

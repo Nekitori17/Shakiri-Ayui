@@ -1,4 +1,4 @@
-(require("dotenv") as { config: () => void }).config();
+require("dotenv").config();
 import mongoose from "mongoose";
 import { Client, IntentsBitField } from "discord.js";
 import { Player } from "discord-player";
@@ -33,16 +33,16 @@ async function run(client: Client) {
     await registerCommands();
     await registerMusicExtractor(player);
 
+    console.log("💿 | Connecting to MongoDB...");
     mongoose.set("strictQuery", false);
-    await mongoose.connect(process.env.MONGODB_URI as string);
-    console.log("🔑| Connected to MongoDB");
-    
+    await mongoose.connect(process.env.MONGODB_CONNECTION_URI as string);
+    console.log("🔑 | Connected to MongoDB");
 
     discordEventHandler(client);
     musicEventHandler(client, player);
 
     client.login(process.env.BOT_TOKEN as string);
-  } catch (error: { name: string; message: string } | any) {
+  } catch (error: any) {
     console.log(`\x1b[31m\x1b[1m=> ${error.name}\x1b[0m`);
     console.log(`\x1b[32m${error.message}\x1b[0m`);
     console.log(error);

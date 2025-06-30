@@ -1,5 +1,4 @@
 import path from "path";
-import jsonStore from "json-store-typed";
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -9,31 +8,38 @@ import {
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from "discord.js";
+import jsonStore from "json-store-typed";
 import sendError from "../../../helpers/utils/sendError";
-import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
+import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
 const select: SelectMenuInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+    // Get the user's voice channel
     const userVoiceChannel = (interaction.member as GuildMember).voice.channel!;
 
     try {
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+      // Initialize jsonStore for temporary voice channels
       const temporaryChannels = jsonStore(
         path.join(__dirname, "../../../../database/temporaryVoiceChannels.json")
       );
 
+      // Check if the temporary voice channel belongs to the interacting user
       if (!checkOwnTempVoice(userVoiceChannel.id, interaction.user.id))
         throw {
           name: "NotOwnTempVoiceError",
           message: "This temporary voice channel does not belong to you.",
         };
 
+      // Filter out the current user and bots to find transferable members
       const transferableMembers = userVoiceChannel.members.filter(
-        (member) => member.id !== interaction.user.id
+        (member) => member.id !== interaction.user.id && !member.user.bot
       );
 
+      // If no transferable members are found, throw an error
       if (!transferableMembers || transferableMembers.size === 0) {
         throw {
           name: "NoUserCanTransfer",
@@ -41,6 +47,7 @@ const select: SelectMenuInterface = {
         };
       }
 
+      // Pagination setup for displaying transferable members
       const AMOUNT_USER_IN_PAGE = 25;
       const transferableMemberArray = Array.from(transferableMembers.values());
       const transferableMembersPartition: GuildMember[][] = [];
@@ -58,6 +65,10 @@ const select: SelectMenuInterface = {
         );
       }
 
+      /**
+       * Generates the content for a page displaying transferable users.
+       * @param page The current page number.
+       */
       const createReply = (page: number) => {
         const transferUserSelectMenu = transferableMembersPartition[page].map(
           (member) =>
@@ -67,7 +78,8 @@ const select: SelectMenuInterface = {
               .setValue(member.id)
         );
 
-        const userSelectMenu =
+        // Create the StringSelectMenu for selecting a user to transfer to
+        const userSelectMenuRow =
           new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
             new StringSelectMenuBuilder()
               .setCustomId("temp-voice-transfer-select")
@@ -76,20 +88,21 @@ const select: SelectMenuInterface = {
               .setMaxValues(transferUserSelectMenu.length)
           );
 
-        const buttonsPage = new ActionRowBuilder<ButtonBuilder>().addComponents(
+        // Create pagination buttons
+        const buttonsPageRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
           new ButtonBuilder()
-            .setCustomId("temp-voice-transfer-previous")
-            .setEmoji("⬅️")
+            .setCustomId("temp-voice-transfer-page-prev")
+            .setEmoji("1387296301867073576")
             .setStyle(ButtonStyle.Primary)
             .setDisabled(page === 0),
           new ButtonBuilder()
-            .setCustomId("temp-voice-transfer-current")
+            .setCustomId("temp-voice-transfer-page-current")
             .setLabel(`${page + 1}/${maxPage}`)
             .setStyle(ButtonStyle.Secondary)
             .setDisabled(true),
           new ButtonBuilder()
-            .setCustomId("temp-voice-transfer-next")
-            .setEmoji("➡️")
+            .setCustomId("temp-voice-transfer=page-next")
+            .setEmoji("1387296195256254564")
             .setStyle(ButtonStyle.Primary)
             .setDisabled(page >= maxPage - 1)
         );
@@ -97,69 +110,89 @@ const select: SelectMenuInterface = {
         return {
           content:
             "> Select a user to transfer your temporary voice channel to",
-          components: [userSelectMenu, buttonsPage],
+          components: [userSelectMenuRow, buttonsPageRow],
         };
       };
 
-      const sent = await interaction.editReply(createReply(currentPage));
+      // Send the initial reply with the first page of transferable users
+      const transferUserMenuReply = await interaction.editReply(
+        createReply(currentPage)
+      );
 
-      const collector = sent.createMessageComponentCollector({
-        filter: (i) => i.user.id === interaction.user.id,
-        time: 60_000,
-      });
+      // Create a message component collector for interactions with the menu and buttons
+      const transferUserMenuCollector =
+        transferUserMenuReply.createMessageComponentCollector({
+          filter: (i) => i.user.id === interaction.user.id,
+          time: 60_000,
+        });
 
-      collector.on("collect", async (collectInteraction) => {
-        if (collectInteraction.isButton()) {
-          if (collectInteraction.customId === "temp-voice-transfer-previous") {
-            currentPage--;
-            await interaction.editReply(createReply(currentPage));
-            return collectInteraction.deferUpdate();
+      // Handle collected interactions
+      transferUserMenuCollector.on(
+        "collect",
+        async (transferUserMenuInteraction) => {
+          if (transferUserMenuInteraction.isButton()) {
+            //
+            if (
+              transferUserMenuInteraction.customId ===
+              "temp-voice-transfer-page-prev"
+            ) {
+              currentPage--;
+              await interaction.editReply(createReply(currentPage));
+              return transferUserMenuInteraction.deferUpdate();
+            }
+
+            if (
+              transferUserMenuInteraction.customId ===
+              "temp-voice-transfer-page-next"
+            ) {
+              currentPage++;
+              await transferUserMenuInteraction.update(
+                createReply(currentPage)
+              );
+              return transferUserMenuInteraction.deferUpdate();
+            }
+
+            if (
+              transferUserMenuInteraction.customId ===
+              "temp-voice-transfer-page-current"
+            )
+              return transferUserMenuInteraction.deferUpdate();
           }
 
-          if (collectInteraction.customId === "temp-voice-transfer-next") {
-            currentPage++;
-            await collectInteraction.update(createReply(currentPage));
-            return collectInteraction.deferUpdate();
-          }
+          if (transferUserMenuInteraction.isStringSelectMenu()) {
+            await transferUserMenuInteraction.deferReply({ ephemeral: true });
 
-          if (collectInteraction.customId === "temp-voice-transfer-current")
-            return collectInteraction.deferUpdate();
+            try {
+              const userId = transferUserMenuInteraction.values[0];
+
+              // Update the temporary channel owner in the database
+              temporaryChannels.set(userVoiceChannel.id, userId);
+
+              // Edit the reply to confirm the transfer
+              transferUserMenuInteraction.editReply({
+                embeds: [
+                  CommonEmbedBuilder.success({
+                    title: "> Transferred Temporary Channel",
+                    description: `Transferred to user: <@${userId}>`,
+                  }),
+                ],
+              });
+
+              // Stop the collector after a successful transfer
+              transferUserMenuCollector.stop();
+            } catch (error) {
+              sendError(transferUserMenuInteraction, error, true);
+            }
+          }
         }
-
-        if (collectInteraction.isStringSelectMenu()) {
-          await collectInteraction.deferReply({ ephemeral: true });
-          try {
-            const userId = collectInteraction.values[0];
-
-            if ((await client.users.fetch(userId)).bot)
-              throw {
-                name: "CannotTransferToBot",
-                message:
-                  "Ahhhh. I don't think they can do something with this.",
-                type: "warning",
-              };
-
-            temporaryChannels.set(userVoiceChannel.id, userId);
-            collectInteraction.editReply({
-              embeds: [
-                CommonEmbedBuilder.success({
-                  title: "> Transfered Temporary Channel",
-                  description: `Transfered to user: <@${userId}>`,
-                }),
-              ],
-            });
-            collector.stop();
-          } catch (error) {
-            sendError(collectInteraction, error, true);
-          }
-        }
-      });
+      );
     } catch (error) {
       sendError(interaction, error, true);
     }
   },
   disabled: false,
-  voiceChannel: true,
+  devOnly: false,
+  requiredVoiceChannel: true,
 };
 
 export default select;

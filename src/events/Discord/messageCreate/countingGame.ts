@@ -2,65 +2,83 @@ import config from "../../../config";
 import { Message } from "discord.js";
 import CountingGame from "../../../models/CountingGame";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
+import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 
+// Helper function to check if a string is numeric
 const isNumeric = (str: string) => {
   const num = parseFloat(str);
   return !isNaN(num) && isFinite(num);
 };
 
-const event: DiscordEventInterface = async (client, msg: Message) => {
-  if (msg.author.bot) return;
-  if (!isNumeric(msg.content)) return;
+const event: DiscordEventInterface = async (client, message: Message) => {
+  // Ignore bot messages
+  if (message.author.bot) return;
+  // Ignore non-numeric messages
+  if (!isNumeric(message.content)) return;
 
-  const settings = await config.modules(msg.guildId!);
-  if (!settings.countingGame.enabled) return;
-  if (msg.channelId != settings.countingGame.channelSet) return;
+  // Fetch guild settings for the counting game
+  const guildSetting = await config.modules(message.guildId!);
+  if (!guildSetting.countingGame.enabled) return;
+  if (message.channelId != guildSetting.countingGame.channelSet) return;
 
   try {
-    const data = await CountingGame.findOne({
-      guildId: msg.guildId,
-    });
+    // Query for the guild's counting game data
+    const guildCountingGameData = await CountingGame.findOneAndUpdate(
+      {
+        guildId: message.guildId,
+      },
+      {
+        $setOnInsert: {
+          guildId: message.guildId,
+          countingCurrent: guildSetting.countingGame.startNumber,
+          latestUserId: message.author.id,
+          latestMessageId: message.id,
+        },
+      },
+      {
+        upsert: true,
+        new: true,
+      }
+    );
 
-    if (data) {
-      if (data.latestUserId === msg.author.id)
-        throw {
-          message: `❌ | ${msg.author}, you are only allowed to count once in a row.`,
-        };
+    // Check if the same user is counting consecutively
+    if (guildCountingGameData.latestUserId === message.author.id)
+      throw {
+        message: `❌ | ${message.author}, you are only allowed to count once in a row.`,
+      };
 
-      if (msg.content !== data.countingCurrent.toString())
-        throw {
-          message: `❌ | ${msg.author}, you counted wrong! Check the message history and count with the correct number.`,
-        };
+    // Check if the counted number is correct
+    if (message.content !== guildCountingGameData.countingCurrent.toString())
+      throw {
+        message: `❌ | ${message.author}, you counted wrong! Check the message history and count with the correct number.`,
+      };
 
-      data.countingCurrent += 1;
-      data.latestUserId = msg.author.id;
-      data.latestMessageId = msg.id;
+    // Increment the count and update latest user/message
+    guildCountingGameData.countingCurrent += 1;
+    guildCountingGameData.latestUserId = message.author.id;
+    guildCountingGameData.latestMessageId = message.id;
 
-      await data.save();
-      msg.react("✅");
+    // Save the updated game data and react with success
+    await guildCountingGameData.save();
+    message.react("✅");
+  } catch (error: any) {
+    if (error instanceof Error) {
+      message.reply({
+        embeds: [
+          CommonEmbedBuilder.error({
+            title: error.name,
+            description: error.message,
+          }),
+        ],
+      })
     } else {
-      if (msg.content != settings.countingGame?.startNumber.toString())
-        throw {
-          message: `❌ | ${msg.author}, you counted wrong! Check the message history and count with the correct number.`,
-        };
-
-      const newData = new CountingGame({
-        guildId: msg.guildId,
-        channelId: msg.channelId,
-        countingCurrent: settings.countingGame?.startNumber + 1,
-        latestUserId: msg.author.id,
-        latestMessageId: msg.id,
-      });
-
-      await newData.save();
-      msg.react("✅");
+      // Handle custom error messages (e.g., from the throw statements)
+      await message.delete();
+      const reply = message.channel.isSendable()
+        ? await message.channel.send(`> ${error.message}`)
+        : null;
+      setTimeout(() => reply?.delete(), 10000);
     }
-  } catch (error: { name: string; message: string } | any) {
-    await msg.delete();
-    const reply = msg.channel.isSendable()
-      ? await msg.channel.send(`> ${error.message}`)
-      : null;
-    setTimeout(() => reply?.delete(), 10000);
   }
 };
 

@@ -12,18 +12,23 @@ import { ModerationEmbedBuilder } from "../../helpers/embeds/moderationEmbedBuil
 const command: CommandInterface = {
   async execute(interaction, client) {
     await interaction.deferReply();
-    const target = interaction.options.get("target")?.value as string;
-    const reason = interaction.options.get("reason")?.value as string;
+    const targetUserOption = interaction.options.getUser("target")!;
+    const reasonOption = interaction.options.getString("reason");
 
     try {
-      const targetUser = await interaction.guild?.members.fetch(target);
+      // Fetch the target user as a guild member
+      const targetUser = await interaction.guild?.members.fetch(
+        targetUserOption
+      );
 
+      // Check if the target user exists in the server
       if (!targetUser)
         throw {
           name: "UserNotFound",
           message: "That user does not exist in this server",
         };
 
+      // Check if the target is the server owner
       if (targetUser.id === interaction.guild?.ownerId)
         throw {
           name: "Can'tKickOwner",
@@ -31,6 +36,7 @@ const command: CommandInterface = {
           type: "warning",
         };
 
+      // Check if the target is the bot itself
       if (targetUser.id === interaction.guild?.members.me?.id)
         throw {
           name: "Can'tKickMe",
@@ -38,13 +44,15 @@ const command: CommandInterface = {
           type: "warning",
         };
 
+      // Get role positions for hierarchy check
       const requestUserRolePosition = (
         interaction.member?.roles as GuildMemberRoleManager
       ).highest.position;
       const targetUserRolePosition = targetUser.roles.highest.position;
       const botRolePosition =
-        interaction.guild?.members.me?.roles.highest.position;
+        interaction.guild!.members.me!.roles.highest.position;
 
+      // Check if the command user has a higher role than the target
       if (targetUserRolePosition >= requestUserRolePosition)
         throw {
           name: "InsufficientPermissions",
@@ -52,6 +60,7 @@ const command: CommandInterface = {
           type: "warning",
         };
 
+      // Check if the bot has a higher role than the target
       if (targetUserRolePosition >= botRolePosition!)
         throw {
           name: "InsufficientPermissions",
@@ -59,41 +68,49 @@ const command: CommandInterface = {
           type: "warning",
         };
 
-      await targetUser.kick(reason);
+      // Kick the user with the specified reason
+      await targetUser.kick(reasonOption || undefined);
 
+      // Send a confirmation message
       await interaction.editReply({
         embeds: [
           new EmbedBuilder()
             .setAuthor({
               iconURL: targetUser.user.displayAvatarURL(),
-              name: `|🛴| **${targetUser.user.displayName}** has been kicked`,
+              name: `|🛴| ${targetUser.user.displayName} has been kicked`,
             })
-            .setDescription(`**Reason**: ${reason || "No reason provided"}`)
+            .setDescription(
+              `**Reason**: ${reasonOption || "No reason provided"}`
+            )
             .setColor("Orange"),
         ],
       });
 
-      const settings = await config.modules(interaction.guildId!);
-      if (settings.moderator.logging) {
-        if (!settings.moderator.loggingChannel) return;
+      // Logging section
+      const guildSetting = await config.modules(interaction.guildId!);
+      if (guildSetting.moderator.logging) {
+        if (!guildSetting.moderator.loggingChannel) return;
 
+        // Fetch the logging channel
         const logChannel = interaction.guild?.channels.cache.get(
-          settings.moderator.loggingChannel
+          guildSetting.moderator.loggingChannel
         );
 
+        // Check if the logging channel exists
         if (!logChannel)
           throw {
             name: "ChannelNotFound",
             message: "The logging channel was not found",
           };
 
+        // Send log message to the designated channel if sendable
         if (!logChannel.isSendable()) return;
         await logChannel.send({
           embeds: [
             ModerationEmbedBuilder.kick({
               target: targetUser,
               moderator: interaction.user,
-              reason: reason || "No reason provided",
+              reason: reasonOption || "No reason provided",
             }),
           ],
         });
@@ -105,6 +122,7 @@ const command: CommandInterface = {
   name: "kick",
   description: "kick a user",
   deleted: false,
+  devOnly: false,
   options: [
     {
       name: "target",
@@ -119,8 +137,10 @@ const command: CommandInterface = {
       required: false,
     },
   ],
-  botPermissions: [PermissionFlagsBits.KickMembers],
-  permissionsRequired: [PermissionFlagsBits.KickMembers],
+  useInDm: false,
+  requiredVoiceChannel: false,
+  userPermissionsRequired: [PermissionFlagsBits.KickMembers],
+  botPermissionsRequired: [PermissionFlagsBits.KickMembers],
 };
 
 export default command;

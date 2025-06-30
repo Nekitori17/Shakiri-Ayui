@@ -5,10 +5,11 @@ import temporaryVoiceMenu from "../../components/temporaryVoiceMenu";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-
     try {
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
       if (interaction.channel?.isSendable())
+        // Send the temporary voice menu embed and components to the channel
         await interaction.channel.send({
           embeds: [
             new EmbedBuilder()
@@ -31,6 +32,7 @@ const command: CommandInterface = {
           components: [temporaryVoiceMenu],
         });
 
+      // Edit the deferred reply to indicate success
       interaction.editReply("✅ | Done!");
     } catch (error) {
       sendError(interaction, error);
@@ -39,7 +41,10 @@ const command: CommandInterface = {
   name: "send-temp-voice-menu",
   description: "Send a temporary voice menu",
   deleted: false,
-  permissionsRequired: [PermissionFlagsBits.ManageGuild],
+  devOnly: true,
+  useInDm: false,
+  requiredVoiceChannel: false,
+  userPermissionsRequired: [PermissionFlagsBits.ManageGuild],
 };
 
 export default command;

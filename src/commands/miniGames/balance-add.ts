@@ -1,17 +1,25 @@
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
-import MiniGameUserDatas from "../../models/MiniGameUserDatas";
 import sendError from "../../helpers/utils/sendError";
 import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
+import MiniGameUserData from "../../models/MiniGameUserData";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-    const userTarget = interaction.options.get("user")?.value as string;
-    const amount = interaction.options.get("amount")?.value as number;
-
     try {
-      if (amount <= 0) {
+      await interaction.deferReply();
+      const targetUserOption = interaction.options.getUser("user", true);
+      const amountOption = interaction.options.getInteger("amount", true);
+
+      // Check if the user is a bot
+      if (targetUserOption.bot)
+        throw {
+          name: "BotUser",
+          message: "Bro think they can play mini game 💀🙏",
+        };
+
+      // Check is invalid value
+      if (amountOption <= 0) {
         throw {
           name: "InvalidAmount",
           message: "You cannot add a negative or zero amount.",
@@ -19,13 +27,14 @@ const command: CommandInterface = {
         };
       }
 
-      const userMiniGameDatas = await MiniGameUserDatas.findOneAndUpdate(
+      // Get mini game data of user
+      const miniGameUserData = await MiniGameUserData.findOneAndUpdate(
         {
-          userId: userTarget,
+          userId: targetUserOption.id,
         },
         {
           $setOnInsert: {
-            userId: userTarget,
+            userId: targetUserOption.id,
           },
         },
         {
@@ -34,14 +43,19 @@ const command: CommandInterface = {
         }
       );
 
-      userMiniGameDatas.balance += amount;
-      await userMiniGameDatas.save();
+      // Update balance
+      miniGameUserData.balance += amountOption;
+      await miniGameUserData.save();
 
+      // Send success message
       interaction.editReply({
         embeds: [
           CommonEmbedBuilder.success({
             title: "Balance Added!",
-            description: `Successfully added **${amount}** <:nyen:1373967798790783016> to <@${userTarget}>'s balance.`,
+            description:
+              `Successfully added **${amountOption}** <:nyen:1373967798790783016> to ${targetUserOption}'s balance.` +
+              "\n\n" +
+              `**${targetUserOption}'s New Balance:** ${miniGameUserData.balance}`,
           }),
         ],
       });
@@ -52,6 +66,7 @@ const command: CommandInterface = {
   name: "balance-add",
   description: "Adds balance to a user",
   deleted: false,
+  devOnly: false,
   options: [
     {
       name: "user",
@@ -62,11 +77,13 @@ const command: CommandInterface = {
     {
       name: "amount",
       description: "The amount to add",
-      type: ApplicationCommandOptionType.Number,
+      type: ApplicationCommandOptionType.Integer,
       required: true,
     },
   ],
-  permissionsRequired: [PermissionFlagsBits.ManageGuild],
+  useInDm: false,
+  requiredVoiceChannel: false,
+  userPermissionsRequired: [PermissionFlagsBits.ManageGuild],
 };
 
 export default command;

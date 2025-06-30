@@ -1,3 +1,7 @@
+/**
+ * Icons for different music sources.
+ */
+
 import { TrackSource } from "discord-player";
 
 export const musicSourceIcons: { [key in TrackSource]: string } = {

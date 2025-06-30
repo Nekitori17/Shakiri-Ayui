@@ -9,10 +9,10 @@ import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-    const index = interaction.options.get("index")?.value as number;
-
     try {
+      await interaction.deferReply();
+      const indexOption = interaction.options.getInteger("index", true);
+
       const queue = useQueue(interaction.guildId!);
       if (!queue)
         throw {
@@ -20,12 +20,12 @@ const command: CommandInterface = {
           message: "There is no queue to skip",
         };
 
-      queue.node.skipTo(index + 1);
+      queue.node.skipTo(indexOption + 1);
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
             .setAuthor({
-              name: `🎶 Skipped to track at ${index}`,
+              name: `🎶 Skipped to track at ${indexOption}`,
               iconURL: "https://img.icons8.com/color/512/last.png",
             })
             .setColor("#73ff00"),
@@ -38,17 +38,22 @@ const command: CommandInterface = {
   name: "jump",
   description: "Jump to a specific song",
   deleted: false,
+  devOnly: false,
   options: [
     {
       name: "index",
       description: "The position to jump to",
-      type: ApplicationCommandOptionType.Number,
+      type: ApplicationCommandOptionType.Integer,
       required: true,
     },
   ],
-  voiceChannel: true,
-  permissionsRequired: [PermissionFlagsBits.Connect],
-  botPermissions: [PermissionFlagsBits.Connect, PermissionFlagsBits.Speak],
+  useInDm: false,
+  requiredVoiceChannel: true,
+  userPermissionsRequired: [PermissionFlagsBits.Connect],
+  botPermissionsRequired: [
+    PermissionFlagsBits.Connect,
+    PermissionFlagsBits.Speak,
+  ],
 };
 
 export default command;

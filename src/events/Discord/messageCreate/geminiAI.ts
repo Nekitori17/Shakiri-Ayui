@@ -5,23 +5,32 @@ import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
 const event: DiscordEventInterface = async (client, msg: Message) => {
+  // Ignore bot messages
   if (msg.author.bot) return;
 
-  const settings = await config.modules(msg.guildId!);
-  if (!settings.geminiAI.enabled) return;
-  if (msg.channelId !== settings.geminiAI.channelSet) return;
-  if (msg.content.startsWith(settings.geminiAI.ignorePrefix)) return;
+  // Fetch guild settings for Gemini AI
+  const guildSetting = await config.modules(msg.guildId!);
 
-  const sent = await msg.reply(
+  // Check if Gemini AI is enabled and if the message is in the designated channel
+  if (!guildSetting.geminiAI.enabled) return;
+  if (msg.channelId !== guildSetting.geminiAI.channelSet) return;
+  // Ignore messages starting with the ignore prefix
+  if (msg.content.startsWith(guildSetting.geminiAI.ignorePrefix)) return;
+
+  // Send a thinking message while waiting for the AI response
+  const messageReply = await msg.reply(
     "> <a:aithinking:1373927153313513512> Ayui is thinking..."
   );
 
   try {
-    const response = await axios
+    // Make an API call to the Gemini AI endpoint
+    const apiResponse = await axios
       .post(
         `${process.env.CUSTOM_URL_API_BASE}/endpoint`,
         {
+          // Send the message content as input
           input: msg.content,
+          // Specify the AI model to use
           model: "gemini-2.5-flash-preview-04-17",
         },
         {
@@ -29,21 +38,25 @@ const event: DiscordEventInterface = async (client, msg: Message) => {
             q: "gemini-api",
           },
           headers: {
+            // Include authorization token
             Authorization: process.env.GEMINI_AI_TOKEN,
           },
         }
       )
       .then((res) => res.data)
       .catch((err) => {
+        // Handle API errors
         throw {
           name: err.response.statusText,
           message: err.response.data.error,
         };
       });
 
+    // React with a success emoji
     msg.react("✅");
 
-    sent.edit({
+    // Edit the thinking message with the AI's response
+    messageReply.edit({
       content: null,
       embeds: [
         new EmbedBuilder()
@@ -53,7 +66,7 @@ const event: DiscordEventInterface = async (client, msg: Message) => {
           })
           .setTitle("Gemini 2.5 Flash preview 04-17")
           .setThumbnail("https://files.catbox.moe/8xpwh3.png")
-          .setDescription(response.text)
+          .setDescription(apiResponse.text)
           .setFooter({
             text: msg.guild?.name!,
             iconURL: msg.guild?.iconURL()!,
@@ -62,9 +75,9 @@ const event: DiscordEventInterface = async (client, msg: Message) => {
           .setTimestamp(),
       ],
     });
-  } catch (error: { name: string; message: string } | any) {
+  } catch (error: any) {
     msg.react("❌");
-    sent.edit({
+    messageReply.edit({
       content: null,
       embeds: [
         CommonEmbedBuilder.error({

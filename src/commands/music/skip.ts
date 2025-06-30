@@ -5,9 +5,9 @@ import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-
     try {
+      await interaction.deferReply();
+      
       const queue = useQueue(interaction.guildId!);
       if (!queue)
         throw {
@@ -30,12 +30,15 @@ const command: CommandInterface = {
       sendError(interaction, error);
     }
   },
+  alias: "sk",
   name: "skip",
   description: "Skip the current song",
   deleted: false,
-  voiceChannel: true,
-  permissionsRequired: [PermissionFlagsBits.Connect],
-  botPermissions: [PermissionFlagsBits.Connect, PermissionFlagsBits.Speak],
+  devOnly: false,
+  useInDm: false,
+  requiredVoiceChannel: true,
+  userPermissionsRequired: [PermissionFlagsBits.Connect],
+  botPermissionsRequired: [PermissionFlagsBits.Connect, PermissionFlagsBits.Speak],
 };
 
 export default command;

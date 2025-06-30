@@ -1,3 +1,7 @@
+/**
+ * Repeat mode names for music playback.
+ */
+
 export const repeatModeNames = {
   0: "Off",
   1: "Track",

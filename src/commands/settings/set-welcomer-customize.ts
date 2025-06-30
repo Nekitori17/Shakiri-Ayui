@@ -14,9 +14,10 @@ import { CommandInterface } from "../../types/InteractionInterfaces";
 const command: CommandInterface = {
   async execute(interaction, client) {
     try {
-      const settings = await config.modules(interaction.guildId!);
+      // Fetch the current guild settings
+      const guildSetting = await config.modules(interaction.guildId!);
 
-      const modalComponents = [
+      const welcomerCustomizeModalComponents = [
         new TextInputBuilder()
           .setCustomId("welcome-message")
           .setLabel("Welcome Message")
@@ -27,7 +28,7 @@ const command: CommandInterface = {
               "Variables: {user}, {user.displayName}, {guild.count}, {guild.name},..."
           )
           .setRequired(false)
-          .setValue(settings.welcomer.message),
+          .setValue(guildSetting.welcomer.message),
         new TextInputBuilder()
           .setCustomId("image-title")
           .setLabel("Image Title")
@@ -38,7 +39,7 @@ const command: CommandInterface = {
               "Variables: {user}, {user.displayName}, {guild.count}, {guild.name},..."
           )
           .setRequired(false)
-          .setValue(settings.welcomer.imageTitle),
+          .setValue(guildSetting.welcomer.imageTitle),
         new TextInputBuilder()
           .setCustomId("image-body")
           .setLabel("Image Body")
@@ -49,7 +50,7 @@ const command: CommandInterface = {
               "Variables: {user}, {user.displayName}, {guild.count}, {guild.name},..."
           )
           .setRequired(false)
-          .setValue(settings.welcomer.imageBody),
+          .setValue(guildSetting.welcomer.imageBody),
         new TextInputBuilder()
           .setCustomId("image-footer")
           .setLabel("Image Footer")
@@ -60,87 +61,104 @@ const command: CommandInterface = {
               "Variables: {user}, {user.displayName}, {guild.count}, {guild.name},..."
           )
           .setRequired(false)
-          .setValue(settings.welcomer.imageFooter),
+          .setValue(guildSetting.welcomer.imageFooter),
       ];
 
-      const actionRowComponents = modalComponents.map((modalComponent) =>
-        new ActionRowBuilder<TextInputBuilder>().addComponents(modalComponent)
-      );
+      // Create ActionRowBuilder for each TextInputBuilder
+      const welcomerCustomizeRowComponents =
+        welcomerCustomizeModalComponents.map((modalComponent) =>
+          new ActionRowBuilder<TextInputBuilder>().addComponents(modalComponent)
+        );
 
-      const advancedSettingsPanel = new ModalBuilder()
+      // Create the modal for advanced settings
+      const advancedSettingPanel = new ModalBuilder()
         .setCustomId(`set-welcomer-modal-${interaction.user.id}`)
         .setTitle("Customize Settings")
-        .addComponents(...actionRowComponents);
+        .addComponents(...welcomerCustomizeRowComponents);
 
-      await interaction.showModal(advancedSettingsPanel);
-      interaction
-        .awaitModalSubmit({
+      // Show the modal to the user
+      await interaction.showModal(advancedSettingPanel);
+
+      // Wait for the modal submission
+      const welcomerCustomizeModalInteraction =
+        await interaction.awaitModalSubmit({
           filter: (i) =>
             i.customId === `set-welcomer-modal-${interaction.user.id}`,
-          time: 900_000,
-        })
-        .then(async (modalInteraction) => {
-          await modalInteraction.deferReply();
-          settings.welcomer = {
-            enabled: settings.welcomer.enabled!,
-            channelSend: settings.welcomer.channelSend,
-            message:
-              modalInteraction.fields.getTextInputValue("welcome-message") ||
-              settings.welcomer.message,
-            imageTitle:
-              modalInteraction.fields.getTextInputValue("image-title") ||
-              settings.welcomer.imageTitle,
-            imageBody:
-              modalInteraction.fields.getTextInputValue("image-body") ||
-              settings.welcomer.imageBody,
-            imageFooter:
-              modalInteraction.fields.getTextInputValue("image-footer") ||
-              settings.welcomer.imageFooter,
-          };
-
-          await settings.save();
-
-          const advancedSettingsTxt =
-            ">> Custom Message <<" +
-            "\n" +
-            settings.welcomer.message +
-            "\n" +
-            ">> Image Title <<" +
-            "\n" +
-            settings.welcomer.imageTitle +
-            "\n" +
-            ">> Image Body <<" +
-            "\n" +
-            settings.welcomer.imageBody +
-            "\n" +
-            ">> Image Footer <<" +
-            "\n" +
-            settings.welcomer.imageFooter;
-
-          const fileContent = Buffer.from(advancedSettingsTxt, "utf-8");
-          const attachment = new AttachmentBuilder(fileContent, {
-            name: "customize-setting-data.md",
-          });
-
-          modalInteraction.editReply({
-            embeds: [
-              CommonEmbedBuilder.success({
-                title: "Updated **Welcomer** module settings",
-                description: `**Enabled**: \`${
-                  settings.welcomer.enabled
-                }\`, **Channel Send**: ${
-                  settings.welcomer.channelSend
-                    ? `<#${settings.welcomer.channelSend}>`
-                    : "`None`"
-                }`,
-              }),
-            ],
-            files: [attachment],
-          });
-        })
-        .catch((e) => {
-          throw e;
+          time: 900000,
         });
+
+      try {
+        // Defer the reply to the modal submission
+        await welcomerCustomizeModalInteraction.deferReply();
+        guildSetting.welcomer = {
+          enabled: guildSetting.welcomer.enabled,
+          channelSend: guildSetting.welcomer.channelSend,
+          message:
+            welcomerCustomizeModalInteraction.fields.getTextInputValue(
+              "welcome-message"
+            ) || guildSetting.welcomer.message,
+          imageTitle:
+            welcomerCustomizeModalInteraction.fields.getTextInputValue(
+              "image-title"
+            ) || guildSetting.welcomer.imageTitle,
+          imageBody:
+            welcomerCustomizeModalInteraction.fields.getTextInputValue(
+              "image-body"
+            ) || guildSetting.welcomer.imageBody,
+          imageFooter:
+            welcomerCustomizeModalInteraction.fields.getTextInputValue(
+              "image-footer"
+            ) || guildSetting.welcomer.imageFooter,
+        };
+
+        // Save the updated settings
+        await guildSetting.save();
+
+        // Prepare the advanced settings text for attachment
+        const advancedSettingsTxt =
+          ">> Custom Message <<" +
+          "\n" +
+          guildSetting.welcomer.message +
+          "\n" +
+          ">> Image Title <<" +
+          "\n" +
+          guildSetting.welcomer.imageTitle +
+          "\n" +
+          ">> Image Body <<" +
+          "\n" +
+          guildSetting.welcomer.imageBody +
+          "\n" +
+          ">> Image Footer <<" +
+          "\n" +
+          guildSetting.welcomer.imageFooter;
+
+        // Create an attachment with the advanced settings data
+        const advancedSettingFileAttachment = new AttachmentBuilder(
+          Buffer.from(advancedSettingsTxt, "utf-8"),
+          {
+            name: "customize-setting-data.md",
+          }
+        );
+
+        // Send a success message with the updated settings and attachment
+        welcomerCustomizeModalInteraction.editReply({
+          embeds: [
+            CommonEmbedBuilder.success({
+              title: "Updated **Welcomer** module settings",
+              description: `**Enabled**: \`${
+                guildSetting.welcomer.enabled
+              }\`, **Channel Send**: ${
+                guildSetting.welcomer.channelSend
+                  ? `<#${guildSetting.welcomer.channelSend}>`
+                  : "`None`"
+              }`,
+            }),
+          ],
+          files: [advancedSettingFileAttachment],
+        });
+      } catch (error) {
+        sendError(welcomerCustomizeModalInteraction, error);
+      }
     } catch (error) {
       sendError(interaction, error);
     }
@@ -148,7 +166,10 @@ const command: CommandInterface = {
   name: "set-welcomer-customize",
   description: "More customize for welcomer module",
   deleted: false,
-  permissionsRequired: [PermissionFlagsBits.ManageGuild],
+  devOnly: false,
+  useInDm: false,
+  requiredVoiceChannel: false,
+  userPermissionsRequired: [PermissionFlagsBits.ManageGuild],
 };
 
 export default command;

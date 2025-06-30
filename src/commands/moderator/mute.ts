@@ -14,22 +14,17 @@ import { ModerationEmbedBuilder } from "../../helpers/embeds/moderationEmbedBuil
 const command: CommandInterface = {
   async execute(interaction, client) {
     await interaction.deferReply();
-    const target = interaction.options.get("target")?.value as string;
-    const duration =
-      (interaction.options.get("duration")?.value as string) || "1h";
-    const reason = interaction.options.get("reason")?.value as string;
+    const targetUserOption = interaction.options.getUser("target")!;
+    const durationOption = interaction.options.getString("duration") || "1h";
+    const reasonOption = interaction.options.getString("reason");
 
     try {
-      const msDuration = ms(duration as ms.StringValue);
-      if (!msDuration)
-        throw {
-          name: "InvalidDuration",
-          message: "Please provide a valid duration",
-        };
-      const strDuration = prettyMs(msDuration);
+      // Fetch the target user as a guild member
+      const targetUser = await interaction.guild?.members.fetch(
+        targetUserOption
+      );
 
-      const targetUser = await interaction.guild?.members.fetch(target);
-
+      // Check if the target user exists in the server
       if (!targetUser)
         throw {
           name: "UserNotFound",
@@ -37,6 +32,7 @@ const command: CommandInterface = {
           type: "warning",
         };
 
+      // Check if the target is the server owner
       if (targetUser.id === interaction.guild?.ownerId)
         throw {
           name: "Can'tMuteOwner",
@@ -44,6 +40,7 @@ const command: CommandInterface = {
           type: "warning",
         };
 
+      // Check if the target is the bot itself
       if (targetUser.id === interaction.guild?.members.me?.id)
         throw {
           name: "Can'tMuteMe",
@@ -51,6 +48,7 @@ const command: CommandInterface = {
           type: "warning",
         };
 
+      // Get role positions for hierarchy check
       const requestUserRolePosition = (
         interaction.member?.roles as GuildMemberRoleManager
       ).highest.position;
@@ -58,6 +56,7 @@ const command: CommandInterface = {
       const botRolePosition =
         interaction.guild?.members.me?.roles.highest.position;
 
+      // Check if the command user has a higher role than the target
       if (targetUserRolePosition >= requestUserRolePosition)
         throw {
           name: "InsufficientPermissions",
@@ -65,6 +64,7 @@ const command: CommandInterface = {
           type: "warning",
         };
 
+      // Check if the bot has a higher role than the target
       if (targetUserRolePosition >= botRolePosition!)
         throw {
           name: "InsufficientPermissions",
@@ -72,43 +72,61 @@ const command: CommandInterface = {
           type: "warning",
         };
 
+      // Parse and validate the duration string
+      const msDuration = ms(durationOption as ms.StringValue);
+      if (!msDuration)
+        throw {
+          name: "InvalidDuration",
+          message: "Please provide a valid duration",
+        };
+      const strDuration = prettyMs(msDuration);
+
+      // Check if the user is already muted (for logging purposes)
       const userIsMuted = targetUser.isCommunicationDisabled();
 
-      await targetUser.timeout(msDuration, reason);
+      // Apply the timeout (mute) to the user
+      await targetUser.timeout(msDuration, reasonOption || undefined);
 
+      // Send a confirmation message
       await interaction.editReply({
         embeds: [
           new EmbedBuilder()
             .setAuthor({
               iconURL: targetUser.user.displayAvatarURL(),
-              name: `|🤫| **${targetUser.user.displayName}** has been muted about ${strDuration}`,
+              name: `|🤫| ${targetUser.user.displayName} has been muted about ${strDuration}`,
             })
-            .setDescription(`**Reason**: ${reason || "No reason provided"}`)
+            .setDescription(
+              `**Reason**: ${reasonOption || "No reason provided"}`
+            )
             .setColor("Yellow"),
         ],
       });
 
-      const settings = await config.modules(interaction.guildId!);
-      if (settings.moderator.logging) {
-        if (!settings.moderator.loggingChannel) return;
+      // Logging section
+      const guildSetting = await config.modules(interaction.guildId!);
+      if (guildSetting.moderator.logging) {
+        if (!guildSetting.moderator.loggingChannel) return;
 
+        // Fetch the logging channel
         const logChannel = interaction.guild?.channels.cache.get(
-          settings.moderator.loggingChannel
+          guildSetting.moderator.loggingChannel
         );
 
+        // Check if the logging channel exists
         if (!logChannel)
           throw {
             name: "ChannelNotFound",
             message: "The logging channel was not found",
           };
 
+        // Send log message to the designated channel if sendable
         if (!logChannel.isSendable()) return;
         await logChannel.send({
           embeds: [
             ModerationEmbedBuilder.mute({
               target: targetUser,
               moderator: interaction.user,
-              reason: reason || "No reason provided",
+              reason: reasonOption || "No reason provided",
               duration: strDuration,
               update: userIsMuted,
             }),
@@ -122,6 +140,7 @@ const command: CommandInterface = {
   name: "mute",
   description: "Mute a user",
   deleted: false,
+  devOnly: false,
   options: [
     {
       name: "target",
@@ -142,8 +161,10 @@ const command: CommandInterface = {
       required: false,
     },
   ],
-  permissionsRequired: [PermissionFlagsBits.MuteMembers],
-  botPermissions: [PermissionFlagsBits.MuteMembers],
+  useInDm: false,
+  requiredVoiceChannel: false,
+  userPermissionsRequired: [PermissionFlagsBits.MuteMembers],
+  botPermissionsRequired: [PermissionFlagsBits.MuteMembers],
 };
 
 export default command;

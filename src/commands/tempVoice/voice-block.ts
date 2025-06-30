@@ -3,19 +3,20 @@ import {
   GuildMember,
   MessageFlags,
 } from "discord.js";
-import UserSettings from "../../models/UserSettings";
 import sendError from "../../helpers/utils/sendError";
 import checkOwnTempVoice from "../../validator/checkOwnTempVoice";
 import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
+import UserSettings from "../../models/UserSettings";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-    const targetUserId = interaction.options.get("target")?.value as string;
-
     try {
-      const userSettings = await UserSettings.findOneAndUpdate(
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+      const targetUserOption = interaction.options.getUser("target", true);
+
+      // Find the user's settings, or create new ones if they don't exist
+      const userSetting = await UserSettings.findOneAndUpdate(
         {
           userId: interaction.user.id,
         },
@@ -30,8 +31,11 @@ const command: CommandInterface = {
         }
       );
 
+      // Check if the user is already blocked
       if (
-        userSettings.temporaryVoiceChannel.blockedUsers.includes(targetUserId)
+        userSetting.temporaryVoiceChannel.blockedUsers.includes(
+          targetUserOption.id
+        )
       )
         throw {
           name: "UserAlreadyBlocked",
@@ -39,17 +43,23 @@ const command: CommandInterface = {
           type: "info",
         };
 
-      userSettings.temporaryVoiceChannel.blockedUsers.push(targetUserId);
-      await userSettings.save();
+      // Add the target user to the blocked users list and save settings
+      userSetting.temporaryVoiceChannel.blockedUsers.push(targetUserOption.id);
+      await userSetting.save();
 
+      // Get the voice channel of the interacting member
       const userVoiceChannel = (interaction.member as GuildMember).voice
         .channel;
+
+      // If the user is in a voice channel and it's their own temporary channel
       if (userVoiceChannel)
         if (checkOwnTempVoice(userVoiceChannel.id, interaction.user.id)) {
+          // Fetch the blocked user's guild member object
           const blockedUser = await interaction.guild?.members.fetch(
-            targetUserId
+            targetUserOption.id
           );
 
+          // If the blocked user exists and is in a voice channel
           if (!blockedUser || !blockedUser.voice.channel) return;
 
           if (blockedUser.voice.channel.id == userVoiceChannel.id)
@@ -57,10 +67,11 @@ const command: CommandInterface = {
         }
 
       interaction.editReply({
+        // Send a success embed indicating the user has been blocked
         embeds: [
           CommonEmbedBuilder.success({
             title: "> <:colorroadblock:1387286123868586054> Blocked User",
-            description: `Blocked user: <@${targetUserId}>`,
+            description: `Blocked user: ${targetUserOption}`,
           }),
         ],
       });
@@ -71,6 +82,7 @@ const command: CommandInterface = {
   name: "voice-block",
   description: "Block a user from your temporary voice channel",
   deleted: false,
+  devOnly: false,
   options: [
     {
       name: "target",
@@ -79,6 +91,8 @@ const command: CommandInterface = {
       required: true,
     },
   ],
+  useInDm: false,
+  requiredVoiceChannel: false,
 };
 
 export default command;

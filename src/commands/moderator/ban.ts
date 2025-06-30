@@ -12,39 +12,47 @@ import { ModerationEmbedBuilder } from "../../helpers/embeds/moderationEmbedBuil
 const command: CommandInterface = {
   async execute(interaction, client) {
     await interaction.deferReply();
-    const target = interaction.options.get("target")?.value as string;
-    const reason = interaction.options.get("reason")?.value as string;
+    const targetUserOption = interaction.options.getUser("target")!;
+    const reasonOption = interaction.options.getString("reason");
 
     try {
-      const targetUser = await interaction.guild?.members.fetch(target);
+      // Fetch the target user as a guild member
+      const targetUser = await interaction.guild?.members.fetch(
+        targetUserOption
+      );
 
+      // Check if the target user exists in the server
       if (!targetUser)
         throw {
           name: "UserNotFound",
           message: "That user does not exist in this server",
         };
 
+      // Check if the target is the server owner
       if (targetUser.id === interaction.guild?.ownerId)
         throw {
-          name: "Can'tBanOwner",
+          name: "CantBanOwner",
           message: "Why you would want to ban the owner of this server 🤨",
           type: "warning",
         };
 
+      // Check if the target is the bot itself
       if (targetUser.id === interaction.guild?.members.me?.id)
         throw {
-          name: "Can'tBanMe",
+          name: "CantBanMe",
           message: "Why you would want to ban me 😭",
           type: "warning",
         };
 
+      // Get role positions for hierarchy check
       const requestUserRolePosition = (
         interaction.member?.roles as GuildMemberRoleManager
       ).highest.position;
       const targetUserRolePosition = targetUser.roles.highest.position;
       const botRolePosition =
-        interaction.guild?.members.me?.roles.highest.position;
+        interaction.guild!.members.me!.roles.highest.position;
 
+      // Check if the command user has a higher role than the target
       if (targetUserRolePosition >= requestUserRolePosition)
         throw {
           name: "InsufficientPermissions",
@@ -52,6 +60,7 @@ const command: CommandInterface = {
           type: "warning",
         };
 
+      // Check if the bot has a higher role than the target
       if (targetUserRolePosition >= botRolePosition!)
         throw {
           name: "InsufficientPermissions",
@@ -59,41 +68,48 @@ const command: CommandInterface = {
           type: "warning",
         };
 
-      await targetUser.ban({ reason });
+      // Ban the user with the specified reason
+      await targetUser.ban({ reason: reasonOption || undefined });
 
+      // Send a confirmation message
       await interaction.editReply({
         embeds: [
           new EmbedBuilder()
             .setAuthor({
               iconURL: targetUser.user.displayAvatarURL(),
-              name: `|🔨| **${targetUser.user.displayName}** has been banned`,
+              name: `|🔨| ${targetUser.user.displayName} has been banned`,
             })
-            .setDescription(`**Reason**: ${reason || "No reason provided"}`)
+            .setDescription(
+              `**Reason**: ${reasonOption || "No reason provided"}`
+            )
             .setColor("Red"),
         ],
       });
 
-      const settings = await config.modules(interaction.guildId!);
-      if (settings.moderator.logging) {
-        if (!settings.moderator.loggingChannel) return;
+      // Logging section
+      const guildSetting = await config.modules(interaction.guildId!);
+      if (guildSetting.moderator.logging) {
+        if (!guildSetting.moderator.loggingChannel) return;
 
-        const logChannel = interaction.guild?.channels.cache.get(
-          settings.moderator.loggingChannel
+        const logChannel = await interaction.guild?.channels.fetch(
+          guildSetting.moderator.loggingChannel
         );
 
-        if (!logChannel)
+        if (!logChannel) {
           throw {
             name: "ChannelNotFound",
             message: "The logging channel was not found",
           };
+        }
 
+        // Send log message to the designated channel
         if (!logChannel.isSendable()) return;
         await logChannel.send({
           embeds: [
             ModerationEmbedBuilder.ban({
               target: targetUser,
               moderator: interaction.user,
-              reason: reason || "No reason provided",
+              reason: reasonOption || "No reason provided",
             }),
           ],
         });
@@ -105,6 +121,7 @@ const command: CommandInterface = {
   name: "ban",
   description: "Ban a user",
   deleted: false,
+  devOnly: false,
   options: [
     {
       name: "target",
@@ -119,8 +136,10 @@ const command: CommandInterface = {
       required: false,
     },
   ],
-  botPermissions: [PermissionFlagsBits.BanMembers],
-  permissionsRequired: [PermissionFlagsBits.BanMembers],
+  useInDm: false,
+  requiredVoiceChannel: false,
+  userPermissionsRequired: [PermissionFlagsBits.BanMembers],
+  botPermissionsRequired: [PermissionFlagsBits.BanMembers],
 };
 
 export default command;

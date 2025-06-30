@@ -13,28 +13,35 @@ import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-
     try {
-      const commandListMenuDropdown = Object.entries(commandCategories).map(
-        ([category, { label, emoji, description }]) =>
-          new StringSelectMenuOptionBuilder()
-            .setLabel(label)
-            .setValue(category)
-            .setEmoji(emoji)
-            .setDescription(description)
+      await interaction.deferReply();
+
+      // Create dropdown menu to select command category
+      const commandCategoriesSelectMenuOption = Object.entries(
+        commandCategories
+      ).map(([category, { label, emoji, description }]) =>
+        new StringSelectMenuOptionBuilder()
+          .setLabel(label)
+          .setValue(category)
+          .setEmoji(emoji)
+          .setDescription(description)
       );
 
-      const selectMenu =
+      const commandCategoriesSelectMenuRow =
         new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
           new StringSelectMenuBuilder()
             .setCustomId(`help-menu-${interaction.id}`)
             .setMaxValues(1)
             .setMinValues(1)
             .setPlaceholder("Select a category")
-            .addOptions(commandListMenuDropdown)
+            .addOptions(commandCategoriesSelectMenuOption)
         );
 
+      /**
+       * Generates an EmbedBuilder containing a list of commands for a given category.
+       * @param category The category of commands to list.
+       * @returns An EmbedBuilder object.
+       */
       function commandListEmbed(category: string): EmbedBuilder {
         const commandCategory =
           commandCategories[category as keyof typeof commandCategories];
@@ -62,7 +69,8 @@ const command: CommandInterface = {
           .setColor("Aqua");
       }
 
-      const reply = await interaction.editReply({
+      // Send main embed with dropdown menu
+      const helpEmbedReply = await interaction.editReply({
         embeds: [
           new EmbedBuilder()
             .setAuthor({
@@ -72,7 +80,7 @@ const command: CommandInterface = {
             .setTitle(`> 💻 Command Categories`)
             .setDescription(
               `\`\`\` Please use the Select Menu below to explore the corresponding category \`\`\`` +
-                "\n" +
+                "\n\n" +
                 `**Bot Info**:` +
                 "\n" +
                 `* <:colorbot:1387267699133911051> Small bot with **some utilities.**` +
@@ -92,33 +100,45 @@ const command: CommandInterface = {
             .setTimestamp()
             .setColor("Aqua"),
         ],
-        components: [selectMenu],
+        components: [commandCategoriesSelectMenuRow],
       });
 
-      const collector = reply.createMessageComponentCollector({
-        componentType: ComponentType.StringSelect,
-        filter: (i) =>
-          i.user.id == interaction.user.id &&
-          i.customId == `help-menu-${interaction.id}`,
-        time: 60_000,
-      });
+      // Create a collector to listen to dropdown select.
+      const helpEmbedCollector = helpEmbedReply.createMessageComponentCollector(
+        {
+          componentType: ComponentType.StringSelect,
+          filter: (i) =>
+            i.user.id == interaction.user.id &&
+            i.customId == `help-menu-${interaction.id}`,
+          time: 60_000,
+        }
+      );
 
-      collector.on("collect", async (inter) => {
-        if (!inter.values.length) return;
+      helpEmbedCollector.on(
+        "collect",
+        async (menuCategoriesSelectInteraction) => {
+          if (!menuCategoriesSelectInteraction.values.length) return;
 
-        await interaction.editReply({
-          embeds: [commandListEmbed(inter.values[0])],
-        });
-        inter.deferUpdate();
-      });
+          // Replace old embed with new embed, which has a list of commands. In the category user, which was selected?
+          await helpEmbedReply.edit({
+            embeds: [
+              commandListEmbed(menuCategoriesSelectInteraction.values[0]),
+            ],
+          });
+          menuCategoriesSelectInteraction.deferUpdate();
+        }
+      );
     } catch (error) {
       sendError(interaction, error);
     }
   },
+  alias: "h",
   name: "help",
   description: "Get list command of the bot",
   deleted: false,
-  canUseInDm: true,
+  devOnly: false,
+  useInDm: true,
+  requiredVoiceChannel: false,
 };
 
 export default command;

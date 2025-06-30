@@ -15,18 +15,22 @@ import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 
 const select: SelectMenuInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-    const userVoiceChannel = (interaction.member as GuildMember).voice.channel;
+    // Get the user's voice channel
+    const userVoiceChannel = (interaction.member as GuildMember).voice.channel!;
 
     try {
-      if (!checkOwnTempVoice(userVoiceChannel?.id!, interaction.user.id)) {
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+      // Check if the temporary voice channel belongs to the interacting user
+      if (!checkOwnTempVoice(userVoiceChannel.id, interaction.user.id)) {
         throw {
           name: "NotOwnTempVoiceError",
           message: "This temporary voice channel does not belong to you.",
         };
       }
 
-      const userSettings = await UserSettings.findOneAndUpdate(
+      // Find and update user settings, creating if it doesn't exist
+      const userSetting = await UserSettings.findOneAndUpdate(
         {
           userId: interaction.user.id,
         },
@@ -41,9 +45,11 @@ const select: SelectMenuInterface = {
         }
       );
 
+      // This retrieves the user's blocked users list
       const blockedUsers =
-        userSettings?.temporaryVoiceChannel.blockedUsers ?? [];
+        userSetting?.temporaryVoiceChannel.blockedUsers ?? [];
 
+      // If no users are blocked, throw an info error
       if (blockedUsers.length === 0) {
         throw {
           name: "NoUserBlocked",
@@ -52,6 +58,7 @@ const select: SelectMenuInterface = {
         };
       }
 
+      // Pagination setup for displaying blocked users
       const AMOUNT_USER_IN_PAGE = 25;
       const blockedUsersPartition: string[][] = [];
       let currentPage = 0;
@@ -66,8 +73,13 @@ const select: SelectMenuInterface = {
         );
       }
 
-      const createReply = (page: number) => {
-        const bannedUserSelectMenu = blockedUsersPartition[page].map(
+      /**
+       * Generates the content for a page displaying blocked users.
+       * @param page The current page number.
+       * @returns An object containing the content and components for the reply.
+       */
+      function generateBlockedUsersPage(page: number) {
+        const blockedUserSelectMenuOption = blockedUsersPartition[page].map(
           (userId) => {
             const user = client.users.cache.get(userId);
             return new StringSelectMenuOptionBuilder()
@@ -77,99 +89,131 @@ const select: SelectMenuInterface = {
           }
         );
 
-        const userSelectMenu =
+        // Create the StringSelectMenu for unblocking users
+        const blockedUserSelectMenuRow =
           new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
             new StringSelectMenuBuilder()
               .setCustomId("temp-voice-unblock-select")
               .setPlaceholder("Select a user to unblock")
-              .addOptions(bannedUserSelectMenu)
+              .addOptions(blockedUserSelectMenuOption)
               .setMinValues(1)
               .setMaxValues(10)
-              .setMaxValues(bannedUserSelectMenu.length)
+              .setMaxValues(blockedUserSelectMenuOption.length)
           );
 
-        const buttonsPage = new ActionRowBuilder<ButtonBuilder>().addComponents(
-          new ButtonBuilder()
-            .setCustomId("temp-voice-unblock-previous")
-            .setEmoji("⬅️")
-            .setStyle(ButtonStyle.Primary)
-            .setDisabled(page === 0),
-          new ButtonBuilder()
-            .setCustomId("temp-voice-unblock-current")
-            .setLabel(`${page + 1}/${maxPage}`)
-            .setStyle(ButtonStyle.Secondary)
-            .setDisabled(true),
-          new ButtonBuilder()
-            .setCustomId("temp-voice-unblock-next")
-            .setEmoji("➡️")
-            .setStyle(ButtonStyle.Primary)
-            .setDisabled(page >= maxPage - 1)
-        );
+        // Create pagination buttons
+        const buttonsPageRow =
+          new ActionRowBuilder<ButtonBuilder>().addComponents(
+            new ButtonBuilder()
+              .setCustomId("temp-voice-unblock-page-prev")
+              .setEmoji("1387296301867073576")
+              .setStyle(ButtonStyle.Primary)
+              .setDisabled(page === 0),
+            new ButtonBuilder()
+              .setCustomId("temp-voice-unblock-pag-current")
+              .setLabel(`${page + 1}/${maxPage}`)
+              .setStyle(ButtonStyle.Secondary)
+              .setDisabled(true),
+            new ButtonBuilder()
+              .setCustomId("temp-voice-unblock-page-next")
+              .setEmoji("1387296195256254564")
+              .setStyle(ButtonStyle.Primary)
+              .setDisabled(page >= maxPage - 1)
+          );
 
         return {
           content:
             "> Select a user to unblock from your temporary voice channel",
-          components: [userSelectMenu, buttonsPage],
+          components: [blockedUserSelectMenuRow, buttonsPageRow],
         };
-      };
+      }
 
-      const sent = await interaction.editReply(createReply(currentPage));
+      // Send the initial reply with the first page of blocked users
+      const blockedUsersMenuReply = await interaction.editReply(
+        generateBlockedUsersPage(currentPage)
+      );
 
-      const collector = sent.createMessageComponentCollector({
-        filter: (i) => i.user.id === interaction.user.id,
-        time: 60_000,
-      });
+      // Create a message component collector for interactions with the menu and buttons
+      const blockedUserMenuCollector =
+        blockedUsersMenuReply.createMessageComponentCollector({
+          filter: (i) => i.user.id === interaction.user.id,
+          time: 60_000,
+        });
 
-      collector.on("collect", async (collectInteraction) => {
-        if (collectInteraction.isButton()) {
-          if (collectInteraction.customId === "temp-voice-unblock-previous") {
-            currentPage--;
-            await interaction.editReply(createReply(currentPage));
-            return collectInteraction.deferUpdate();
+      // Handle collected interactions
+      blockedUserMenuCollector.on(
+        "collect",
+        async (blockedUserMenuInteraction) => {
+          if (blockedUserMenuInteraction.isButton()) {
+            if (
+              blockedUserMenuInteraction.customId ===
+              "temp-voice-unblock-page-prev"
+            ) {
+              currentPage--;
+              await interaction.editReply(
+                generateBlockedUsersPage(currentPage)
+              );
+              return blockedUserMenuInteraction.deferUpdate();
+            }
+
+            if (
+              blockedUserMenuInteraction.customId ===
+              "temp-voice-unblock-page-next"
+            ) {
+              currentPage++;
+              await blockedUserMenuInteraction.update(
+                generateBlockedUsersPage(currentPage)
+              );
+              return blockedUserMenuInteraction.deferUpdate();
+            }
+
+            if (
+              blockedUserMenuInteraction.customId ===
+              "temp-voice-unblock-page-current"
+            )
+              return blockedUserMenuInteraction.deferUpdate();
           }
 
-          if (collectInteraction.customId === "temp-voice-unblock-next") {
-            currentPage++;
-            await collectInteraction.update(createReply(currentPage));
-            return collectInteraction.deferUpdate();
-          }
+          if (blockedUserMenuInteraction.isStringSelectMenu()) {
+            const userIds = blockedUserMenuInteraction.values;
 
-          if (collectInteraction.customId === "temp-voice-unblock-current")
-            return collectInteraction.deferUpdate();
+            try {
+              await blockedUserMenuInteraction.deferReply({ ephemeral: true });
+
+              const updatedBlockedUsers = blockedUsers.filter(
+                // Filter out the selected user IDs from the blocked list
+                (userId) => !userIds.includes(userId)
+              );
+
+              // Update the user's blocked users list in the database
+              userSetting.temporaryVoiceChannel.blockedUsers =
+                updatedBlockedUsers;
+              await userSetting.save();
+
+              // Edit the reply to confirm the unblocked users
+              blockedUserMenuInteraction.editReply({
+                embeds: [
+                  CommonEmbedBuilder.success({
+                    title: "> Unblocked Users",
+                    description: `Unblocked users: ${userIds
+                      .map((userId) => `<@${userId}>`)
+                      .join(", ")}`,
+                  }),
+                ],
+              });
+            } catch (error) {
+              sendError(blockedUserMenuInteraction, error, true);
+            }
+          }
         }
-
-        if (collectInteraction.isStringSelectMenu()) {
-          await collectInteraction.deferReply({ ephemeral: true });
-          try {
-            const userIds = collectInteraction.values;
-            const updatedBlockedUsers = blockedUsers.filter(
-              (userId) => !userIds.includes(userId)
-            );
-            userSettings!.temporaryVoiceChannel.blockedUsers =
-              updatedBlockedUsers;
-            await userSettings!.save();
-
-            collectInteraction.editReply({
-              embeds: [
-                CommonEmbedBuilder.success({
-                  title: "> Unblocked Users",
-                  description: `Unblocked users: ${userIds
-                    .map((userId) => `<@${userId}>`)
-                    .join(", ")}`,
-                }),
-              ],
-            });
-          } catch (error) {
-            sendError(collectInteraction, error, true);
-          }
-        }
-      });
+      );
     } catch (error) {
       sendError(interaction, error, true);
     }
   },
   disabled: false,
-  voiceChannel: true,
+  devOnly: false,
+  requiredVoiceChannel: true,
 };
 
 export default select;

@@ -3,20 +3,22 @@ import { QueueRepeatMode, TrackSource } from "discord-player";
 import { repeatModeNames } from "../../constants/musicRepeatModes";
 import { musicSourceIcons } from "../../constants/musicSourceIcons";
 import { musicPlayerStoreSession } from "../../musicPlayerStoreSession";
-import { mainMusicControllerButtonsRow } from "../../components/musicControllerMenu";
+import { mainMusicControllerButtonRow } from "../../components/musicControllerMenu";
 import { MusicEventInterface } from "../../types/EventInterfaces";
 
 const event: MusicEventInterface = (player) => {
   player.events.on("playerStart", async (queue, track) => {
+    // Retrieve music player session data
     const volume =
       (musicPlayerStoreSession.volume.get(queue.guild.id) as Number) ||
       queue.node.volume;
     const repeatMode =
       (musicPlayerStoreSession.loop.get(queue.guild.id) as QueueRepeatMode) ||
       queue.repeatMode;
-    const shuffeledTimes =
-      (musicPlayerStoreSession.shuffeld.get(queue.guild.id) as number) || 0;
+    const shuffledTimes =
+      (musicPlayerStoreSession.shuffled.get(queue.guild.id) as number) || 0;
 
+    // Send now playing embed
     (queue.metadata.channel as TextChannel).send({
       embeds: [
         new EmbedBuilder()
@@ -36,9 +38,9 @@ const event: MusicEventInterface = (player) => {
               }` +
               "\n" +
               `* <:colorshuffle:1387283637191442553> **Shuffled**: ${
-                shuffeledTimes > 1
-                  ? `${shuffeledTimes} times`
-                  : `${shuffeledTimes} time`
+                shuffledTimes > 1
+                  ? `${shuffledTimes} times`
+                  : `${shuffledTimes} time`
               }`
           )
           .setURL(track.url)
@@ -50,7 +52,7 @@ const event: MusicEventInterface = (player) => {
           .setColor("#00a2ff")
           .setTimestamp(),
       ],
-      components: [mainMusicControllerButtonsRow],
+      components: [mainMusicControllerButtonRow],
     });
   });
 };

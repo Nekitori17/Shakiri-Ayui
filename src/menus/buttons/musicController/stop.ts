@@ -11,17 +11,21 @@ import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
 const button: ButtonInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-
     try {
+      await interaction.deferReply();
+      
+      // Get the queue for the current guild
       const queue = useQueue(interaction.guildId!);
+      // Check if a queue exists
       if (!queue)
+        // If no queue, throw an error
         throw {
           name: "NoQueue",
           message: "There is no queue to stop",
         };
 
-      const confirmButton = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      // Create "Yes" and "No" buttons for confirmation
+      const confirmButtonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
         new ButtonBuilder()
           .setCustomId("stop-confirm-yes")
           .setLabel("Yes")
@@ -32,7 +36,8 @@ const button: ButtonInterface = {
           .setStyle(ButtonStyle.Danger)
       );
 
-      const sent = await interaction.editReply({
+      // Send a confirmation message with "Yes" and "No" buttons
+      const confirmStopReply = await interaction.editReply({
         embeds: [
           new EmbedBuilder()
             .setAuthor({
@@ -41,47 +46,58 @@ const button: ButtonInterface = {
             })
             .setColor("#fbff00"),
         ],
-        components: [confirmButton],
+        components: [confirmButtonRow],
       });
 
-      const collector = sent.createMessageComponentCollector({
-        time: 30000,
-      });
+      // Create a collector for the confirmation buttons
+      const confirmStopCollector =
+        confirmStopReply.createMessageComponentCollector({
+          time: 30000,
+        });
 
-      collector.on("collect", async (buttonInteraction) => {
-        try {
-          if (buttonInteraction.customId === "stop-confirm-no") sent.delete();
+      // Handle collection of a confirmation button interaction
+      confirmStopCollector.on(
+        "collect",
+        async (confirmStopButtonInteraction) => {
+          try {
+            // If "No" is clicked, delete the confirmation message
+            if (confirmStopButtonInteraction.customId === "stop-confirm-no")
+              confirmStopReply.delete();
 
-          if (buttonInteraction.customId === "stop-confirm-yes") {
-            sent.edit({
-              embeds: [
-                new EmbedBuilder()
-                  .setAuthor({
-                    name: "🎶 Queue has been stopped!",
-                    iconURL:
-                      "https://img.icons8.com/color/512/do-not-disturb.png",
-                  })
-                  .setColor("#ff3131"),
-              ],
-              components: [],
-            });
+            // If "Yes" is clicked, stop the queue
+            if (confirmStopButtonInteraction.customId === "stop-confirm-yes") {
+              confirmStopReply.edit({
+                embeds: [
+                  new EmbedBuilder()
+                    .setAuthor({
+                      name: "🎶 Queue has been stopped!",
+                      iconURL:
+                        "https://img.icons8.com/color/512/do-not-disturb.png",
+                    })
+                    .setColor("#ff3131"),
+                ],
+                components: [],
+              });
 
-            queue.delete();
-
-            musicPlayerStoreSession.shuffeld.del(queue.guild.id);
-            musicPlayerStoreSession.loop.del(queue.guild.id);
-            musicPlayerStoreSession.volume.del(queue.guild.id);
+              // Delete the queue
+              queue.delete();
+              // Clear session data related to the queue
+              musicPlayerStoreSession.shuffled.del(queue.guild.id);
+              musicPlayerStoreSession.loop.del(queue.guild.id);
+              musicPlayerStoreSession.volume.del(queue.guild.id);
+            }
+          } catch (error) {
+            sendError(interaction, error);
           }
-        } catch (error) {
-          sendError(interaction, error);
         }
-      });
+      );
     } catch (error) {
       sendError(interaction, error);
     }
   },
   disabled: false,
-  voiceChannel: true,
+  devOnly: false,
+  requiredVoiceChannel: true,
 };
 
 export default button;

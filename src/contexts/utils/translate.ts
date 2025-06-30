@@ -9,21 +9,39 @@ import UserSettings from "../../models/UserSettings";
 import { ContextInterface } from "../../types/InteractionInterfaces";
 
 const context: ContextInterface = {
-  async execute(interaction: MessageContextMenuCommandInteraction, client) {
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-    
-    try {
-      const targetMessage = interaction.targetMessage;
-      const userSettings = await UserSettings.findOne({
-        userId: interaction.user.id,
-      });
+  async execute(interaction, client) {
+    // Cast the interaction to a MessageContextMenuCommandInteraction.
+    interaction = interaction as MessageContextMenuCommandInteraction;
 
-      const translated = await axios
+    try {
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+      // Get the target message from the interaction.
+      const targetMessage = interaction.targetMessage;
+
+      // Find the user's settings in the database.
+      const userSetting = await UserSettings.findOneAndUpdate(
+        {
+          userId: interaction.user.id,
+        },
+        {
+          $setOnInsert: {
+            userId: interaction.user.id,
+          },
+        },
+        {
+          upsert: true,
+          new: true,
+        }
+      );
+
+      // Make a POST request to the translation API endpoint.
+      const messageTranslated = await axios
         .post(
           `${process.env.CUSTOM_URL_API_BASE}/endpoint`,
           {
             input: targetMessage.content,
-            lang: userSettings?.messageTranslateLang || "en",
+            lang: userSetting?.messageTranslateLang || "en",
           },
           {
             params: {
@@ -39,7 +57,8 @@ const context: ContextInterface = {
           };
         });
 
-      interaction.editReply(translated.result);
+      // Edit the deferred reply with the translated message.
+      interaction.editReply(messageTranslated.result);
     } catch (error) {
       sendError(interaction, error);
     }
@@ -48,6 +67,9 @@ const context: ContextInterface = {
   shortName: "translate",
   type: ApplicationCommandType.Message,
   deleted: false,
+  devOnly: false,
+  useInDm: false,
+  requiredVoiceChannel: false,
 };
 
 export default context;

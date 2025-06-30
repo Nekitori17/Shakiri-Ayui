@@ -1,4 +1,4 @@
-import { ApplicationCommandOptionType, GuildMember } from "discord.js";
+import { GuildMember } from "discord.js";
 import {
   joinVoiceChannel,
   VoiceConnectionStatus,
@@ -10,12 +10,15 @@ import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-
     try {
-      const member = interaction.member as GuildMember;
-      const userVoiceChannel = member.voice.channel!;
+      await interaction.deferReply();
 
+      // Get the member who initiated the interaction
+      const interactionUserMember = interaction.member as GuildMember;
+      // Get the voice channel the user is in
+      const userVoiceChannel = interactionUserMember.voice.channel!;
+
+      // Check if the command is used in a guild and if the guild has a voice adapter
       if (!interaction.guild || !interaction.guild.voiceAdapterCreator) {
         throw {
           name: "NoGuildOrVoiceAdapter",
@@ -23,14 +26,14 @@ const command: CommandInterface = {
             "This command can only be used in a server with a voice adapter.",
         };
       }
-
+      // Check if the bot has permission to join the user's voice channel
       if (!userVoiceChannel.joinable) {
         throw {
           name: "NotJoinable",
           message: "I can't join this voice channel.",
         };
       }
-
+      // Join the voice channel
       const connection = joinVoiceChannel({
         channelId: userVoiceChannel.id,
         guildId: interaction.guildId!,
@@ -38,7 +41,7 @@ const command: CommandInterface = {
         selfDeaf: true,
         selfMute: false,
       });
-
+      // Wait for the connection to be ready
       await entersState(connection, VoiceConnectionStatus.Ready, 30_000);
       await interaction.editReply({
         embeds: [
@@ -52,10 +55,13 @@ const command: CommandInterface = {
       sendError(interaction, error);
     }
   },
+  alias: "jn",
   name: "join",
   description: "Join the voice channel you are currently in.",
   deleted: false,
-  voiceChannel: true,
+  devOnly: true,
+  useInDm: false,
+  requiredVoiceChannel: true,
 };
 
 export default command;

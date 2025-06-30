@@ -1,11 +1,11 @@
-import MiniGameUserDatas from "../../../models/MiniGameUserDatas";
+import MiniGameUserData from "../../../models/MiniGameUserData";
 import { TimeEventInterface } from "../../../types/EventInterfaces";
 
 const schedule: TimeEventInterface = {
   async execute(client) {
-    await MiniGameUserDatas.updateMany(
-      { worldeGame: { $exists: true, $ne: null } },
-      { $set: { worldeGame: null } }
+    await MiniGameUserData.updateMany(
+      { wordleGame: { $exists: true, $ne: null } },
+      { $set: { wordleGame: null } }
     );
   },
   mode: "INTERVAL",

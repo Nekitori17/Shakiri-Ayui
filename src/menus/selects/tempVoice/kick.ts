@@ -14,72 +14,85 @@ import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
 const select: SelectMenuInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-    const userVoiceChannel = (interaction.member as GuildMember).voice.channel;
+    // Get the user's voice channel
+    const userVoiceChannel = (interaction.member as GuildMember).voice.channel!;
 
     try {
-      if (!checkOwnTempVoice(userVoiceChannel?.id!, interaction.user.id)) {
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+      if (!checkOwnTempVoice(userVoiceChannel.id, interaction.user.id)) {
+        // Check if the temporary voice channel belongs to the interacting user
         throw {
           name: "NotOwnTempVoiceError",
           message: "This temporary voice channel does not belong to you.",
         };
       }
 
-      const kickableMembers = userVoiceChannel?.members.filter(
+      const kickAbleMembers = userVoiceChannel.members.filter(
+        // Filter out the current user and members with 'MoveMembers' or 'DeafenMembers' permissions
         (member) =>
           member.id !== interaction.user.id &&
           !member.permissions.has("MoveMembers") &&
           !member.permissions.has("DeafenMembers")
       );
 
-      if (!kickableMembers || kickableMembers.size === 0) {
+      if (!kickAbleMembers || kickAbleMembers.size === 0) {
+        // If no kickable members are found, throw an error
         throw {
           name: "NoUserCanKick",
           message: "There are no users to kick in this channel.",
         };
       }
 
+      // Pagination setup for displaying kickable members
       const AMOUNT_USER_IN_PAGE = 25;
-      const kickableMembersArray = Array.from(kickableMembers.values());
-      const kickableMembersPartition: GuildMember[][] = [];
+      const kickAbleMembersArray = Array.from(kickAbleMembers.values());
+      const kickAbleMembersPartition: GuildMember[][] = [];
       let currentPage = 0;
       const maxPage = Math.ceil(
-        kickableMembersArray.length / AMOUNT_USER_IN_PAGE
+        kickAbleMembersArray.length / AMOUNT_USER_IN_PAGE
       );
 
       for (let i = 0; i < maxPage; i++) {
-        kickableMembersPartition.push(
-          kickableMembersArray.slice(
+        kickAbleMembersPartition.push(
+          kickAbleMembersArray.slice(
             i * AMOUNT_USER_IN_PAGE,
             (i + 1) * AMOUNT_USER_IN_PAGE
           )
         );
       }
 
-      const createReply = (page: number) => {
-        const kickUserSelectMenu = kickableMembersPartition[page].map(
+      /**
+       * Generates the content for a page displaying kickable users.
+       * @param page The current page number.
+       */
+      const createUserSelectReply = (page: number) => {
+        const kickUserSelectMenuOption = kickAbleMembersPartition[page].map(
           (member) =>
+            // Create StringSelectMenuOptionBuilder for each kickable member
             new StringSelectMenuOptionBuilder()
               .setLabel(member.displayName)
               .setDescription(member.user.tag)
               .setValue(member.id)
         );
 
-        const userSelectMenu =
+        const userSelectMenuRow =
+          // Create the StringSelectMenu for selecting a user to kick
           new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
             new StringSelectMenuBuilder()
               .setCustomId("temp-voice-kick-select")
               .setPlaceholder("Select a user to kick")
-              .addOptions(kickUserSelectMenu)
+              .addOptions(kickUserSelectMenuOption)
               .setMinValues(1)
               .setMaxValues(10)
-              .setMaxValues(kickUserSelectMenu.length)
+              .setMaxValues(kickUserSelectMenuOption.length)
           );
 
-        const buttonsPage = new ActionRowBuilder<ButtonBuilder>().addComponents(
+        // Create pagination buttons
+        const buttonsPageRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
           new ButtonBuilder()
             .setCustomId("temp-voice-kick-previous")
-            .setEmoji("⬅️")
+            .setEmoji("1387296301867073576")
             .setStyle(ButtonStyle.Primary)
             .setDisabled(page === 0),
           new ButtonBuilder()
@@ -89,50 +102,61 @@ const select: SelectMenuInterface = {
             .setDisabled(true),
           new ButtonBuilder()
             .setCustomId("temp-voice-kick-next")
-            .setEmoji("➡️")
+            .setEmoji("1387296195256254564")
             .setStyle(ButtonStyle.Primary)
             .setDisabled(page >= maxPage - 1)
         );
 
         return {
           content: "> Select a user to kick from your temporary voice channel",
-          components: [userSelectMenu, buttonsPage],
+          components: [userSelectMenuRow, buttonsPageRow],
         };
       };
 
-      const sent = await interaction.editReply(createReply(currentPage));
+      // Send the initial reply with the first page of kickable users
+      const userKickMenuReply = await interaction.editReply(
+        createUserSelectReply(currentPage)
+      );
 
-      const collector = sent.createMessageComponentCollector({
-        filter: (i) => i.user.id === interaction.user.id,
-        time: 60_000,
-      });
+      // Create a message component collector for interactions with the menu and buttons
+      const userKickMenuCollector =
+        userKickMenuReply.createMessageComponentCollector({
+          filter: (i) => i.user.id === interaction.user.id,
+          time: 60_000,
+        });
 
-      collector.on("collect", async (collectInteraction) => {
-        if (collectInteraction.isButton()) {
-          if (collectInteraction.customId === "temp-voice-kick-previous") {
+      userKickMenuCollector.on("collect", async (userKickMenuInteraction) => {
+        // Handle button interactions for pagination
+        if (userKickMenuInteraction.isButton()) {
+          if (userKickMenuInteraction.customId === "temp-voice-kick-previous") {
             currentPage--;
-            await interaction.editReply(createReply(currentPage));
-            return collectInteraction.deferUpdate();
+            await interaction.editReply(createUserSelectReply(currentPage));
+            return userKickMenuInteraction.deferUpdate();
           }
 
-          if (collectInteraction.customId === "temp-voice-kick-next") {
+          if (userKickMenuInteraction.customId === "temp-voice-kick-next") {
             currentPage++;
-            await collectInteraction.update(createReply(currentPage));
-            return collectInteraction.deferUpdate();
+            await userKickMenuInteraction.update(
+              createUserSelectReply(currentPage)
+            );
+            return userKickMenuInteraction.deferUpdate();
           }
 
-          if (collectInteraction.customId === "temp-voice-kick-current")
-            return collectInteraction.deferUpdate();
+          if (userKickMenuInteraction.customId === "temp-voice-kick-current")
+            return userKickMenuInteraction.deferUpdate();
         }
 
-        if (collectInteraction.isStringSelectMenu()) {
-          await collectInteraction.deferReply({ ephemeral: true });
+        // Handle StringSelectMenu interaction for kicking users
+        if (userKickMenuInteraction.isStringSelectMenu()) {
+          await userKickMenuInteraction.deferReply({ ephemeral: true });
+
           try {
-            const userIds = collectInteraction.values;
+            const userIds = userKickMenuInteraction.values;
             const kickedUsers = [];
 
+            // Iterate over selected user IDs and disconnect them from the voice channel
             for (const userId of userIds) {
-              const member = await collectInteraction.guild?.members.fetch(
+              const member = await userKickMenuInteraction.guild?.members.fetch(
                 userId
               );
               if (member) {
@@ -141,7 +165,8 @@ const select: SelectMenuInterface = {
               }
             }
 
-            await collectInteraction.editReply({
+            // Edit the reply to confirm the kicked users
+            await userKickMenuInteraction.editReply({
               content: null,
               embeds: [
                 CommonEmbedBuilder.success({
@@ -150,9 +175,10 @@ const select: SelectMenuInterface = {
                 }),
               ],
             });
-            collector.stop();
+            // Stop the collector after successful kick
+            userKickMenuCollector.stop();
           } catch (error) {
-            sendError(collectInteraction, error, true);
+            sendError(userKickMenuInteraction, error, true);
           }
         }
       });
@@ -161,7 +187,8 @@ const select: SelectMenuInterface = {
     }
   },
   disabled: false,
-  voiceChannel: true,
+  devOnly: false,
+  requiredVoiceChannel: true,
 };
 
 export default select;

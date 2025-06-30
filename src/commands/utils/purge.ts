@@ -9,21 +9,23 @@ import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-    const amount = interaction.options.get("amount")?.value as number;
-
     try {
-      if (amount < 1 || amount > 100) {
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+      const amountOption = interaction.options.getInteger("amount", true);
+
+      // Validate the amount: it must be between 1 and 100
+      if (amountOption < 1 || amountOption > 100) {
         throw {
           name: "InvalidNumber",
           message: "Can't set the value less than 1 or greater than 100",
         };
       }
-
+      // Perform bulk deletion of messages in the channel
       const deletedMessages = await (
         interaction.channel as TextChannel
-      ).bulkDelete(amount);
+      ).bulkDelete(amountOption);
 
+      // Edit the deferred reply with a success message
       interaction.editReply(
         `> <:colortrashcan:1387287624632242327> Deleted ${deletedMessages.size} message.`
       );
@@ -34,6 +36,7 @@ const command: CommandInterface = {
   name: "purge",
   description: "Delete the amount of message in this channel",
   deleted: false,
+  devOnly: true,
   options: [
     {
       name: "amount",
@@ -42,8 +45,10 @@ const command: CommandInterface = {
       required: true,
     },
   ],
-  permissionsRequired: [PermissionFlagsBits.ManageMessages],
-  botPermissions: [PermissionFlagsBits.ManageMessages],
+  useInDm: false,
+  requiredVoiceChannel: false,
+  userPermissionsRequired: [PermissionFlagsBits.ManageMessages],
+  botPermissionsRequired: [PermissionFlagsBits.ManageMessages],
 };
 
 export default command;

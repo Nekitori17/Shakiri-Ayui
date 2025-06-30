@@ -15,15 +15,18 @@ import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
 const select: SelectMenuInterface = {
   async execute(interaction, client) {
-    const userVoiceChannel = (interaction.member as GuildMember).voice.channel;
+    // Get the user's voice channel
+    const userVoiceChannel = (interaction.member as GuildMember).voice.channel!;
 
     try {
-      if (!checkOwnTempVoice(userVoiceChannel?.id!, interaction.user.id))
+      // Check if the temporary voice channel belongs to the interacting user
+      if (!checkOwnTempVoice(userVoiceChannel.id, interaction.user.id))
         throw {
           name: "NotOwnTempVoiceError",
           message: "This temporary voice channel does not belong to you.",
         };
 
+      // Create a modal for renaming the temporary voice channel
       const renameModal = new ModalBuilder()
         .setCustomId("rename-temp-voice")
         .setTitle("Rename Temporary Voice Channel")
@@ -39,54 +42,69 @@ const select: SelectMenuInterface = {
               )
           )
         );
-
+      // Show the modal to the user
       await interaction.showModal(renameModal);
-      const modalInteraction = await interaction.awaitModalSubmit({
+      // Await the modal submission
+      const renameModalInteraction = await interaction.awaitModalSubmit({
         time: 60000,
       });
-      await modalInteraction.deferReply({ flags: MessageFlags.Ephemeral });
-      const newName = modalInteraction.fields.getTextInputValue("new-name");
 
-      const userSettings = await UserSettings.findOneAndUpdate(
-        {
-          userId: interaction.user.id,
-        },
-        {
-          $setOnInsert: {
+      try {
+        await renameModalInteraction.deferReply({
+          flags: MessageFlags.Ephemeral,
+        });
+        const newNameInputValue =
+          renameModalInteraction.fields.getTextInputValue("new-name");
+
+        // Find and update user settings, creating if it doesn't exist
+        const userSetting = await UserSettings.findOneAndUpdate(
+          {
             userId: interaction.user.id,
           },
-        },
-        {
-          upsert: true,
-          new: true,
-        }
-      );
+          {
+            $setOnInsert: {
+              userId: interaction.user.id,
+            },
+          },
+          {
+            upsert: true,
+            new: true,
+          }
+        );
 
-      userSettings.temporaryVoiceChannel.channelName = newName;
-      await userSettings.save();
+        // Update the channel name in user settings
+        userSetting.temporaryVoiceChannel.channelName = newNameInputValue;
+        await userSetting.save();
 
-      await userVoiceChannel?.setName(
-        genericVariableReplacer(
-          newName,
-          interaction.user,
-          interaction.guild!,
-          client
-        )
-      );
-      modalInteraction.editReply({
-        embeds: [
-          CommonEmbedBuilder.success({
-            title: "> Changed Temporary Channel Name",
-            description: `Changed to name: \`${newName}\``,
-          }),
-        ],
-      });
+        // Set the new name for the voice channel, replacing variables
+        await userVoiceChannel.setName(
+          genericVariableReplacer(
+            newNameInputValue,
+            interaction.user,
+            interaction.guild!,
+            client
+          )
+        );
+
+        // Edit the reply to confirm the name change
+        renameModalInteraction.editReply({
+          embeds: [
+            CommonEmbedBuilder.success({
+              title: "> Changed Temporary Channel Name",
+              description: `Changed to name: \`${newNameInputValue}\``,
+            }),
+          ],
+        });
+      } catch (error) {
+        sendError(renameModalInteraction, error, true);
+      }
     } catch (error) {
       sendError(interaction, error, true);
     }
   },
   disabled: false,
-  voiceChannel: true,
+  devOnly: false,
+  requiredVoiceChannel: true,
 };
 
 export default select;

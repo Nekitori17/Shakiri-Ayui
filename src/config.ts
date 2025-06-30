@@ -14,7 +14,7 @@ export default {
     );
   },
   statusIntervalTime: 10000,
-  defaultPermissions: [
+  defaultBotPermissionsRequired: [
     PermissionFlagsBits.ViewChannel,
     PermissionFlagsBits.SendMessages,
     PermissionFlagsBits.EmbedLinks,

@@ -5,9 +5,9 @@ import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-
     try {
+      await interaction.deferReply();
+
       const queue = useQueue(interaction.guildId!);
       if (!queue)
         throw {
@@ -27,15 +27,21 @@ const command: CommandInterface = {
         ],
       });
     } catch (error) {
-      sendError(interaction, error)
+      sendError(interaction, error);
     }
   },
+  alias: "cl",
   name: "clear",
   description: "Clear the queue",
   deleted: false,
-  voiceChannel: true,
-  permissionsRequired: [PermissionFlagsBits.Connect],
-  botPermissions: [PermissionFlagsBits.Connect, PermissionFlagsBits.Speak],
+  devOnly: false,
+  useInDm: false,
+  requiredVoiceChannel: true,
+  userPermissionsRequired: [PermissionFlagsBits.Connect],
+  botPermissionsRequired: [
+    PermissionFlagsBits.Connect,
+    PermissionFlagsBits.Speak,
+  ],
 };
 
 export default command;

@@ -18,15 +18,18 @@ function isNumber(value: any) {
 
 const select: SelectMenuInterface = {
   async execute(interaction, client) {
-    const userVoiceChannel = (interaction.member as GuildMember).voice.channel;
+    // Get the user's voice channel
+    const userVoiceChannel = (interaction.member as GuildMember).voice.channel!;
 
     try {
-      if (!checkOwnTempVoice(userVoiceChannel?.id!, interaction.user.id))
+      // Check if the temporary voice channel belongs to the interacting user
+      if (!checkOwnTempVoice(userVoiceChannel.id, interaction.user.id))
         throw {
           name: "NotOwnTempVoiceError",
           message: "This temporary voice channel does not belong to you.",
         };
 
+      // Create a modal for setting the user limit
       const renameModal = new ModalBuilder()
         .setCustomId("limit-temp-voice")
         .setTitle("Limit Temporary Voice Channel")
@@ -41,23 +44,35 @@ const select: SelectMenuInterface = {
           )
         );
 
+      // Show the modal to the user
       await interaction.showModal(renameModal);
-      const modalInteraction = await interaction.awaitModalSubmit({
+      // Await the modal submission
+      const limitUserModalInteraction = await interaction.awaitModalSubmit({
         time: 60000,
       });
+
       try {
-        await modalInteraction.deferReply({ flags: MessageFlags.Ephemeral });
-        const amountOfLimitStr =
-          modalInteraction.fields.getTextInputValue("amount");
-        if (!isNumber(amountOfLimitStr))
+        // Defer the reply to prevent interaction timeout
+        await limitUserModalInteraction.deferReply({
+          flags: MessageFlags.Ephemeral,
+        });
+        
+        const amountOfLimitStrInputValue =
+          limitUserModalInteraction.fields.getTextInputValue("amount");
+          
+        // Validate if the input is a number
+        if (!isNumber(amountOfLimitStrInputValue))
           throw {
             name: "ThisIsNotANumber",
             message: "Please try again with correct value",
           };
 
-        const amountOfLimit = Number(amountOfLimitStr);
+        const amountOfLimit = Math.abs(
+          Math.floor(Number(amountOfLimitStrInputValue))
+        );
 
-        const userSettings = await UserSettings.findOneAndUpdate(
+        // Find and update user settings, creating if it doesn't exist
+        const userSetting = await UserSettings.findOneAndUpdate(
           {
             userId: interaction.user.id,
           },
@@ -72,11 +87,15 @@ const select: SelectMenuInterface = {
           }
         );
 
-        userSettings.temporaryVoiceChannel.limitUser = amountOfLimit;
-        await userSettings.save();
+        // Update the user limit in user settings
+        userSetting.temporaryVoiceChannel.limitUser = amountOfLimit;
+        await userSetting.save();
 
-        await userVoiceChannel?.setUserLimit(amountOfLimit);
-        modalInteraction.editReply({
+        // Set the user limit for the voice channel
+        await userVoiceChannel.setUserLimit(amountOfLimit);
+
+        // Edit the reply to confirm the limit change
+        limitUserModalInteraction.editReply({
           embeds: [
             CommonEmbedBuilder.success({
               title: "> Changed Temporary Channel Limit User",
@@ -85,14 +104,15 @@ const select: SelectMenuInterface = {
           ],
         });
       } catch (error) {
-        sendError(modalInteraction, error, true);
+        sendError(limitUserModalInteraction, error, true);
       }
     } catch (error) {
       sendError(interaction, error, true);
     }
   },
   disabled: false,
-  voiceChannel: true,
+  devOnly: false,
+  requiredVoiceChannel: true,
 };
 
 export default select;

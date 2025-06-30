@@ -1,3 +1,7 @@
+/**
+ * Languages supported by the translation feature.
+ */
+
 export const translateLanguages: Record<string, string> = {
   ar: "Arabic",
   "zh-cn": "Chinese (Simplified)",

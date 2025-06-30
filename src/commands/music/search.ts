@@ -1,3 +1,4 @@
+import _ from "lodash";
 import config from "../../config";
 import {
   ActionRowBuilder,
@@ -15,32 +16,38 @@ import sendError from "../../helpers/utils/sendError";
 import { musicPlayerStoreSession } from "../../musicPlayerStoreSession";
 import { musicSourceIcons } from "../../constants/musicSourceIcons";
 import { CommandInterface } from "../../types/InteractionInterfaces";
-import _ from "lodash";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-    const query = interaction.options.get("query")?.value as string;
-
     try {
-      const settings = await config.modules(interaction.guildId!);
+      await interaction.deferReply();
+      const queryOption = interaction.options.getString("query", true);
+
+      // Get guild settings for music playback
+      const guildSetting = await config.modules(interaction.guildId!);
+
+      // Get the main player instance
       const player = useMainPlayer();
 
-      const result = await player.search(query, {
+      const searchResult = await player.search(queryOption, {
         requestedBy: interaction.user,
         searchEngine: QueryType.AUTO,
       });
 
-      if (!result || result.tracks.length === 0)
+      // If no tracks are found, throw an error
+      if (!searchResult || searchResult.tracks.length === 0)
         throw {
           name: "NoResults",
-          message: "Please try again or try a different query or platform",
+          message:
+            "Please try again or try a different queryOption or platform",
         };
 
+      // Define the number of tracks to display per page
       const AMOUNT_TRACK_IN_PAGE = 5;
+      // Initialize an array to store tracks partitioned into pages
       const tracksPartition: Track[][] = [];
 
-      const tracksArray = result.tracks || [];
+      const tracksArray = searchResult.tracks || [];
       const totalTracks = tracksArray.length;
 
       const maxPages = Math.floor(totalTracks / AMOUNT_TRACK_IN_PAGE) || 1;
@@ -50,27 +57,29 @@ const command: CommandInterface = {
 
       let currentPage = 0;
       function createReply(page: number) {
-        const buttonsPage = new ActionRowBuilder<ButtonBuilder>({
+        // Create navigation buttons for the search results pages
+        const buttonsPageRow = new ActionRowBuilder<ButtonBuilder>({
           components: [
             new ButtonBuilder()
-              .setCustomId("search-result-page-previous")
+              .setCustomId("search-searchResult-page-prev")
               .setEmoji("1387296301867073576")
               .setStyle(ButtonStyle.Primary)
               .setDisabled(page === 0),
             new ButtonBuilder()
-              .setCustomId("search-result-page-current")
+              .setCustomId("search-searchResult-page-current")
               .setLabel(`${page + 1}/${maxPages}`)
               .setStyle(ButtonStyle.Secondary)
               .setDisabled(false),
             new ButtonBuilder()
-              .setCustomId("search-result-page-next")
+              .setCustomId("search-searchResult-page-next")
               .setEmoji("1387296195256254564")
               .setStyle(ButtonStyle.Primary)
               .setDisabled(page >= maxPages - 1),
           ],
         });
 
-        const trackSelectMenuToPlay = tracksPartition[page].map(
+        // Create options for the select menu based on tracks in the current page
+        const trackSelectMenuOption = tracksPartition[page].map(
           (track, index) => {
             const label = `${page * 10 + index + 1}. ${track.title}`;
             const truncatedLabel =
@@ -87,20 +96,24 @@ const command: CommandInterface = {
           }
         );
 
-        const trackSelectMenu =
+        // Create a select menu for choosing a track
+        const trackSelectMenuRow =
           new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
             new StringSelectMenuBuilder()
-              .setCustomId("search-result-select")
+              .setCustomId("search-searchResult-select")
               .setPlaceholder("Select a track to play")
-              .addOptions(trackSelectMenuToPlay)
+              .addOptions(trackSelectMenuOption)
           );
 
         return {
+          // Create an embed for displaying search results
           embeds: [
             new EmbedBuilder()
               .setAuthor({
                 name: `Results for: ${
-                  query.length > 50 ? query.substring(0, 47) + "..." : query
+                  queryOption.length > 50
+                    ? queryOption.substring(0, 47) + "..."
+                    : queryOption
                 }`,
                 iconURL: interaction.user.displayAvatarURL(),
               })
@@ -129,110 +142,136 @@ const command: CommandInterface = {
               .setTimestamp()
               .setColor("#00ffc8"),
           ],
-          components: [trackSelectMenu, buttonsPage],
+          components: [trackSelectMenuRow, buttonsPageRow],
           fetchReply: true,
         };
       }
 
-      const message = await interaction.editReply(createReply(currentPage));
-      const collector = message.createMessageComponentCollector({
-        filter: (i) => i.user.id === interaction.user.id,
-        time: 120_000,
-        idle: 60_000,
-      });
+      // Send the initial reply with the first page of search results
+      const searchResultEmbedRely = await interaction.editReply(
+        createReply(currentPage)
+      );
+      // Create a message component collector for button and select menu interactions
+      const searchResultEmbedCollector =
+        searchResultEmbedRely.createMessageComponentCollector({
+          filter: (i) => i.user.id === interaction.user.id,
+          time: 120_000,
+          idle: 60_000,
+        });
 
-      collector.on("collect", async (collectInteraction) => {
-        if (
-          !collectInteraction.isButton() &&
-          !collectInteraction.isStringSelectMenu()
-        )
-          return;
+      searchResultEmbedCollector.on(
+        "collect",
+        async (searchResultSelectInteraction) => {
+          if (
+            !searchResultSelectInteraction.isButton() &&
+            !searchResultSelectInteraction.isStringSelectMenu()
+          )
+            return;
 
-        try {
-          if (collectInteraction.isButton()) {
-            if (collectInteraction.customId === "search-result-page-previous") {
-              currentPage--;
-              await interaction.editReply(createReply(currentPage));
-              return collectInteraction.deferUpdate();
+          try {
+            // Handle button interactions for page navigation
+            if (searchResultSelectInteraction.isButton()) {
+              if (
+                searchResultSelectInteraction.customId ===
+                "search-searchResult-page-prev"
+              ) {
+                currentPage--;
+                await interaction.editReply(createReply(currentPage));
+                return searchResultSelectInteraction.deferUpdate();
+              }
+
+              if (
+                searchResultSelectInteraction.customId ===
+                "search-searchResult-page-current"
+              ) {
+                return searchResultSelectInteraction.deferUpdate();
+              }
+
+              if (
+                searchResultSelectInteraction.customId ===
+                "search-searchResult-page-next"
+              ) {
+                currentPage++;
+                await interaction.editReply(createReply(currentPage));
+                return searchResultSelectInteraction.deferUpdate();
+              }
             }
 
-            if (collectInteraction.customId === "search-result-page-current") {
-              return collectInteraction.deferUpdate();
-            }
+            // Handle select menu interaction for playing a selected track
+            if (searchResultSelectInteraction.isStringSelectMenu()) {
+              await searchResultSelectInteraction.deferReply();
+              const trackId = searchResultSelectInteraction.values[0];
+              // Find the selected track from the search results
+              const track = searchResult.tracks.find((t) => t.id === trackId);
 
-            if (collectInteraction.customId === "search-result-page-next") {
-              currentPage++;
-              await interaction.editReply(createReply(currentPage));
-              return collectInteraction.deferUpdate();
-            }
-          }
+              if (!track)
+                throw {
+                  name: "NoTrack",
+                  message: "Track not found",
+                };
 
-          if (collectInteraction.isStringSelectMenu()) {
-            await collectInteraction.deferReply();
-            const trackId = collectInteraction.values[0];
-            const track = result.tracks.find((t) => t.id === trackId);
+              // Get the user's voice channel
+              const userVoiceChannel = (
+                searchResultSelectInteraction.member as GuildMember
+              ).voice.channel;
 
-            if (!track)
-              throw {
-                name: "NoTrack",
-                message: "Track not found",
-              };
+              // If user is not in a voice channel, throw an error
+              if (!userVoiceChannel)
+                throw {
+                  name: "NoVoiceChannel",
+                  message:
+                    "You need to be in a voice channel to use this command",
+                };
 
-            const userVoiceChannel = (collectInteraction.member as GuildMember)
-              .voice.channel;
-
-            if (!userVoiceChannel)
-              throw {
-                name: "NoVoiceChannel",
-                message:
-                  "You need to be in a voice channel to use this command",
-              };
-
-            await track.play(userVoiceChannel, {
-              requestedBy: collectInteraction.user,
-              nodeOptions: {
-                metadata: {
-                  channel: interaction.channel,
+              // Play the selected track in the user's voice channel
+              await track.play(userVoiceChannel, {
+                requestedBy: searchResultSelectInteraction.user,
+                nodeOptions: {
+                  metadata: {
+                    channel: interaction.channel,
+                  },
+                  volume:
+                    (musicPlayerStoreSession.volume.get(
+                      interaction.guildId!
+                    ) as number) ?? guildSetting.music.volume,
+                  leaveOnEmpty: guildSetting.music.leaveOnEmpty,
+                  leaveOnEmptyCooldown: guildSetting.music.leaveOnEmptyCooldown,
+                  leaveOnEnd: guildSetting.music.leaveOnEnd,
+                  leaveOnEndCooldown: guildSetting.music.leaveOnEndCooldown,
                 },
-                volume:
-                  (musicPlayerStoreSession.volume.get(
-                    interaction.guildId!
-                  ) as number) ?? settings.music.volume,
-                leaveOnEmpty: settings.music.leaveOnEmpty,
-                leaveOnEmptyCooldown: settings.music.leaveOnEmptyCooldown,
-                leaveOnEnd: settings.music.leaveOnEnd,
-                leaveOnEndCooldown: settings.music.leaveOnEndCooldown,
-              },
-            });
+              });
 
-            collectInteraction.editReply({
-              content: null,
-              embeds: [
-                new EmbedBuilder()
-                  .setAuthor({
-                    name: `🎶 | Added ${track.title} by ${track.author} to the queue!`,
-                    iconURL: track.thumbnail,
-                    url: track.url,
-                  })
-                  .setFooter({
-                    text: `Request by: ${track.requestedBy?.displayName}`,
-                    iconURL: musicSourceIcons[track.source as TrackSource],
-                  })
-                  .setColor("Green"),
-              ],
-            });
+              // Edit the reply to confirm the track has been added to the queue
+              searchResultSelectInteraction.editReply({
+                content: null,
+                embeds: [
+                  new EmbedBuilder()
+                    .setAuthor({
+                      name: `🎶 | Added ${track.title} by ${track.author} to the queue!`,
+                      iconURL: track.thumbnail,
+                      url: track.url,
+                    })
+                    .setFooter({
+                      text: `Request by: ${track.requestedBy?.displayName}`,
+                      iconURL: musicSourceIcons[track.source as TrackSource],
+                    })
+                    .setColor("Green"),
+                ],
+              });
+            }
+          } catch (error) {
+            sendError(searchResultSelectInteraction, error, true);
           }
-        } catch (error) {
-          sendError(collectInteraction, error, true);
         }
-      });
+      );
     } catch (error) {
-      sendError(interaction, error, true);
+      sendError(interaction, error);
     }
   },
   name: "search",
   description: "Search for a song/URL and select from results",
   deleted: false,
+  devOnly: false,
   options: [
     {
       name: "query",
@@ -241,9 +280,13 @@ const command: CommandInterface = {
       required: true,
     },
   ],
-  voiceChannel: true,
-  permissionsRequired: [PermissionFlagsBits.Connect],
-  botPermissions: [PermissionFlagsBits.Connect, PermissionFlagsBits.Speak],
+  useInDm: false,
+  requiredVoiceChannel: false,
+  userPermissionsRequired: [PermissionFlagsBits.Connect],
+  botPermissionsRequired: [
+    PermissionFlagsBits.Connect,
+    PermissionFlagsBits.Speak,
+  ],
 };
 
 export default command;

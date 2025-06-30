@@ -6,33 +6,36 @@ import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-    const enabled = interaction.options.get("enabled")?.value as boolean;
-    const ignorePrefix = interaction.options.get("ignorePrefix")
-      ?.value as string;
-    const channelSet = interaction.options.get("channel")?.value as string;
-
     try {
-      const settings = await config.modules(interaction.guildId!);
+      await interaction.deferReply();
+      const enabledOption = interaction.options.getBoolean("enabled", true);
+      const ignorePrefixOption = interaction.options.getString("ignore-prefix");
+      const channelSetOption = interaction.options.getChannel("channel");
 
-      settings.geminiAI = {
-        enabled,
-        ignorePrefix: ignorePrefix || settings.geminiAI.ignorePrefix,
-        channelSet: channelSet || settings.geminiAI.channelSet,
+      // Fetch the current guild settings
+      const guildSetting = await config.modules(interaction.guildId!);
+
+      // Update Gemini AI settings
+      guildSetting.geminiAI = {
+        enabled: enabledOption,
+        ignorePrefix: ignorePrefixOption || guildSetting.geminiAI.ignorePrefix,
+        channelSet: channelSetOption?.id || guildSetting.geminiAI.channelSet,
       };
-      await settings.save();
+      // Save the updated settings
+      await guildSetting.save();
 
+      // Send a success message
       interaction.editReply({
         embeds: [
           CommonEmbedBuilder.success({
             title: `Updated **Gemini Ai** module settings`,
             description: `**Enabled**: \`${
-              settings.geminiAI.enabled
+              guildSetting.geminiAI.enabled
             }\`, **Ignore Prefix**: \`${
-              settings.geminiAI.ignorePrefix
+              guildSetting.geminiAI.ignorePrefix
             }\`, **Channel Set**: ${
-              settings.geminiAI.channelSet
-                ? `<#${settings.geminiAI.channelSet}>`
+              guildSetting.geminiAI.channelSet
+                ? `<#${guildSetting.geminiAI.channelSet}>`
                 : "`None`"
             }`,
           }),
@@ -45,6 +48,7 @@ const command: CommandInterface = {
   name: "set-gemini-ai",
   description: "Settings for GeminiAi module",
   deleted: false,
+  devOnly: false,
   options: [
     {
       name: "enabled",
@@ -65,7 +69,9 @@ const command: CommandInterface = {
       required: false,
     },
   ],
-  permissionsRequired: [PermissionFlagsBits.ManageGuild],
+  useInDm: false,
+  requiredVoiceChannel: false,
+  userPermissionsRequired: [PermissionFlagsBits.ManageGuild],
 };
 
 export default command;

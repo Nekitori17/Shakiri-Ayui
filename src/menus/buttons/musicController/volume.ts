@@ -24,7 +24,7 @@ const button: ButtonInterface = {
           message: "There is no queue to set volume",
         };
 
-      const renameModal = new ModalBuilder()
+      const volumeChangeModal = new ModalBuilder()
         .setCustomId("music-player-volume")
         .setTitle("Set volume")
         .addComponents(
@@ -38,21 +38,22 @@ const button: ButtonInterface = {
           )
         );
 
-      await interaction.showModal(renameModal);
-      const modalInteraction = await interaction.awaitModalSubmit({
+      await interaction.showModal(volumeChangeModal);
+      const volumeChangeInteraction = await interaction.awaitModalSubmit({
         time: 60000,
       });
 
-      await modalInteraction.deferReply();
       try {
-        const levelStr = modalInteraction.fields.getTextInputValue("level");
-        if (!isNumber(levelStr))
+        await volumeChangeInteraction.deferReply();
+        const levelStrInputValue =
+          volumeChangeInteraction.fields.getTextInputValue("level");
+        if (!isNumber(levelStrInputValue))
           throw {
             name: "ThisIsNotANumber",
             message: "Please try again with correct value",
           };
 
-        const level = parseInt(levelStr);
+        const level = parseInt(levelStrInputValue);
 
         if (level < 0 || level > 100)
           throw {
@@ -62,7 +63,7 @@ const button: ButtonInterface = {
 
         queue.node.setVolume(level);
         musicPlayerStoreSession.volume.set(interaction.guildId!, level);
-        modalInteraction.editReply({
+        volumeChangeInteraction.editReply({
           embeds: [
             new EmbedBuilder()
               .setAuthor({
@@ -73,14 +74,15 @@ const button: ButtonInterface = {
           ],
         });
       } catch (error) {
-        sendError(modalInteraction, error, true);
+        sendError(volumeChangeInteraction, error, true);
       }
     } catch (error) {
       sendError(interaction, error, true);
     }
   },
   disabled: false,
-  voiceChannel: true,
+  devOnly: false,
+  requiredVoiceChannel: true,
 };
 
 export default button;

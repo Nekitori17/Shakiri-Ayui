@@ -5,26 +5,28 @@ import {
   CommandInterface,
   ContextInterface,
 } from "../types/InteractionInterfaces";
-import { InteractionRegisterInteraface } from "../types/InteractionRegister";
+import { InteractionRegisterInterface } from "../types/InteractionRegister";
 
+// TODO: Upgrade this to registering when have change
 export default async () => {
-  let commands: InteractionRegisterInteraface[] = [];
+  let registeringStuffs: InteractionRegisterInterface[] = [];
+  
+  // Get all local commands
   const localCommands = getLocal<CommandInterface>(
     path.join(__dirname, "../commands"),
     []
   );
-  const localContexts = getLocal<ContextInterface>(
-    path.join(__dirname, "../contexts"),
-    []
-  );
 
+  // Loop through each local command and add it to the registering array
   for (const localCommand of localCommands) {
+    // If the command is marked for deletion, skip it
     if (localCommand.deleted) {
       console.log(`🗑️ /${localCommand.name} was set to deleted`);
       continue;
     }
 
-    commands.push({
+    // Add the command to the array for registration
+    registeringStuffs.push({
       name: localCommand.name,
       description: localCommand.description,
       options: localCommand?.options,
@@ -32,7 +34,15 @@ export default async () => {
     console.log(`➕ /${localCommand.name} was added to registering`);
   }
 
+  // Get all local contexts
+  const localContexts = getLocal<ContextInterface>(
+    path.join(__dirname, "../contexts"),
+    []
+  );
+
+  // Loop through each local context and add it to the registering array
   for (const localContext of localContexts) {
+    // If the context is marked for deletion, skip it
     if (localContext.deleted) {
       console.log(
         `🗑️ Context ${
@@ -42,10 +52,11 @@ export default async () => {
       continue;
     }
 
-    commands.push({
+    // Add the context to the array for registration
+    registeringStuffs.push({
       name: localContext.name,
       type: localContext.type,
-      contexts: localContext.contexts || null,
+      contexts: localContext.contexts,
     });
     console.log(
       `➕ Context ${
@@ -54,16 +65,18 @@ export default async () => {
     );
   }
 
+  // Initialize REST client for Discord API
   const rest = new REST({ version: "10" }).setToken(
     process.env.BOT_TOKEN as string
   );
 
+  // Register commands and contexts with Discord
   try {
     console.log("📝 Registering everything...");
     await rest.put(
       Routes.applicationCommands(process.env.CLIENT_ID as string),
       {
-        body: commands,
+        body: registeringStuffs,
       }
     );
     console.log("🎉 Registered successfully!");

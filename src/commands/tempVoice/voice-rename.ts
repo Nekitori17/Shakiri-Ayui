@@ -12,11 +12,13 @@ import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-    const newName = interaction.options.get("name")?.value as string;
-
+    
     try {
-      const userSettings = await UserSettings.findOneAndUpdate(
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+      const newNameOption = interaction.options.getString("name", true);
+      
+      // Find teh user's settings, or create new ones if they don't exist
+      const userSetting = await UserSettings.findOneAndUpdate(
         {
           userId: interaction.user.id,
         },
@@ -31,28 +33,33 @@ const command: CommandInterface = {
         }
       );
 
-      userSettings.temporaryVoiceChannel.channelName = newName;
-      await userSettings.save();
+      // Update the user's temporary voice channel name in settings
+      userSetting.temporaryVoiceChannel.channelName = newNameOption;
+      await userSetting.save();
 
+      // Get the voice channel of the interacting member
       const userVoiceChannel = (interaction.member as GuildMember).voice
         .channel;
+        
+      // If the user is in a voice channel and it's their own temporary channel
       if (userVoiceChannel)
         if (checkOwnTempVoice(userVoiceChannel.id, interaction.user.id))
           await userVoiceChannel.setName(
             genericVariableReplacer(
-              newName,
+              newNameOption,
               interaction.user,
               interaction.guild!,
               client
             )
           );
 
+      // Send a success embed indicating the name has been changed
       interaction.editReply({
         embeds: [
           CommonEmbedBuilder.success({
             title:
               "> <:colorrename:1387286560722128987> Changed Temporary Channel Name",
-            description: `Changed to name: \`${newName}\``,
+            description: `Changed to name: \`${newNameOption}\``,
           }),
         ],
       });
@@ -62,6 +69,8 @@ const command: CommandInterface = {
   },
   name: "voice-rename",
   description: "Change the name of your temporary voice channel",
+  deleted: false,
+  devOnly: false,
   options: [
     {
       name: "name",
@@ -71,8 +80,8 @@ const command: CommandInterface = {
       required: true,
     },
   ],
-  deleted: false,
-  canUseInDm: true,
+  useInDm: true,
+  requiredVoiceChannel: false,
 };
 
 export default command;

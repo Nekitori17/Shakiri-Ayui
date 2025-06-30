@@ -5,17 +5,21 @@ import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
 const button: ButtonInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-
     try {
+      await interaction.deferReply();
+
+      // Get the queue for the current guild
       const queue = useQueue(interaction.guildId!);
+      // Check if a queue exists
       if (!queue)
         throw {
           name: "NoQueue",
           message: "There is no queue to play",
         };
 
+      // Skip the current track
       queue.node.skip();
+      // Edit the reply with an embed confirming the skip
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
@@ -31,7 +35,8 @@ const button: ButtonInterface = {
     }
   },
   disabled: false,
-  voiceChannel: true,
+  devOnly: false,
+  requiredVoiceChannel: true,
 };
 
 export default button;

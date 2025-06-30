@@ -1,3 +1,7 @@
+/**
+ * This file contains the music controller menu components.
+ */
+
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
 
 const mainMusicControllerButtons = [
@@ -38,12 +42,12 @@ const extendMusicControllerButtons = [
     .setStyle(ButtonStyle.Secondary),
 ];
 
-export const mainMusicControllerButtonsRow =
+export const mainMusicControllerButtonRow =
   new ActionRowBuilder<ButtonBuilder>().addComponents(
     mainMusicControllerButtons
   );
 
-export const extendMusicControllerButtonsRow =
+export const extendMusicControllerButtonRow =
   new ActionRowBuilder<ButtonBuilder>().addComponents(
     extendMusicControllerButtons
   );

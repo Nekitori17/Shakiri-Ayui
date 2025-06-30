@@ -5,37 +5,52 @@ import { genericVariableReplacer } from "../../../helpers/utils/variableReplacer
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
 const event: DiscordEventInterface = async (client, member: GuildMember) => {
-  const settings = await config.modules(member.guild.id);
-  if (!settings.welcomer.enabled) return;
-  const channelSend = member.guild.channels.cache.get(
-    settings.welcomer.channelSend || ""
-  );
+  try {
+    // Get guild settings
+    const guildSetting = await config.modules(member.guild.id);
 
-  if (!channelSend) return;
-  if (!channelSend.isSendable()) return;
+    // Check if welcomer module is enabled
+    if (!guildSetting.welcomer.enabled) return;
 
-  const welcomeMessage = genericVariableReplacer(
-    settings.welcomer.message,
-    member,
-    member.guild,
-    client
-  );
-  const welcomeImage = await generateWelcomeImage(
-    {
-      title: settings.welcomer.imageTitle,
-      body: settings.welcomer.imageBody,
-      footer: settings.welcomer.imageFooter,
-    },
-    member,
-    member.guild,
-    client
-  );
+    // Get the welcomer channel
+    const welcomerChannelSend = member.guild.channels.cache.get(
+      guildSetting.welcomer.channelSend || ""
+    );
 
-  await channelSend.send(welcomeMessage);
-  if (welcomeImage)
-    channelSend.send({
-      files: [welcomeImage],
-    });
+    // Validate the welcomer channel
+    if (!welcomerChannelSend) return;
+    if (!welcomerChannelSend.isSendable()) return;
+
+    // Generate the welcome message
+    const welcomeMessage = genericVariableReplacer(
+      guildSetting.welcomer.message,
+      member,
+      member.guild,
+      client
+    );
+
+    // Generate the welcome image
+    const welcomeImage = await generateWelcomeImage(
+      {
+        title: guildSetting.welcomer.imageTitle,
+        body: guildSetting.welcomer.imageBody,
+        footer: guildSetting.welcomer.imageFooter,
+      },
+      member,
+      member.guild,
+      client
+    );
+
+    // Send the welcome message
+    await welcomerChannelSend.send(welcomeMessage);
+    // Send the welcome image if available
+    if (welcomeImage)
+      welcomerChannelSend.send({
+        files: [welcomeImage],
+      });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 export default event;

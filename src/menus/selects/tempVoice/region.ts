@@ -14,46 +14,58 @@ import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
 const select: SelectMenuInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-    const userVoiceChannel = (interaction.member as GuildMember).voice.channel;
+    // Get the user's voice channel
+    const userVoiceChannel = (interaction.member as GuildMember).voice.channel!;
 
     try {
-      if (!checkOwnTempVoice(userVoiceChannel?.id!, interaction.user.id))
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+
+      // Check if the temporary voice channel belongs to the interacting user
+      if (!checkOwnTempVoice(userVoiceChannel.id, interaction.user.id))
         throw {
           name: "NotOwnTempVoiceError",
           message: "This temporary voice channel does not belong to you.",
         };
 
-      const regionSelectMenu = Object.entries(rtcRegionList).map(
+      // Create options for the region select menu from rtcRegionList
+      const regionSelectMenuOption = Object.entries(rtcRegionList).map(
         ([name, value]) =>
           new StringSelectMenuOptionBuilder().setLabel(value).setValue(name)
       );
-      const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-        new StringSelectMenuBuilder()
-          .setCustomId("temp-voice-region")
-          .setPlaceholder("Select a region")
-          .addOptions(regionSelectMenu)
-      );
-
-      const sent = await interaction.editReply({
+      // Create an ActionRow with a StringSelectMenu for region selection
+      const regionSelectMenuRow =
+        new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+          new StringSelectMenuBuilder()
+            .setCustomId("temp-voice-region")
+            .setPlaceholder("Select a region")
+            .addOptions(regionSelectMenuOption)
+        );
+      
+      // Edit the deferred reply to display the region selection menu
+      const regionSelectReply = await interaction.editReply({
         content: "Select a region for your temporary voice channel",
-        components: [row],
+        components: [regionSelectMenuRow],
       });
 
-      const collector = sent.createMessageComponentCollector({
+      // Create a message component collector for the region selection menu
+      const collector = regionSelectReply.createMessageComponentCollector({
         componentType: ComponentType.StringSelect,
         time: 60000,
       });
 
-      collector.on("collect", async (selectInteraction) => {
-        await selectInteraction.deferReply({ flags: MessageFlags.Ephemeral });
-
+      // Handle the collection of selected region
+      collector.on("collect", async (regionSelectInteraction) => {
         try {
-          const regionName = selectInteraction.values[0];
+          // Defer the reply to prevent interaction timeout
+          await regionSelectInteraction.deferReply({
+            flags: MessageFlags.Ephemeral,
+          });
 
-          await userVoiceChannel?.setRTCRegion(regionName);
+          const regionName = regionSelectInteraction.values[0];
 
-          selectInteraction.editReply({
+          await userVoiceChannel.setRTCRegion(regionName);
+          // Edit the reply to confirm the region change
+          regionSelectInteraction.editReply({
             embeds: [
               CommonEmbedBuilder.success({
                 title: "> Changed Temporary Channel Region",
@@ -64,7 +76,7 @@ const select: SelectMenuInterface = {
             ],
           });
         } catch (error) {
-          sendError(selectInteraction, error, true);
+          sendError(regionSelectInteraction, error, true);
         }
       });
     } catch (error) {
@@ -72,7 +84,8 @@ const select: SelectMenuInterface = {
     }
   },
   disabled: false,
-  voiceChannel: true,
+  devOnly: false,
+  requiredVoiceChannel: true,
 };
 
 export default select;

@@ -1,15 +1,19 @@
-import MiniGameUserDatas from "../../../models/MiniGameUserDatas";
+import MiniGameUserData from "../../../models/MiniGameUserData";
 import { TimeEventInterface } from "../../../types/EventInterfaces";
 
 const schedule: TimeEventInterface = {
   async execute(client) {
-    const allUserMinigameData = await MiniGameUserDatas.find();
+    // Fetch all mini-game user data from the database.
+    const allMiniGameUserData = await MiniGameUserData.find();
 
-    const bulkOperations = allUserMinigameData.map((userData) => {
+    // Prepare bulk operations to update each user's bank balance.
+    const bulkOperations = allMiniGameUserData.map((userData) => {
+      // Calculate the new balance after applying interest, ensuring it doesn't exceed capacity.
       let newBalance =
         userData.bank.balance +
         Math.floor(userData.bank.balance * userData.bank.interestRate);
 
+      // Ensure the new balance does not exceed the bank's capacity.
       if (newBalance > userData.bank.capacity) {
         newBalance = userData.bank.capacity;
       }
@@ -22,8 +26,9 @@ const schedule: TimeEventInterface = {
       };
     });
 
+    // If there are operations to perform, execute them in bulk.
     if (bulkOperations.length > 0) {
-      await MiniGameUserDatas.bulkWrite(bulkOperations);
+      await MiniGameUserData.bulkWrite(bulkOperations);
     }
   },
   mode: "INTERVAL",

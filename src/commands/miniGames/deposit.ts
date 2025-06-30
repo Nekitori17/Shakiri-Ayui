@@ -1,23 +1,25 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from "discord.js";
 import sendError from "../../helpers/utils/sendError";
+import MiniGameUserData from "../../models/MiniGameUserData";
 import { CommandInterface } from "../../types/InteractionInterfaces";
-import MiniGameUserDatas from "../../models/MiniGameUserDatas";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-    const amount = interaction.options.get("amount")?.value as number;
-
     try {
-      if (amount <= 0) {
+      await interaction.deferReply();
+      const amountOption = interaction.options.getInteger("amount", true);
+
+      // Check the value is valid
+      if (amountOption <= 0) {
         throw {
           name: "InvalidAmount",
           message: "You cannot deposit a negative or zero amount.",
           type: "warning",
         };
       }
-      
-      const userDatas = await MiniGameUserDatas.findOneAndUpdate(
+
+      // Get mini game data of user
+      const miniGameUserData = await MiniGameUserData.findOneAndUpdate(
         {
           userId: interaction.user.id,
         },
@@ -32,8 +34,8 @@ const command: CommandInterface = {
         }
       );
 
-
-      if (userDatas.balance < amount) {
+      // Check if the user has enough balance
+      if (miniGameUserData.balance < amountOption) {
         throw {
           name: "InsufficientBalance",
           message: "You don't have enough coins in your balance to deposit.",
@@ -41,18 +43,24 @@ const command: CommandInterface = {
         };
       }
 
-      if (userDatas.bank.balance + amount > userDatas.bank.capacity) {
+      // Check if the bank has enough capacity
+      if (
+        miniGameUserData.bank.balance + amountOption >
+        miniGameUserData.bank.capacity
+      ) {
         throw {
           name: "BankCapacityExceeded",
-          message: `Your bank does not have enough capacity to hold this amount. Your current capacity is ${userDatas.bank.capacity} and you are trying to deposit ${amount}.`,
+          message: `Your bank does not have enough capacity to hold this amount. Your current capacity is ${miniGameUserData.bank.capacity} and you are trying to deposit ${amountOption}.`,
           type: "warning",
         };
       }
 
-      userDatas.balance -= amount;
-      userDatas.bank.balance += amount;
-      await userDatas.save();
+      // Update balance and bank balance
+      miniGameUserData.balance -= amountOption;
+      miniGameUserData.bank.balance += amountOption;
+      await miniGameUserData.save();
 
+      // Send success message
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
@@ -60,11 +68,11 @@ const command: CommandInterface = {
               `> <:colorrequestmoney:1387339020597727313> ${interaction.user.displayName}'s Deposit`
             )
             .setDescription(
-              `* <:colorcoin:1387339346889281596> **Amount**: ${amount} <:nyen:1373967798790783016>` +
+              `* <:colorcoin:1387339346889281596> **Amount**: ${amountOption} <:nyen:1373967798790783016>` +
                 "\n" +
-                `* <:colorwallet:1387275109844389928> **New Balance**: ${userDatas.balance} <:nyen:1373967798790783016>` +
+                `* <:colorwallet:1387275109844389928> **New Balance**: ${miniGameUserData.balance} <:nyen:1373967798790783016>` +
                 "\n" +
-                `* <:colorbank:1387275317076562000> **New Bank Balance**: ${userDatas.bank.balance}/${userDatas.bank.capacity} <:nyen:1373967798790783016>`
+                `* <:colorbank:1387275317076562000> **New Bank Balance**: ${miniGameUserData.bank.balance}/${miniGameUserData.bank.capacity} <:nyen:1373967798790783016>`
             )
             .setColor("Aqua")
             .setThumbnail(interaction.user.displayAvatarURL())
@@ -82,15 +90,18 @@ const command: CommandInterface = {
   name: "deposit",
   description: "Deposit your coins into the bank.",
   deleted: false,
+  devOnly: false,
   options: [
     {
       name: "amount",
       description: "The amount of coins you want to deposit.",
-      type: ApplicationCommandOptionType.Number,
+      type: ApplicationCommandOptionType.Integer,
       required: true,
     },
   ],
-  canUseInDm: true,
+  cooldown: 300,
+  useInDm: true,
+  requiredVoiceChannel: false,
 };
 
 export default command;

@@ -5,17 +5,17 @@ import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-
     try {
-      const history = useHistory(interaction.guildId!);
-      if (!history)
+      await interaction.deferReply();
+
+      const queueHistory = useHistory(interaction.guildId!);
+      if (!queueHistory)
         throw {
           name: "NoQueue",
           message: "There is no queue to play",
         };
 
-      history.previous();
+      queueHistory.previous();
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
@@ -27,15 +27,21 @@ const command: CommandInterface = {
         ],
       });
     } catch (error) {
-      sendError(interaction, error)
+      sendError(interaction, error);
     }
   },
+  alias: "bk",
   name: "back",
   description: "Play the previous song",
   deleted: false,
-  voiceChannel: true,
-  permissionsRequired: [PermissionFlagsBits.Connect],
-  botPermissions: [PermissionFlagsBits.Connect, PermissionFlagsBits.Speak],
+  devOnly: false,
+  useInDm: false,
+  requiredVoiceChannel: true,
+  userPermissionsRequired: [PermissionFlagsBits.Connect],
+  botPermissionsRequired: [
+    PermissionFlagsBits.Connect,
+    PermissionFlagsBits.Speak,
+  ],
 };
 
 export default command;

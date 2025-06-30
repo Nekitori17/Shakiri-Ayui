@@ -10,26 +10,33 @@ import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-    const level = interaction.options.get("level")?.value as number;
-
     try {
+      await interaction.deferReply();
+      const levelOption = interaction.options.getInteger("level", true);
+
+      // Get the music queue for the current guild
       const queue = useQueue(interaction.guildId!);
+      // If no queue exists, throw an error
       if (!queue)
         throw {
           name: "NoQueue",
           message: "There is no queue to set volume",
         };
 
-      queue.node.setVolume(level);
-      musicPlayerStoreSession.volume.set(interaction.guildId!, level);
+      // Set the volume of the queue's node
+      queue.node.setVolume(levelOption);
+      // Store the new volume level in the music player session
+      musicPlayerStoreSession.volume.set(interaction.guildId!, levelOption);
+      // Edit the deferred reply with an embed confirming the volume change
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
+            // Set the author of the embed with a message and icon
             .setAuthor({
-              name: `🎶 Volume set to ${level}!`,
+              name: `🎶 Volume set to ${levelOption}!`,
               iconURL: "https://img.icons8.com/color/512/low-volume.png",
             })
+            // Set the color of the embed
             .setColor("#73ff00"),
         ],
       });
@@ -37,20 +44,26 @@ const command: CommandInterface = {
       sendError(interaction, error);
     }
   },
+  alias: "v",
   name: "volume",
   description: "Change volume of bot",
+  deleted: false,
+  devOnly: false,
   options: [
     {
       name: "level",
       description: "Level of volume",
-      type: ApplicationCommandOptionType.Number,
+      type: ApplicationCommandOptionType.Integer,
       required: true,
     },
   ],
-  deleted: false,
-  voiceChannel: true,
-  permissionsRequired: [PermissionFlagsBits.Connect],
-  botPermissions: [PermissionFlagsBits.Connect, PermissionFlagsBits.Speak],
+  useInDm: false,
+  requiredVoiceChannel: true,
+  userPermissionsRequired: [PermissionFlagsBits.Connect],
+  botPermissionsRequired: [
+    PermissionFlagsBits.Connect,
+    PermissionFlagsBits.Speak,
+  ],
 };
 
 export default command;

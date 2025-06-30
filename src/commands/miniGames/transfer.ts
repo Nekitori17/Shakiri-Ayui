@@ -1,65 +1,100 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from "discord.js";
 import sendError from "../../helpers/utils/sendError";
+import MiniGameUserData from "../../models/MiniGameUserData";
 import { CommandInterface } from "../../types/InteractionInterfaces";
-import MiniGameUserDatas from "../../models/MiniGameUserDatas";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-    const targetUser = interaction.options.get("target")?.value as string;
-    const amount = interaction.options.get("amount")?.value as number;
-
     try {
-      if (amount <= 0)
+      await interaction.deferReply();
+      const targetUserOption = interaction.options.getUser("target", true);
+      const amountOption = interaction.options.getInteger("amount", true);
+
+      // Check if the user is a bot
+      if (targetUserOption.bot)
+        throw {
+          name: "BotUser",
+          message: "Bro think they can play mini game 💀🙏",
+        };
+
+      // Check if the user is trying to transfer to themselves
+      if (targetUserOption.id === interaction.user.id)
+        throw {
+          name: "SelfTransfer",
+          message: "You cannot transfer money to yourself.",
+        };
+
+      // Check if the amount is valid
+      if (amountOption <= 0)
         throw {
           name: "InvalidAmount",
           message: "You cannot transfer 0 or negative money.",
         };
 
-      const senderData = await MiniGameUserDatas.findOne({
+      // Get sender mini game data
+      const senderMiniGameUserData = await MiniGameUserData.findOne({
         userId: interaction.user.id,
       });
 
-      if (!senderData)
+      // Check if sender has an account
+      if (!senderMiniGameUserData)
         throw {
           name: "NoAccount",
           message:
             "You don't have an account yet. Please use the daily command to create one.",
         };
 
-      if (senderData.balance < amount)
+      // Check if sender has enough balance
+      if (senderMiniGameUserData.balance < amountOption)
         throw {
           name: "InsufficientBalance",
           message: "You don't have enough money to transfer.",
         };
 
-      const targetUserData = await MiniGameUserDatas.findOne({
-        userId: targetUser,
-      });
+      // Get target mini game data
+      const targetMiniGameUserData = await MiniGameUserData.findOneAndUpdate(
+        {
+          userId: targetUserOption.id,
+        },
+        {
+          $setOnInsert: {
+            userId: targetUserOption.id,
+          },
+        },
+        {
+          upsert: true,
+          new: true,
+        }
+      );
 
-      if (!targetUserData)
-        throw {
-          name: "TargetNoAccount",
-          message: "The target user does not have an account yet.",
-        };
+      // Transfer money
+      senderMiniGameUserData.balance -= amountOption;
+      targetMiniGameUserData.balance += amountOption;
 
-      senderData.balance -= amount;
-      targetUserData.balance += amount;
+      // Save changes
+      await senderMiniGameUserData.save();
+      await targetMiniGameUserData.save();
 
-      await senderData.save();
-      await targetUserData.save();
-
+      // Send success message
       await interaction.editReply({
         embeds: [
           new EmbedBuilder()
-            .setTitle("Transfer Successful")
-            .setDescription(
-              `* <:colorcoin:1387339346889281596> **Amount**: ${amount} <:nyen:1373967798790783016>` +
-                "\n" +
-                `* <:colorwallet:1387275109844389928> **Your New Balance**: ${senderData.balance} <:nyen:1373967798790783016>` +
-                "\n" +
-                `* <:colorwallet:1387275109844389928> **Target's New Balance**: ${targetUserData.balance} <:nyen:1373967798790783016>`
+            .setTitle(
+              "<:colorexchange:1387641945026728116> Transfer Successful"
             )
+            .setDescription(
+              `* <:colorcoin:1387339346889281596> **Amount**: ${amountOption} <:nyen:1373967798790783016>` +
+                "\n" +
+                `* <:colorwallet:1387275109844389928> **${interaction.user}'s New Balance**: ${senderMiniGameUserData.balance} <:nyen:1373967798790783016>` +
+                "\n" +
+                `* <:colorwallet:1387275109844389928> **${targetUserOption}'s New Balance**: ${targetMiniGameUserData.balance} <:nyen:1373967798790783016>`
+            )
+            .setThumbnail(interaction.user.displayAvatarURL())
+            .setFooter({
+              text: client.user?.displayName!,
+              iconURL: "https://files.catbox.moe/6j940t.gif",
+            })
+            .setTimestamp()
             .setColor("Green"),
         ],
       });
@@ -70,6 +105,7 @@ const command: CommandInterface = {
   name: "transfer",
   description: "Transfer money to another user",
   deleted: false,
+  devOnly: false,
   options: [
     {
       name: "target",
@@ -80,10 +116,12 @@ const command: CommandInterface = {
     {
       name: "amount",
       description: "The amount of money to transfer",
-      type: ApplicationCommandOptionType.Number,
+      type: ApplicationCommandOptionType.Integer,
       required: true,
     },
   ],
+  useInDm: false,
+  requiredVoiceChannel: false,
 };
 
 export default command;

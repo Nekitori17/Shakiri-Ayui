@@ -1,14 +1,16 @@
 import { EmbedBuilder } from "discord.js";
 import sendError from "../../helpers/utils/sendError";
-import MiniGameUserDatas from "../../models/MiniGameUserDatas";
+import MiniGameUserData from "../../models/MiniGameUserData";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-
     try {
-      const userDatas = await MiniGameUserDatas.findOneAndUpdate(
+      await interaction.deferReply();
+
+      // Find or create the user's mini-game data
+      // Get mini game data of user
+      const miniGameUserData = await MiniGameUserData.findOneAndUpdate(
         {
           userId: interaction.user.id,
         },
@@ -23,20 +25,28 @@ const command: CommandInterface = {
         }
       );
 
+      // Define reward constants
       const COIN_REWARD = 50;
       const DAILY_STREAK_MULTIPLIER = 0.1;
 
-      const multiplier = 1 + DAILY_STREAK_MULTIPLIER * userDatas.dailyStreak;
+      // Calculate reward based on daily streak
+      const multiplier =
+        1 + DAILY_STREAK_MULTIPLIER * miniGameUserData.dailyStreak;
       const actualRewardGained = Math.round(COIN_REWARD * multiplier);
-      const newBalance = userDatas.balance + actualRewardGained;
-      userDatas.balance = newBalance;
-      userDatas.dailyStreak += 1;
-      if (userDatas.dailyStreak > userDatas.longestStreak)
-        userDatas.longestStreak = userDatas.dailyStreak;
-      userDatas.lastDaily = new Date(Date.now());
 
-      await userDatas.save();
+      // Update user's balance and streak
+      const newBalance = miniGameUserData.balance + actualRewardGained;
+      miniGameUserData.balance = newBalance;
+      miniGameUserData.dailyStreak += 1;
+      // Update longest streak if current streak is higher
+      if (miniGameUserData.dailyStreak > miniGameUserData.longestStreak)
+        miniGameUserData.longestStreak = miniGameUserData.dailyStreak;
+      miniGameUserData.lastDaily = new Date(Date.now());
 
+      // Save the updated user data to the database
+      await miniGameUserData.save();
+
+      // Send success message
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
@@ -54,9 +64,9 @@ const command: CommandInterface = {
                   1
                 )}x` +
                 "\n" +
-                `* <:colorfire:1387269037830049994> **Daily Streak**: ${userDatas.dailyStreak} days` +
+                `* <:colorfire:1387269037830049994> **Daily Streak**: ${miniGameUserData.dailyStreak} days` +
                 "\n" +
-                `* <:colorcampfire:1387274928981676165> **Longest Streak**: ${userDatas.longestStreak} days`
+                `* <:colorcampfire:1387274928981676165> **Longest Streak**: ${miniGameUserData.longestStreak} days`
             )
             .setColor("Aqua")
             .setThumbnail(interaction.user.displayAvatarURL())
@@ -71,11 +81,14 @@ const command: CommandInterface = {
       sendError(interaction, error);
     }
   },
+  alias: "dl",
   name: "daily",
   description: "Claims your daily reward",
   deleted: false,
+  devOnly: false,
   cooldown: 86400,
-  canUseInDm: true,
+  useInDm: true,
+  requiredVoiceChannel: false,
 };
 
 export default command;

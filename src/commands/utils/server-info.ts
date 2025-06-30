@@ -1,3 +1,4 @@
+import _ from "lodash";
 import { EmbedBuilder } from "discord.js";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -5,6 +6,7 @@ const command: CommandInterface = {
   async execute(interaction, client) {
     await interaction.deferReply();
 
+    // TODO: Add field to display list of role guild has
     interaction.editReply({
       embeds: [
         new EmbedBuilder()
@@ -54,7 +56,7 @@ const command: CommandInterface = {
             {
               name: "Futures",
               value: `${interaction.guild?.features
-                .map((f) => f[0] + f.slice(1).toLowerCase().replace(/_/g, " "))
+                .map((f) => _.capitalize(f))
                 .join(", ")}`,
               inline: true,
             },
@@ -70,6 +72,9 @@ const command: CommandInterface = {
   name: "server-info",
   description: "Get info about the server",
   deleted: false,
+  devOnly: false,
+  useInDm: false,
+  requiredVoiceChannel: false,
 };
 
 export default command;

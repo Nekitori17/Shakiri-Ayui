@@ -5,18 +5,24 @@ import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-
+    // TODO: Bot can't get the voice connection
     try {
+      await interaction.deferReply();
+
+      // Attempt to get the voice connection for the current guild
       const connection = getVoiceConnection(interaction.guildId!);
 
+      // If no voice connection is found, throw an error
       if (!connection)
         throw {
           name: "NoVoiceConnection",
           message: "I'm not in a voice channel.",
         };
 
+      // Destroy the voice connection, effectively leaving the channel
       connection.destroy();
+
+      // Edit the deferred reply with a success embed
       await interaction.editReply({
         embeds: [
           CommonEmbedBuilder.info({
@@ -29,9 +35,13 @@ const command: CommandInterface = {
       sendError(interaction, error);
     }
   },
+  alias: "lv",
   name: "leave",
   description: "Leaves the voice channel",
   deleted: false,
+  devOnly: true,
+  useInDm: false,
+  requiredVoiceChannel: false,
 };
 
 export default command;
