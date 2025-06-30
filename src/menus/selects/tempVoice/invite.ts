@@ -272,7 +272,7 @@ const select: SelectMenuInterface = {
                           embeds: [
                             CommonEmbedBuilder.success({
                               title: "> Joined Channel",
-                              description: `You have joined ${inviteUserSelectInteraction.user.displayName}'s temporary voice channel.`,
+                              description: `You have joined ${inviteUserSelectInteraction.user}'s temporary voice channel.`,
                             }),
                           ],
                           components: [],

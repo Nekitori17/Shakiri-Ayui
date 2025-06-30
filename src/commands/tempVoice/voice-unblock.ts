@@ -171,8 +171,11 @@ const command: CommandInterface = {
               const updatedBlockedUsers = blockedUsers.filter(
                 (userId) => !userSelectedToUnblock.includes(userId)
               );
+
+              // Update the user's settings with the new blocked users list
               userSetting!.temporaryVoiceChannel.blockedUsers =
                 updatedBlockedUsers;
+                
               await userSetting.save();
               // Send a success embed indicating the users have been unblocked
               bannedUserMenuInteraction.editReply({
