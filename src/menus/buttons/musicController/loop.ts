@@ -44,7 +44,7 @@ const button: ButtonInterface = {
 
       // Send the reply with the select menu
       const loopModeMenuReply = await interaction.editReply({
-        content: "Select a loop mode",
+        content: "<:colorsynchronize:1387283489883164733> Select a loop mode",
         components: [loopModeSelectMenuRow],
       });
 
@@ -71,7 +71,7 @@ const button: ButtonInterface = {
           musicPlayerStoreSession.loop.set(interaction.guildId!, repeatMode);
 
           // Edit the reply to confirm the loop mode change
-          loopModeMenuReply.edit({
+          loopModeSelectInteraction.editReply({
             embeds: [
               new EmbedBuilder()
                 .setAuthor({
