@@ -56,10 +56,10 @@ const select: SelectMenuInterface = {
         await limitUserModalInteraction.deferReply({
           flags: MessageFlags.Ephemeral,
         });
-        
+
         const amountOfLimitStrInputValue =
           limitUserModalInteraction.fields.getTextInputValue("amount");
-          
+
         // Validate if the input is a number
         if (!isNumber(amountOfLimitStrInputValue))
           throw {
@@ -67,9 +67,14 @@ const select: SelectMenuInterface = {
             message: "Please try again with correct value",
           };
 
-        const amountOfLimit = Math.abs(
-          Math.floor(Number(amountOfLimitStrInputValue))
-        );
+        const amountOfLimit = Math.floor(Number(amountOfLimitStrInputValue));
+
+        if (amountOfLimit < 0 || amountOfLimit > 99)
+          throw {
+            name: "InvalidNumber",
+            message: "Please enter a number between 0 and 99.",
+            type: "warning",
+          };
 
         // Find and update user settings, creating if it doesn't exist
         const userSetting = await UserSettings.findOneAndUpdate(

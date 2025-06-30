@@ -18,6 +18,7 @@ const command: CommandInterface = {
         throw {
           name: "InvalidNumber",
           message: "Can't set the value less than 1 or greater than 100",
+          type: "warning",
         };
       }
       // Perform bulk deletion of messages in the channel

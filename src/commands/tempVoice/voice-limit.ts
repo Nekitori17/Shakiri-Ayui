@@ -15,6 +15,13 @@ const command: CommandInterface = {
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });
       const amountOfLimitOption = interaction.options.getInteger("limit", true);
 
+      if (amountOfLimitOption < 0)
+        throw {
+          name: "InvalidLimit",
+          message: "The limit cannot be a negative number.",
+          type: "warning",
+        };
+
       // Find the user's settings, or create new ones if they don't exist
       const userSetting = await UserSettings.findOneAndUpdate(
         {

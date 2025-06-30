@@ -55,7 +55,7 @@ const button: ButtonInterface = {
 
         const level = parseInt(levelStrInputValue);
 
-        if (level < 0 || level > 100)
+        if (level < 0)
           throw {
             name: "OutOfRange",
             message: "Please try again with value between 0 and 100",

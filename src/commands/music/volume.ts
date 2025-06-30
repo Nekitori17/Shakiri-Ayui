@@ -14,6 +14,13 @@ const command: CommandInterface = {
       await interaction.deferReply();
       const levelOption = interaction.options.getInteger("level", true);
 
+      if (levelOption < 0)
+        throw {
+          name: "InvalidVolume",
+          message: "Volume cannot be less than 0",
+          type: "warning"
+        };
+
       // Get the music queue for the current guild
       const queue = useQueue(interaction.guildId!);
       // If no queue exists, throw an error
