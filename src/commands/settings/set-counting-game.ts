@@ -1,5 +1,9 @@
 import config from "../../config";
-import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
+import {
+  ApplicationCommandOptionType,
+  ChannelType,
+  PermissionFlagsBits,
+} from "discord.js";
 import sendError from "../../helpers/utils/sendError";
 import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 import CountingGame from "../../models/CountingGame";
@@ -12,6 +16,13 @@ const command: CommandInterface = {
       const enabledOption = interaction.options.getBoolean("enabled", true);
       const channelSetOption = interaction.options.getChannel("channel");
       const startNumberOption = interaction.options.getNumber("start-number");
+
+      // 
+      if (channelSetOption?.type != ChannelType.GuildText)
+        throw {
+          name: "InvalidChannelType",
+          message: "Channel must be a text channel!",
+        };
 
       // Fetch the current guild settings
       const guildSetting = await config.modules(interaction.guildId!);

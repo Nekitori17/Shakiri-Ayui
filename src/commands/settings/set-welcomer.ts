@@ -2,6 +2,7 @@ import config from "../../config";
 import {
   ApplicationCommandOptionType,
   AttachmentBuilder,
+  ChannelType,
   PermissionFlagsBits,
 } from "discord.js";
 import sendError from "../../helpers/utils/sendError";
@@ -15,6 +16,13 @@ const command: CommandInterface = {
       const enabledOption = interaction.options.getBoolean("enabled", true);
       const channelSendOption = interaction.options.getChannel("channel");
       const resetOption = interaction.options.getBoolean("reset");
+
+      // Validate the channel type if provided
+      if (channelSendOption?.type != ChannelType.GuildText)
+        throw {
+          name: "InvalidChannelType",
+          message: "Channel must be a text channel!",
+        };
 
       // Fetch the current guild settings
       const guildSetting = await config.modules(interaction.guildId!);

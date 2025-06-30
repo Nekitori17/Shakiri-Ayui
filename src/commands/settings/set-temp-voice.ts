@@ -16,6 +16,7 @@ const command: CommandInterface = {
       const channelSetOption = interaction.options.getChannel("channel");
       const categorySetOption = interaction.options.getChannel("category");
 
+      // Validate channel and category types if provided
       if (channelSetOption && channelSetOption?.type != ChannelType.GuildVoice)
         throw {
           name: "InvalidChannelType",
@@ -27,6 +28,7 @@ const command: CommandInterface = {
           name: "InvalidChannelType",
           message: "Category must be a category channel!",
         };
+
       // Fetch the current guild settings from the configuration
       const guildSetting = await config.modules(interaction.guildId!);
 
