@@ -42,7 +42,6 @@ const command: CommandInterface = {
       userSetting.temporaryVoiceChannel.limitUser = amountOfLimitOption;
       await userSetting.save();
 
-      // TODO: Make this command can use without join to a voice channel
       // Get the voice channel of the interacting member
       const userVoiceChannel = (interaction.member as GuildMember).voice
         .channel;
