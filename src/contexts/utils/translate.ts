@@ -8,11 +8,8 @@ import sendError from "../../helpers/utils/sendError";
 import UserSettings from "../../models/UserSettings";
 import { ContextInterface } from "../../types/InteractionInterfaces";
 
-const context: ContextInterface = {
+const context: ContextInterface<ApplicationCommandType.Message> = {
   async execute(interaction, client) {
-    // Cast the interaction to a MessageContextMenuCommandInteraction.
-    interaction = interaction as MessageContextMenuCommandInteraction;
-
     try {
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
