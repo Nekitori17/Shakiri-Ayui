@@ -2,7 +2,6 @@ require("dotenv").config();
 import mongoose from "mongoose";
 import { Client, IntentsBitField } from "discord.js";
 import { Player } from "discord-player";
-import registerCommands from "./handlers/registerCommands";
 import registerMusicExtractor from "./handlers/registerMusicExtractor";
 import musicEventHandler from "./handlers/musicEventHandler";
 import discordEventHandler from "./handlers/discordEventHandler";
@@ -30,7 +29,6 @@ const player = new Player(client);
 
 async function run(client: Client) {
   try {
-    await registerCommands();
     await registerMusicExtractor(player);
 
     console.log("💿 | Connecting to MongoDB...");

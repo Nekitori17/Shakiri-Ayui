@@ -63,8 +63,7 @@ const context: ContextInterface = {
       sendError(interaction, error);
     }
   },
-  name: "Translate the message",
-  shortName: "translate",
+  name: "Translate this message",
   type: ApplicationCommandType.Message,
   deleted: false,
   devOnly: false,

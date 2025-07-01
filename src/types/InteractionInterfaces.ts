@@ -29,6 +29,14 @@ export interface BaseInteractionInterface {
   botPermissionsRequired?: bigint[];
 }
 
+export interface CommandOptionChoiceInterface {
+  /** Display name of the choice */
+  name: string;
+
+  /** Value of the choice (can be string or number) */
+  value: string | number;
+}
+
 /**
  * Defines a single option for a slash command.
  */
@@ -46,13 +54,10 @@ export interface CommandOptionInterface {
   required: boolean;
 
   /** Optional list of preset choices for the option */
-  choices?: {
-    /** Display name of the choice */
-    name: string;
+  choices?: CommandOptionChoiceInterface[];
 
-    /** Value of the choice (can be string or number) */
-    value: string | number;
-  }[];
+  /** Optional flag to indicate if this option supports autocomplete. */
+  autocomplete?: boolean;
 }
 
 /**
@@ -81,17 +86,6 @@ export interface CommandInterface extends BaseInteractionInterface {
   /** Optional static options for the command */
   options?: CommandOptionInterface[];
 
-  /**
-   * Optional dynamic options generator based on interaction context.
-   * @param interaction - The interaction object
-   * @param client - The Discord bot client
-   * @returns Array of command options
-   */
-  dynamicOptions?: (
-    interaction: ChatInputCommandInteraction,
-    client: Client
-  ) => CommandOptionInterface[];
-
   /** Whether the command can be used in direct messages */
   useInDm: boolean;
 }
@@ -114,9 +108,6 @@ export interface ContextInterface extends BaseInteractionInterface {
 
   /** Name of the context command */
   name: string;
-
-  /** A short internal name for the context command */
-  shortName: string;
 
   /** The type of context menu command (user or message) */
   type: ApplicationCommandType;
