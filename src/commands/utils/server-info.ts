@@ -1,73 +1,97 @@
 import _ from "lodash";
 import { EmbedBuilder } from "discord.js";
+import sendError from "../../helpers/utils/sendError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
+    try {
+      await interaction.deferReply();
 
-    // TODO: Add field to display list of role guild has
-    interaction.editReply({
-      embeds: [
-        new EmbedBuilder()
-          .setAuthor({
-            name: interaction.user.displayName,
-            iconURL: interaction.user.displayAvatarURL(),
-          })
-          .setTitle("👪 Server Information")
-          .setDescription(
-            `* **Name**: ${interaction.guild?.name}` +
-              "\n" +
-              `* **Description**: ${
-                interaction.guild?.description || "No description"
-              }` +
-              "\n" +
-              `* **Boost Level**: ${interaction.guild?.premiumTier}/4 (${
-                interaction.guild?.premiumSubscriptionCount || 0
-              }/14 boosts)` +
-              "\n" +
-              `* **Owner**: ${await interaction.guild?.fetchOwner()}` +
-              "\n" +
-              `* **Members**: ${interaction.guild?.memberCount}` +
-              "\n" +
-              `* **Roles**: ${interaction.guild?.roles.cache.size} | **Channels**: ${interaction.guild?.channels.cache.size}` +
-              "\n" +
-              `* **Emo**: ${interaction.guild?.emojis.cache.size} emojis | ${interaction.guild?.stickers.cache.size} stickers` +
-              "\n" +
-              `* **Created at**: <t:${
-                interaction.guild?.createdTimestamp || 0 / 1000
-              }:F>` +
-              "\n" +
-              `* **Verification level**: ${interaction.guild?.verificationLevel}` +
-              "\n" +
-              `* **Verified**: ${interaction.guild?.verified ? "✅" : "❌"}` +
-              "\n" +
-              `* **Vanity URL**: ${interaction.guild?.vanityURLCode || "None"}`
-          )
-          .setThumbnail(interaction.guild?.iconURL() || null)
-          .setFields([
-            {
-              name: "Server Icon",
-              value: `[Icon](${interaction.guild?.iconURL({
-                extension: "png",
-                forceStatic: true,
-              })})`,
-            },
-            {
-              name: "Futures",
-              value: `${interaction.guild?.features
-                .map((f) => _.capitalize(f))
-                .join(", ")}`,
-              inline: true,
-            },
-          ])
-          .setFooter({
-            text: `Server ID: ${interaction.guild?.id}`,
-          })
-          .setTimestamp()
-          .setColor("#00f2ff"),
-      ],
-    });
+      interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setAuthor({
+              name: interaction.user.displayName,
+              iconURL: interaction.user.displayAvatarURL(),
+            })
+            .setTitle("👪 Server Information")
+            .setDescription(
+              `* **Name**: ${interaction.guild?.name}` +
+                "\n" +
+                `* **Description**: ${
+                  interaction.guild?.description || "No description"
+                }` +
+                "\n" +
+                `* **Boost Level**: ${interaction.guild?.premiumTier}/4 (${
+                  interaction.guild?.premiumSubscriptionCount || 0
+                }/14 boosts)` +
+                "\n" +
+                `* **Owner**: ${await interaction.guild?.fetchOwner()}` +
+                "\n" +
+                `* **Members**: ${interaction.guild?.memberCount}` +
+                "\n" +
+                `* **Roles**: ${interaction.guild?.roles.cache.size} | **Channels**: ${interaction.guild?.channels.cache.size}` +
+                "\n" +
+                `* **Emo**: ${interaction.guild?.emojis.cache.size} emojis | ${interaction.guild?.stickers.cache.size} stickers` +
+                "\n" +
+                `* **Created at**: <t:${
+                  interaction.guild?.createdTimestamp || 0 / 1000
+                }:F>` +
+                "\n" +
+                `* **Verification level**: ${interaction.guild?.verificationLevel}` +
+                "\n" +
+                `* **Verified**: ${interaction.guild?.verified ? "✅" : "❌"}` +
+                "\n" +
+                `* **Vanity URL**: ${
+                  interaction.guild?.vanityURLCode || "None"
+                }`
+            )
+            .setThumbnail(interaction.guild?.iconURL() || null)
+            .setFields([
+              {
+                name: "Server Icon",
+                value: `[Icon](${interaction.guild?.iconURL({
+                  extension: "png",
+                  forceStatic: false,
+                })})`,
+              },
+              {
+                name: "Futures",
+                value: `${interaction.guild?.features
+                  .map((f) => _.capitalize(f))
+                  .join(", ")}`,
+                inline: false,
+              },
+              {
+                name: "Roles",
+                value: `${interaction.guild?.roles.cache
+                  .values()
+                  .toArray()
+                  .slice(0, 15)
+                  .join(" ")}`,
+                inline: false,
+              },
+              {
+                name: "Emojis",
+                value: `${interaction.guild?.emojis.cache
+                  .values()
+                  .toArray()
+                  .slice(0, 15)
+                  .join("")}`,
+                inline: false,
+              },
+            ])
+            .setFooter({
+              text: `Server ID: ${interaction.guild?.id}`,
+            })
+            .setTimestamp()
+            .setColor("#00f2ff"),
+        ],
+      });
+    } catch (error) {
+      sendError(interaction, error);
+    }
   },
   name: "server-info",
   description: "Get info about the server",
