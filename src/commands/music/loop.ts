@@ -6,29 +6,39 @@ import {
 import { useQueue, QueueRepeatMode } from "discord-player";
 import sendError from "../../helpers/utils/sendError";
 import { repeatModeNames } from "../../constants/musicRepeatModes";
-import { musicPlayerStoreSession } from "../../musicPlayerStoreSession";
+import { MusicPlayerSession } from "../../musicPlayerStoreSession";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
     try {
       await interaction.deferReply();
+
+      // Get the repeat mode option from the interaction
       const repeatModeOption = interaction.options.getInteger(
         "mode",
         true
       ) as QueueRepeatMode;
+      // Get the human-readable name for the repeat mode
       const repeatModeName =
         repeatModeNames[repeatModeOption as keyof typeof repeatModeNames];
 
+      // Get the music queue for the current guild
       const queue = useQueue(interaction.guildId!);
+      // If no queue exists, throw an error
       if (!queue)
         throw {
           name: "NoQueue",
           message: "There is no queue to loop",
         };
 
+      // Set the repeat mode for the queue
       queue.setRepeatMode(repeatModeOption);
-      musicPlayerStoreSession.loop.set(interaction.guildId!, repeatModeOption);
+      // Update the loop mode in the music player session
+      const musicPlayerStoreSession = new MusicPlayerSession(
+        interaction.guildId!
+      );
+      musicPlayerStoreSession.setRepeatMode(repeatModeOption);
       interaction.editReply({
         embeds: [
           new EmbedBuilder()

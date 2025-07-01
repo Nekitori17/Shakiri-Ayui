@@ -8,8 +8,13 @@ import {
 import { useQueue } from "discord-player";
 import sendError from "../../../helpers/utils/sendError";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
-import { musicPlayerStoreSession } from "../../../musicPlayerStoreSession";
+import { MusicPlayerSession } from "../../../musicPlayerStoreSession";
 
+/**
+ * Checks if a given value is a number.
+ * @param value The value to check.
+ * @returns True if the value is a number, false otherwise.
+ */
 function isNumber(value: any) {
   return !isNaN(parseFloat(value)) && isFinite(value);
 }
@@ -17,13 +22,17 @@ function isNumber(value: any) {
 const button: ButtonInterface = {
   async execute(interaction, client) {
     try {
+      // Get the queue for the current guild
       const queue = useQueue(interaction.guildId!);
+
+      // Check if a queue exists
       if (!queue)
         throw {
           name: "NoQueue",
           message: "There is no queue to set volume",
         };
 
+      // Create a modal for volume change
       const volumeChangeModal = new ModalBuilder()
         .setCustomId("music-player-volume")
         .setTitle("Set volume")
@@ -38,15 +47,22 @@ const button: ButtonInterface = {
           )
         );
 
+      // Show the modal to the user
       await interaction.showModal(volumeChangeModal);
+      // Wait for the user to submit the modal
       const volumeChangeInteraction = await interaction.awaitModalSubmit({
         time: 60000,
       });
 
       try {
         await volumeChangeInteraction.deferReply();
+
+        // Get the value of the "level" text input
         const levelStrInputValue =
           volumeChangeInteraction.fields.getTextInputValue("level");
+        // Check if the input value is a valid number
+
+        // Error message for invalid input
         if (!isNumber(levelStrInputValue))
           throw {
             name: "ThisIsNotANumber",
@@ -54,7 +70,7 @@ const button: ButtonInterface = {
           };
 
         const level = parseInt(levelStrInputValue);
-
+        // Check if the volume level is out of range
         if (level < 0)
           throw {
             name: "OutOfRange",
@@ -62,7 +78,13 @@ const button: ButtonInterface = {
           };
 
         queue.node.setVolume(level);
-        musicPlayerStoreSession.volume.set(interaction.guildId!, level);
+        // Set the volume in the session store
+        const musicPlayerStoreSession = new MusicPlayerSession(
+          interaction.guildId!
+        );
+        musicPlayerStoreSession.setVolume(level);
+
+        // Edit the reply with an embed confirming the volume change
         volumeChangeInteraction.editReply({
           embeds: [
             new EmbedBuilder()

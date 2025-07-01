@@ -13,7 +13,7 @@ import {
 } from "discord.js";
 import { QueryType, Track, TrackSource, useMainPlayer } from "discord-player";
 import sendError from "../../helpers/utils/sendError";
-import { musicPlayerStoreSession } from "../../musicPlayerStoreSession";
+import { MusicPlayerSession } from "../../musicPlayerStoreSession";
 import { musicSourceIcons } from "../../constants/musicSourceIcons";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -223,6 +223,11 @@ const command: CommandInterface = {
                     "You need to be in a voice channel to use this command",
                 };
 
+              // Retrieve volume, repeat mode, and shuffle count from session store or queue
+              const musicPlayerStoreSession = new MusicPlayerSession(
+                interaction.guildId!
+              );
+
               // Play the selected track in the user's voice channel
               await track.play(userVoiceChannel, {
                 requestedBy: searchResultSelectInteraction.user,
@@ -230,10 +235,7 @@ const command: CommandInterface = {
                   metadata: {
                     channel: interaction.channel,
                   },
-                  volume:
-                    (musicPlayerStoreSession.volume.get(
-                      interaction.guildId!
-                    ) as number) ?? guildSetting.music.volume,
+                  volume: await musicPlayerStoreSession.getVolume(),
                   leaveOnEmpty: guildSetting.music.leaveOnEmpty,
                   leaveOnEmptyCooldown: guildSetting.music.leaveOnEmptyCooldown,
                   leaveOnEnd: guildSetting.music.leaveOnEnd,

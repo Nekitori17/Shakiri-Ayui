@@ -4,11 +4,10 @@ import {
   EmbedBuilder,
   GuildMember,
   PermissionFlagsBits,
-  SlashCommandAttachmentOption,
 } from "discord.js";
 import { QueryType, TrackSource, useMainPlayer } from "discord-player";
 import sendError from "../../helpers/utils/sendError";
-import { musicPlayerStoreSession } from "../../musicPlayerStoreSession";
+import { MusicPlayerSession } from "../../musicPlayerStoreSession";
 import { musicSourceIcons } from "../../constants/musicSourceIcons";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -16,8 +15,11 @@ const command: CommandInterface = {
   async execute(interaction, client) {
     try {
       await interaction.deferReply();
-      const attachmentOption = interaction.options.getAttachment("attachment", true);
-      
+      const attachmentOption = interaction.options.getAttachment(
+        "attachment",
+        true
+      );
+
       // Get the main player instance
       const player = useMainPlayer();
       // Search for the file based on the attachment URL
@@ -39,6 +41,11 @@ const command: CommandInterface = {
         }...`
       );
 
+      // Retrieve volume, repeat mode, and shuffle count from session store or queue
+      const musicPlayerStoreSession = new MusicPlayerSession(
+        interaction.guildId!
+      );
+
       // Get guild settings for music playback
       const guildSetting = await config.modules(interaction.guildId!);
       const { track } = await player.play(
@@ -50,10 +57,7 @@ const command: CommandInterface = {
             metadata: {
               channel: interaction.channel,
             },
-            volume:
-              (musicPlayerStoreSession.volume.get(
-                interaction.guildId!
-              ) as number) || guildSetting.music.volume,
+            volume: await musicPlayerStoreSession.getVolume(),
             leaveOnEmpty: guildSetting.music.leaveOnEmpty,
             leaveOnEmptyCooldown: guildSetting.music.leaveOnEmptyCooldown,
             leaveOnEnd: guildSetting.music.leaveOnEnd,

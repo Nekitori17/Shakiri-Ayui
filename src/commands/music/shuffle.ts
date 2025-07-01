@@ -1,14 +1,14 @@
 import { EmbedBuilder, PermissionFlagsBits } from "discord.js";
 import { useQueue } from "discord-player";
 import sendError from "../../helpers/utils/sendError";
-import { musicPlayerStoreSession } from "../../musicPlayerStoreSession";
+import { MusicPlayerSession } from "../../musicPlayerStoreSession";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
     try {
       await interaction.deferReply();
-      
+
       // Get the music queue for the current guild
       const queue = useQueue(interaction.guildId!);
       // If no queue exists or it's empty, throw an error
@@ -19,13 +19,13 @@ const command: CommandInterface = {
         };
       // Shuffle the tracks in the queue
       queue.tracks.shuffle();
+
       // Update the shuffle count in the session store
-      musicPlayerStoreSession.shuffled.set(
-        interaction.guildId!,
-        ((musicPlayerStoreSession.shuffled.get(
-          interaction.guildId!
-        ) as number) || 0) + 1
+      const musicPlayerStoreSession = new MusicPlayerSession(
+        interaction.guildId!
       );
+      musicPlayerStoreSession.addShuffledTimes();
+
       // Edit the deferred reply with an embed confirming the queue has been shuffled
       interaction.editReply({
         embeds: [
@@ -49,7 +49,10 @@ const command: CommandInterface = {
   useInDm: false,
   requiredVoiceChannel: true,
   userPermissionsRequired: [PermissionFlagsBits.Connect],
-  botPermissionsRequired: [PermissionFlagsBits.Connect, PermissionFlagsBits.Speak],
+  botPermissionsRequired: [
+    PermissionFlagsBits.Connect,
+    PermissionFlagsBits.Speak,
+  ],
 };
 
 export default command;

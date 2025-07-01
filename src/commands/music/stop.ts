@@ -1,14 +1,14 @@
 import { EmbedBuilder, PermissionFlagsBits } from "discord.js";
 import { useQueue } from "discord-player";
 import sendError from "../../helpers/utils/sendError";
-import { musicPlayerStoreSession } from "../../musicPlayerStoreSession";
+import { MusicPlayerSession } from "../../musicPlayerStoreSession";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
     try {
       await interaction.deferReply();
-      
+
       // Get the music queue for the current guild
       const queue = useQueue(interaction.guildId!);
       // If no queue exists, throw an error
@@ -20,9 +20,11 @@ const command: CommandInterface = {
       // Delete the queue, stopping playback and clearing all tracks
       queue.delete();
       // Clear session data related to the music player for this guild
-      musicPlayerStoreSession.shuffled.del(queue.guild.id);
-      musicPlayerStoreSession.loop.del(queue.guild.id);
-      musicPlayerStoreSession.volume.del(queue.guild.id);
+      const musicPlayerStoreSession = new MusicPlayerSession(
+        interaction.guildId!
+      );
+      musicPlayerStoreSession.clear();
+
       // Edit the deferred reply with an embed confirming the queue has been stopped
       interaction.editReply({
         embeds: [

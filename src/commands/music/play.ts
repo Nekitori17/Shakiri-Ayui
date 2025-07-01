@@ -7,7 +7,7 @@ import {
 } from "discord.js";
 import { QueryType, TrackSource, useMainPlayer } from "discord-player";
 import sendError from "../../helpers/utils/sendError";
-import { musicPlayerStoreSession } from "../../musicPlayerStoreSession";
+import { MusicPlayerSession } from "../../musicPlayerStoreSession";
 import { musicSourceIcons } from "../../constants/musicSourceIcons";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -16,7 +16,7 @@ const command: CommandInterface = {
     try {
       await interaction.deferReply();
       const queryOption = interaction.options.getString("query", true);
-   
+
       // Get the main player instance
       const player = useMainPlayer();
       // Search for the track or playlist based on the query
@@ -30,14 +30,19 @@ const command: CommandInterface = {
           name: "NoResults",
           message: "Please try again or try a different query or platform",
         };
- 
+
       // Inform the user that the track/playlist is loading
       await interaction.editReply(
         `> <a:colorhombusloader:1387284665177608252> Loading ${
           searchResult.playlist ? "playlist" : "track"
         }...`
       );
- 
+
+      // Retrieve volume, repeat mode, and shuffle count from session store or queue
+      const musicPlayerStoreSession = new MusicPlayerSession(
+        interaction.guildId!
+      );
+
       // Get guild settings for music playback
       const guildSetting = await config.modules(interaction.guildId!);
       // Play the track or playlist in the user's voice channel
@@ -50,10 +55,7 @@ const command: CommandInterface = {
             metadata: {
               channel: interaction.channel,
             },
-            volume:
-              (musicPlayerStoreSession.volume.get(
-                interaction.guildId!
-              ) as number) || guildSetting.music.volume,
+            volume: await musicPlayerStoreSession.getVolume(),
             leaveOnEmpty: guildSetting.music.leaveOnEmpty,
             leaveOnEmptyCooldown: guildSetting.music.leaveOnEmptyCooldown,
             leaveOnEnd: guildSetting.music.leaveOnEnd,

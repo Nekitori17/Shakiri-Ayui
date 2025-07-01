@@ -2,21 +2,17 @@ import { EmbedBuilder, TextChannel } from "discord.js";
 import { QueueRepeatMode, TrackSource } from "discord-player";
 import { repeatModeNames } from "../../constants/musicRepeatModes";
 import { musicSourceIcons } from "../../constants/musicSourceIcons";
-import { musicPlayerStoreSession } from "../../musicPlayerStoreSession";
 import { mainMusicControllerButtonRow } from "../../components/musicControllerMenu";
 import { MusicEventInterface } from "../../types/EventInterfaces";
+import { MusicPlayerSession } from "../../musicPlayerStoreSession";
 
 const event: MusicEventInterface = (player) => {
   player.events.on("playerStart", async (queue, track) => {
     // Retrieve music player session data
-    const volume =
-      (musicPlayerStoreSession.volume.get(queue.guild.id) as Number) ||
-      queue.node.volume;
-    const repeatMode =
-      (musicPlayerStoreSession.loop.get(queue.guild.id) as QueueRepeatMode) ||
-      queue.repeatMode;
-    const shuffledTimes =
-      (musicPlayerStoreSession.shuffled.get(queue.guild.id) as number) || 0;
+    const musicPlayerStoreSession = new MusicPlayerSession(queue.guild.id);
+    const volume = await musicPlayerStoreSession.getVolume();
+    const repeatMode = musicPlayerStoreSession.getRepeatMode();
+    const shuffledTimes = musicPlayerStoreSession.getShuffledTimes();
 
     // Send now playing embed
     (queue.metadata.channel as TextChannel).send({

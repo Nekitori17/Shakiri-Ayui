@@ -6,14 +6,14 @@ import {
 } from "discord.js";
 import { useQueue } from "discord-player";
 import sendError from "../../../helpers/utils/sendError";
-import { musicPlayerStoreSession } from "../../../musicPlayerStoreSession";
+import { MusicPlayerSession } from "../../../musicPlayerStoreSession";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
 const button: ButtonInterface = {
   async execute(interaction, client) {
     try {
       await interaction.deferReply();
-      
+
       // Get the queue for the current guild
       const queue = useQueue(interaction.guildId!);
       // Check if a queue exists
@@ -25,16 +25,17 @@ const button: ButtonInterface = {
         };
 
       // Create "Yes" and "No" buttons for confirmation
-      const confirmButtonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-          .setCustomId("stop-confirm-yes")
-          .setLabel("Yes")
-          .setStyle(ButtonStyle.Success),
-        new ButtonBuilder()
-          .setCustomId("stop-confirm-no")
-          .setLabel("No")
-          .setStyle(ButtonStyle.Danger)
-      );
+      const confirmButtonRow =
+        new ActionRowBuilder<ButtonBuilder>().addComponents(
+          new ButtonBuilder()
+            .setCustomId("stop-confirm-yes")
+            .setLabel("Yes")
+            .setStyle(ButtonStyle.Success),
+          new ButtonBuilder()
+            .setCustomId("stop-confirm-no")
+            .setLabel("No")
+            .setStyle(ButtonStyle.Danger)
+        );
 
       // Send a confirmation message with "Yes" and "No" buttons
       const confirmStopReply = await interaction.editReply({
@@ -82,9 +83,10 @@ const button: ButtonInterface = {
               // Delete the queue
               queue.delete();
               // Clear session data related to the queue
-              musicPlayerStoreSession.shuffled.del(queue.guild.id);
-              musicPlayerStoreSession.loop.del(queue.guild.id);
-              musicPlayerStoreSession.volume.del(queue.guild.id);
+              const musicPlayerStoreSession = new MusicPlayerSession(
+                interaction.guildId!
+              );
+              musicPlayerStoreSession.clear();
             }
           } catch (error) {
             sendError(interaction, error);

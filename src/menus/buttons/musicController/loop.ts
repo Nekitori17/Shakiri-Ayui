@@ -8,7 +8,7 @@ import {
 } from "discord.js";
 import { QueueRepeatMode, useQueue } from "discord-player";
 import sendError from "../../../helpers/utils/sendError";
-import { musicPlayerStoreSession } from "../../../musicPlayerStoreSession";
+import { MusicPlayerSession } from "../../../musicPlayerStoreSession";
 import { repeatModeNames } from "../../../constants/musicRepeatModes";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
@@ -68,7 +68,10 @@ const button: ButtonInterface = {
 
           // Set the repeat mode for the queue and store it in session
           queue.setRepeatMode(repeatMode);
-          musicPlayerStoreSession.loop.set(interaction.guildId!, repeatMode);
+          const musicPlayerStoreSession = new MusicPlayerSession(
+            interaction.guildId!
+          );
+          musicPlayerStoreSession.setRepeatMode(repeatMode);
 
           // Edit the reply to confirm the loop mode change
           loopModeSelectInteraction.editReply({

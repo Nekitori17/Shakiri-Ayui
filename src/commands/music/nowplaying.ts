@@ -1,7 +1,7 @@
 import { EmbedBuilder, PermissionFlagsBits } from "discord.js";
 import { useQueue, TrackSource, QueueRepeatMode } from "discord-player";
 import sendError from "../../helpers/utils/sendError";
-import { musicPlayerStoreSession } from "../../musicPlayerStoreSession";
+import { MusicPlayerSession } from "../../musicPlayerStoreSession";
 import { repeatModeNames } from "../../constants/musicRepeatModes";
 import { musicSourceIcons } from "../../constants/musicSourceIcons";
 import {
@@ -35,17 +35,12 @@ const command: CommandInterface = {
       });
 
       // Retrieve volume, repeat mode, and shuffle count from session store or queue
-      const volume =
-        (musicPlayerStoreSession.volume.get(interaction.guildId!) as Number) ||
-        queue.node.volume;
-      const repeatMode =
-        (musicPlayerStoreSession.loop.get(
-          interaction.guildId!
-        ) as QueueRepeatMode) || queue.repeatMode;
-      const shuffledTimes =
-        (musicPlayerStoreSession.shuffled.get(
-          interaction.guildId!
-        ) as number) || 0;
+      const musicPlayerStoreSession = new MusicPlayerSession(
+        interaction.guildId!
+      );
+      const volume = await musicPlayerStoreSession.getVolume();
+      const repeatMode = musicPlayerStoreSession.getRepeatMode();
+      const shuffledTimes = musicPlayerStoreSession.getShuffledTimes();
 
       // Edit the reply with the now playing embed and music controller buttons
       interaction.editReply({
