@@ -40,9 +40,19 @@ const event: DiscordEventInterface = async (
         });
       }
 
-    // TODO: If command only allow dev to use. let check it
+    // 
     // Check if the command is for developers only
     if (commandObject.devOnly) {
+      const DEVELOPERS = (process.env.DEVELOPER_ACCOUNT_IDS as string).split(
+        ","
+      );
+
+      if (!DEVELOPERS.includes(interaction.user.id))
+        throw {
+          name: "DeveloperOnly",
+          message: "This command is for developers only.",
+          type: "warning",
+        };
     }
 
     // Check for command cooldown

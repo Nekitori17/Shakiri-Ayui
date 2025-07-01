@@ -41,7 +41,7 @@ const command: CommandInterface = {
   name: "send-temp-voice-menu",
   description: "Send a temporary voice menu",
   deleted: false,
-  devOnly: true,
+  devOnly: false,
   useInDm: false,
   requiredVoiceChannel: false,
   userPermissionsRequired: [PermissionFlagsBits.ManageGuild],

@@ -39,7 +39,7 @@ const command: CommandInterface = {
   name: "leave",
   description: "Leaves the voice channel",
   deleted: false,
-  devOnly: true,
+  devOnly: false,
   useInDm: false,
   requiredVoiceChannel: false,
 };

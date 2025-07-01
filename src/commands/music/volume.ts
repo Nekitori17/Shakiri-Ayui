@@ -5,7 +5,7 @@ import {
 } from "discord.js";
 import { useQueue } from "discord-player";
 import sendError from "../../helpers/utils/sendError";
-import { musicPlayerStoreSession } from "../../musicPlayerStoreSession";
+import { MusicPlayerSession } from "../../musicPlayerStoreSession";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -18,7 +18,7 @@ const command: CommandInterface = {
         throw {
           name: "InvalidVolume",
           message: "Volume cannot be less than 0",
-          type: "warning"
+          type: "warning",
         };
 
       // Get the music queue for the current guild
@@ -33,7 +33,11 @@ const command: CommandInterface = {
       // Set the volume of the queue's node
       queue.node.setVolume(levelOption);
       // Store the new volume level in the music player session
-      musicPlayerStoreSession.volume.set(interaction.guildId!, levelOption);
+      const musicPlayerStoreSession = new MusicPlayerSession(
+        interaction.guildId!
+      );
+      musicPlayerStoreSession.setVolume(levelOption);
+
       // Edit the deferred reply with an embed confirming the volume change
       interaction.editReply({
         embeds: [

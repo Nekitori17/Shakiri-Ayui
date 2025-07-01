@@ -34,7 +34,7 @@ const select: SelectMenuInterface = {
     }
   },
   disabled: false,
-  devOnly: true,
+  devOnly: false,
   requiredVoiceChannel: true,
 };
 

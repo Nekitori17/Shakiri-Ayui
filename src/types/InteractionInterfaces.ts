@@ -1,6 +1,7 @@
 import {
   ApplicationCommandOptionType,
   ApplicationCommandType,
+  AutocompleteInteraction,
   ButtonInteraction,
   ChatInputCommandInteraction,
   Client,
@@ -39,6 +40,7 @@ export interface CommandInterface extends BaseInteractionInterface {
   alias?: string;
   name: string;
   description: string;
+  // autocomplete?: (interaction: AutocompleteInteraction, client: Client) => void;
   deleted: boolean;
   options?: CommandOptionInterface[];
   useInDm: boolean;

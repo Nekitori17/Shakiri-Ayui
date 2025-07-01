@@ -48,7 +48,7 @@ const command: CommandInterface = {
   name: "reset-wordle",
   description: "Resets a user's Wordle",
   deleted: false,
-  devOnly: true,
+  devOnly: false,
   options: [
     {
       name: "user",

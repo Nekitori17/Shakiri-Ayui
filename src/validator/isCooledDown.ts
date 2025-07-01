@@ -6,7 +6,7 @@ const cooldownInteractionOfUserLists = jsonStore(
   path.join(__dirname, "../../database/cooldowns.json")
 );
 
-
+// TODO: Rework cooldown system. cuz when catch a error it's still count and update the cooldown of user
 /**
  *  * * Checks if a user is currently on cooldown for a specific interaction.
  * @param interactionName The name of the interaction (e.g., "play", "skip").

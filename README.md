@@ -53,6 +53,9 @@ CUSTOM_URL_API_BASE = ""
 
 # # MongoDB connection string
 MONGODB_CONNECTION_URI = ""
+
+## Array of user id that can access developer commands. Example: ["123456789","987654321"]
+DEVELOPER_ACCOUNT_IDS = ""
 ```
 
 <h3>Starting</h3>

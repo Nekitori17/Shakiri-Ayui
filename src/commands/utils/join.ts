@@ -59,7 +59,7 @@ const command: CommandInterface = {
   name: "join",
   description: "Join the voice channel you are currently in.",
   deleted: false,
-  devOnly: true,
+  devOnly: false,
   useInDm: false,
   requiredVoiceChannel: true,
 };

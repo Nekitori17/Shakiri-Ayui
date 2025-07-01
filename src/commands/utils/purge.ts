@@ -37,7 +37,7 @@ const command: CommandInterface = {
   name: "purge",
   description: "Delete the amount of message in this channel",
   deleted: false,
-  devOnly: true,
+  devOnly: false,
   options: [
     {
       name: "amount",

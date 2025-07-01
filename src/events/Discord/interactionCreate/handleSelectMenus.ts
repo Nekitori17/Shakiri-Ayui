@@ -30,9 +30,18 @@ const event: DiscordEventInterface = async (
       components: interaction.message.components,
     });
 
-    // TODO: If select menu only allow dev to use. let check it
     // Check if the select menu is for developers only
     if (selectMenuOptionObject.devOnly) {
+      const DEVELOPERS = (process.env.DEVELOPER_ACCOUNT_IDS as string).split(
+        ","
+      );
+
+      if (!DEVELOPERS.includes(interaction.user.id))
+        throw {
+          name: "DeveloperOnly",
+          message: "This select menu is for developers only.",
+          type: "warning",
+        };
     }
 
     if (selectMenuOptionObject.requiredVoiceChannel) {

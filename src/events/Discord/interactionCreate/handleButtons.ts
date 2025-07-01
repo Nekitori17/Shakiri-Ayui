@@ -29,8 +29,17 @@ const event: DiscordEventInterface = async (
 
     if (!buttonObject) return;
 
-    // Check if the button is for developers only
     if (buttonObject.devOnly) {
+      const DEVELOPERS = (process.env.DEVELOPER_ACCOUNT_IDS as string).split(
+        ","
+      );
+
+      if (!DEVELOPERS.includes(interaction.user.id))
+        throw {
+          name: "DeveloperOnly",
+          message: "This button is for developers only.",
+          type: "warning",
+        };
     }
 
     // Check if the user is required to be in a voice channel
