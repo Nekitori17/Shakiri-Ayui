@@ -52,7 +52,6 @@ const command: CommandInterface = {
 
       let wordleGame: WordleGame;
 
-      // --- User Data and Game State Initialization ---
       // Find the user's mini-game data
       const miniGameUserData = await MiniGameUserData.findOneAndUpdate(
         {
@@ -204,10 +203,11 @@ const command: CommandInterface = {
           .setStyle(ButtonStyle.Secondary)
           .setDisabled(game.status == "playing");
 
-        const actionButtonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-          guessButton,
-          showAnswerButton
-        );
+        const actionButtonRow =
+          new ActionRowBuilder<ButtonBuilder>().addComponents(
+            guessButton,
+            showAnswerButton
+          );
 
         // Assemble the final container
         const container = new ContainerBuilder()
@@ -419,6 +419,7 @@ const command: CommandInterface = {
       sendError(interaction, error);
     }
   },
+  alias: "wl",
   name: "wordle",
   description: "Get 6 chances to guess a 5-letter word.",
   deleted: false,

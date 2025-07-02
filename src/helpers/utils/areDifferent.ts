@@ -119,6 +119,7 @@ export default (
   existingCommand: ApplicationCommand,
   localCommand: CommandInterface | ContextInterface
 ) => {
+  // If the existing command is a chat input command, compare its properties with the local chat input command
   if (existingCommand.type === ApplicationCommandType.ChatInput) {
     const chatInputCommand = localCommand as CommandInterface;
     return (
@@ -130,6 +131,7 @@ export default (
     );
   }
 
+  // If the existing command is a message or user context menu, compare its type with the local context menu
   if (
     existingCommand.type === ApplicationCommandType.Message ||
     existingCommand.type === ApplicationCommandType.User

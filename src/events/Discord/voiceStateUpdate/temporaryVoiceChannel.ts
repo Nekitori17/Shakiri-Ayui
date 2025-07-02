@@ -54,15 +54,13 @@ const event: DiscordEventInterface = async (
   // Create a new voice channel
   newState.guild.channels
     .create({
-      // Set the channel name using variable replacement
       name: genericVariableReplacer(
         channelName,
         newState.member!,
         newState.guild!,
         client
       ),
-      type: ChannelType.GuildVoice, // Specify the channel type as voice
-      // Set the parent category for the channel
+      type: ChannelType.GuildVoice,
       parent:
         guildSetting.temporaryVoiceChannel.categorySet ||
         newState.member?.voice.channel?.parentId,

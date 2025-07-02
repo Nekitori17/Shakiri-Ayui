@@ -24,7 +24,6 @@ export function getLocal<T>(folderPath: string, exception: string[] = []) {
     .map((file) => require(file).default as T)    // import the module using require
     .value();
 
-  // Return the array of all imported modules
   return local;
 }
 

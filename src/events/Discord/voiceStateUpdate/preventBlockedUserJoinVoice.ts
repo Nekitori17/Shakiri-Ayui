@@ -25,6 +25,7 @@ const event: DiscordEventInterface = async (
     userId: temporaryChannels.get(newState.channel.id),
   });
 
+  // Check if the user is blocked from joining the channel
   if (
     userSetting?.temporaryVoiceChannel.blockedUsers.includes(
       newState.member.id

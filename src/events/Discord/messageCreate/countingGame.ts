@@ -72,7 +72,6 @@ const event: DiscordEventInterface = async (client, message: Message) => {
         ],
       })
     } else {
-      // Handle custom error messages (e.g., from the throw statements)
       await message.delete();
       const reply = message.channel.isSendable()
         ? await message.channel.send(`> ${error.message}`)
