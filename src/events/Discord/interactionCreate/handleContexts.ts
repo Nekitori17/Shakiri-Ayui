@@ -7,6 +7,7 @@ import { getLocal } from "../../../helpers/utils/getLocal";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import { ContextInterface } from "../../../types/InteractionInterfaces";
+import checkPermission from "../../../validator/checkPermission";
 
 const event: DiscordEventInterface = (client, interaction: Interaction) => {
   if (!interaction.isContextMenuCommand()) return;
@@ -69,49 +70,13 @@ const event: DiscordEventInterface = (client, interaction: Interaction) => {
         };
     }
 
-    // Add default permissions to botPermissionsRequired if it exists, otherwise initialize it
-    if (contextObject.botPermissionsRequired)
-      contextObject.botPermissionsRequired.push(
-        ...config.defaultBotPermissionsRequired
-      );
-    else
-      contextObject.botPermissionsRequired =
-        config.defaultBotPermissionsRequired;
-
-    // Check for bot permissions
-    for (const permission of contextObject.botPermissionsRequired) {
-      if (
-        !(
-          interaction.guild?.members.me?.permissions as PermissionsBitField
-        ).has(permission)
-      ) {
-        throw {
-          name: "MissingPermissions",
-          message: `I'am missing the \`${new PermissionsBitField(permission)
-            .toArray()
-            .join(", ")}\` permission to use this command.`,
-        };
-      }
-    }
-
-    // Check for user permissions
-    if (contextObject.userPermissionsRequired) {
-      for (const permission of contextObject.userPermissionsRequired) {
-        if (
-          !(interaction.member?.permissions as PermissionsBitField).has(
-            permission
-          )
-        )
-          throw {
-            name: "MissingPermissions",
-            message: `You are missing the \`${new PermissionsBitField(
-              permission
-            )
-              .toArray()
-              .join(", ")}\` permission to use this command.`,
-          };
-      }
-    }
+    // Check for permissions
+    checkPermission(
+      interaction.member?.permissions,
+      interaction.guild?.members.me?.permissions,
+      contextObject.botPermissionsRequired,
+      contextObject.userPermissionsRequired
+    );
 
     // Execute the context menu
     contextObject.execute(interaction, client);

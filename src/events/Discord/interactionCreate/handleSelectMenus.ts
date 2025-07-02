@@ -1,11 +1,11 @@
-import config from "../../../config";
 import path from "path";
-import { GuildMember, PermissionsBitField, Interaction } from "discord.js";
+import { GuildMember, Interaction } from "discord.js";
 import sendError from "../../../helpers/utils/sendError";
 import isCooledDown from "../../../validator/isCooledDown";
 import { getLocalById } from "../../../helpers/utils/getLocal";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
+import checkPermission from "../../../validator/checkPermission";
 
 const event: DiscordEventInterface = async (
   client,
@@ -69,50 +69,14 @@ const event: DiscordEventInterface = async (
           type: "warning",
         };
     }
-
-    // Add default permissions to botPermissionsRequired if it exists, otherwise initialize it
-    if (selectMenuOptionObject.botPermissionsRequired)
-      selectMenuOptionObject.botPermissionsRequired.push(
-        ...config.defaultBotPermissionsRequired
-      );
-    else
-      selectMenuOptionObject.botPermissionsRequired =
-        config.defaultBotPermissionsRequired;
-
-    // Check for bot permissions
-    for (const permission of selectMenuOptionObject.botPermissionsRequired) {
-      if (
-        !(
-          interaction.guild?.members.me?.permissions as PermissionsBitField
-        ).has(permission)
-      ) {
-        throw {
-          name: "MissingPermissions",
-          message: `I'am missing the \`${new PermissionsBitField(permission)
-            .toArray()
-            .join(", ")}\` permission to use this command.`,
-        };
-      }
-    }
-
-    // Check for user permissions
-    if (selectMenuOptionObject.userPermissionsRequired) {
-      for (const permission of selectMenuOptionObject.userPermissionsRequired) {
-        if (
-          !(interaction.member?.permissions as PermissionsBitField).has(
-            permission
-          )
-        )
-          throw {
-            name: "MissingPermissions",
-            message: `You are missing the \`${new PermissionsBitField(
-              permission
-            )
-              .toArray()
-              .join(", ")}\` permission to use this command.`,
-          };
-      }
-    }
+    
+    // Check for permissions
+    checkPermission(
+      interaction.member?.permissions,
+      interaction.guild?.members.me?.permissions,
+      selectMenuOptionObject.botPermissionsRequired,
+      selectMenuOptionObject.userPermissionsRequired
+    );
 
     // Execute the select menu's action
     selectMenuOptionObject.execute(interaction, client);

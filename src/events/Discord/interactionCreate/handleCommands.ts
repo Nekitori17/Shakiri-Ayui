@@ -7,6 +7,7 @@ import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import isCooledDown from "../../../validator/isCooledDown";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import { CommandInterface } from "../../../types/InteractionInterfaces";
+import checkPermission from "../../../validator/checkPermission";
 
 const event: DiscordEventInterface = async (
   client,
@@ -40,7 +41,7 @@ const event: DiscordEventInterface = async (
         });
       }
 
-    // 
+    //
     // Check if the command is for developers only
     if (commandObject.devOnly) {
       const DEVELOPERS = (process.env.DEVELOPER_ACCOUNT_IDS as string).split(
@@ -83,49 +84,13 @@ const event: DiscordEventInterface = async (
         };
     }
 
-    // Add default permissions to botPermissionsRequired if it exists, otherwise initialize it
-    if (commandObject.botPermissionsRequired)
-      commandObject.botPermissionsRequired.push(
-        ...config.defaultBotPermissionsRequired
-      );
-    else
-      commandObject.botPermissionsRequired =
-        config.defaultBotPermissionsRequired;
-
-    // Check for bot permissions
-    for (const permission of commandObject.botPermissionsRequired) {
-      if (
-        !(
-          interaction.guild?.members.me?.permissions as PermissionsBitField
-        ).has(permission)
-      ) {
-        throw {
-          name: "MissingPermissions",
-          message: `I'am missing the \`${new PermissionsBitField(permission)
-            .toArray()
-            .join(", ")}\` permission to use this command.`,
-        };
-      }
-    }
-
-    // Check for user permissions
-    if (commandObject.userPermissionsRequired) {
-      for (const permission of commandObject.userPermissionsRequired) {
-        if (
-          !(interaction.member?.permissions as PermissionsBitField).has(
-            permission
-          )
-        )
-          throw {
-            name: "MissingPermissions",
-            message: `You are missing the \`${new PermissionsBitField(
-              permission
-            )
-              .toArray()
-              .join(", ")}\` permission to use this command.`,
-          };
-      }
-    }
+    // Check for permissions
+    checkPermission(
+      interaction.member?.permissions,
+      interaction.guild?.members.me?.permissions,
+      commandObject.botPermissionsRequired,
+      commandObject.userPermissionsRequired
+    );
 
     // Execute the command
     commandObject.execute(interaction, client);

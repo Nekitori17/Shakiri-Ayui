@@ -6,6 +6,7 @@ import isCooledDown from "../../../validator/isCooledDown";
 import { getLocalById } from "../../../helpers/utils/getLocal";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
+import checkPermission from "../../../validator/checkPermission";
 
 const event: DiscordEventInterface = async (
   client,
@@ -69,49 +70,13 @@ const event: DiscordEventInterface = async (
         };
     }
 
-    // Add default permissions to botPermissionsRequired if it exists, otherwise initialize it
-    if (buttonObject.botPermissionsRequired)
-      buttonObject.botPermissionsRequired.push(
-        ...config.defaultBotPermissionsRequired
-      );
-    else
-      buttonObject.botPermissionsRequired =
-        config.defaultBotPermissionsRequired;
-
-    // Check for bot permissions
-    for (const permission of buttonObject.botPermissionsRequired) {
-      if (
-        !(
-          interaction.guild?.members.me?.permissions as PermissionsBitField
-        ).has(permission)
-      ) {
-        throw {
-          name: "MissingPermissions",
-          message: `I'am missing the \`${new PermissionsBitField(permission)
-            .toArray()
-            .join(", ")}\` permission to use this command.`,
-        };
-      }
-    }
-
-    // Check for user permissions
-    if (buttonObject.userPermissionsRequired) {
-      for (const permission of buttonObject.userPermissionsRequired) {
-        if (
-          !(interaction.member?.permissions as PermissionsBitField).has(
-            permission
-          )
-        )
-          throw {
-            name: "MissingPermissions",
-            message: `You are missing the \`${new PermissionsBitField(
-              permission
-            )
-              .toArray()
-              .join(", ")}\` permission to use this command.`,
-          };
-      }
-    }
+    // Check for permissions
+    checkPermission(
+      interaction.member?.permissions,
+      interaction.guild?.members.me?.permissions,
+      buttonObject.botPermissionsRequired,
+      buttonObject.userPermissionsRequired
+    );
 
     // Execute the button's action
     buttonObject.execute(interaction, client);
