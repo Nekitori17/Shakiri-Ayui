@@ -4,9 +4,9 @@ import { GuildMember, Interaction, PermissionsBitField } from "discord.js";
 import sendError from "../../../helpers/utils/sendError";
 import isCooledDown from "../../../validator/isCooledDown";
 import { getLocalById } from "../../../helpers/utils/getLocal";
+import checkPermission from "../../../validator/checkPermission";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
-import checkPermission from "../../../validator/checkPermission";
 
 const event: DiscordEventInterface = async (
   client,

@@ -4,10 +4,10 @@ import { Interaction, PermissionsBitField } from "discord.js";
 import sendError from "../../../helpers/utils/sendError";
 import isCooledDown from "../../../validator/isCooledDown";
 import { getLocal } from "../../../helpers/utils/getLocal";
+import checkPermission from "../../../validator/checkPermission";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import { ContextInterface } from "../../../types/InteractionInterfaces";
-import checkPermission from "../../../validator/checkPermission";
 
 const event: DiscordEventInterface = (client, interaction: Interaction) => {
   if (!interaction.isContextMenuCommand()) return;

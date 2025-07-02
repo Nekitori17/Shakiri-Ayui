@@ -5,9 +5,9 @@ import sendError from "../../../helpers/utils/sendError";
 import { getLocal } from "../../../helpers/utils/getLocal";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import isCooledDown from "../../../validator/isCooledDown";
+import checkPermission from "../../../validator/checkPermission";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import { CommandInterface } from "../../../types/InteractionInterfaces";
-import checkPermission from "../../../validator/checkPermission";
 
 const event: DiscordEventInterface = async (
   client,
