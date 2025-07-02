@@ -23,13 +23,7 @@ const command: CommandInterface = {
       // Get chart info
       const chartInfo = await axios
         .get(`https://api.phira.cn/chart/${chartIdOption}`)
-        .then((res) => res.data)
-        .catch((err) => {
-          throw {
-            name: err.response.statusText,
-            message: err.response.data.error,
-          };
-        });
+        .then((res) => res.data);
 
       await interaction.editReply(
         `> <:colorsearch:1387268634380075069> [2/3] | Fetching uploader information at */user/${chartInfo.uploader}`
@@ -38,13 +32,7 @@ const command: CommandInterface = {
       // Get uploader info
       const uploaderInfo = await axios
         .get(`https://api.phira.cn/user/${chartInfo.uploader}`)
-        .then((res) => res.data)
-        .catch((err) => {
-          throw {
-            name: err.response.statusText,
-            message: err.response.data.error,
-          };
-        });
+        .then((res) => res.data);
 
       await interaction.editReply(
         "> <:colorfile:1387268836977410181> [3/3] | Converting some file.."
@@ -75,9 +63,8 @@ const command: CommandInterface = {
           .setURL(`https://phira.moe/user/${uploaderInfo.id}`),
       ];
 
-      const functionButtonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        functionButtons
-      );
+      const functionButtonRow =
+        new ActionRowBuilder<ButtonBuilder>().addComponents(functionButtons);
 
       // Send embed
       interaction.editReply({

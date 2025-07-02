@@ -47,12 +47,6 @@ const context: ContextInterface<ApplicationCommandType.Message> = {
           }
         )
         .then((res) => res.data)
-        .catch((err) => {
-          throw {
-            name: err.response.statusText,
-            message: err.response.data.error,
-          };
-        });
 
       // Edit the deferred reply with the translated message.
       interaction.editReply(messageTranslated.result);

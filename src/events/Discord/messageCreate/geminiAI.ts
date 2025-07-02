@@ -1,5 +1,5 @@
-import axios from "axios";
 import config from "../../../config";
+import axios from "axios";
 import { EmbedBuilder, Message } from "discord.js";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
@@ -43,14 +43,7 @@ const event: DiscordEventInterface = async (client, msg: Message) => {
           },
         }
       )
-      .then((res) => res.data)
-      .catch((err) => {
-        // Handle API errors
-        throw {
-          name: err.response.statusText,
-          message: err.response.data.error,
-        };
-      });
+      .then((res) => res.data);
 
     // React with a success emoji
     msg.react("✅");
