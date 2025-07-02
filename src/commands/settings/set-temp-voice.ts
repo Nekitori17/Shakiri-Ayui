@@ -5,6 +5,7 @@ import {
   PermissionFlagsBits,
 } from "discord.js";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -18,16 +19,19 @@ const command: CommandInterface = {
 
       // Validate channel and category types if provided
       if (channelSetOption && channelSetOption?.type != ChannelType.GuildVoice)
-        throw {
+        throw new CustomError({
           name: "InvalidChannelType",
           message: "Channel must be a voice channel!",
-        };
+        });
 
-      if (categorySetOption && categorySetOption?.type != ChannelType.GuildCategory)
-        throw {
+      if (
+        categorySetOption &&
+        categorySetOption?.type != ChannelType.GuildCategory
+      )
+        throw new CustomError({
           name: "InvalidChannelType",
           message: "Category must be a category channel!",
-        };
+        });
 
       // Fetch the current guild settings from the configuration
       const guildSetting = await config.modules(interaction.guildId!);
@@ -67,8 +71,6 @@ const command: CommandInterface = {
         ],
       });
     } catch (error) {
-      // Catch any errors that occur during the process
-      // Send an error message to the user
       sendError(interaction, error);
     }
   },

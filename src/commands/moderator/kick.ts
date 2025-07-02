@@ -2,13 +2,13 @@ import config from "../../config";
 import {
   ApplicationCommandOptionType,
   EmbedBuilder,
-  GuildMemberRoleManager,
   PermissionFlagsBits,
 } from "discord.js";
 import sendError from "../../helpers/utils/sendError";
-import { CommandInterface } from "../../types/InteractionInterfaces";
 import { checkUserRolePosition } from "../../validator/checkRolePosition";
 import { ModerationEmbedBuilder } from "../../helpers/embeds/moderationEmbedBuilder";
+import { CommandInterface } from "../../types/InteractionInterfaces";
+import { CustomError } from "../../helpers/utils/CustomError";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
@@ -24,26 +24,26 @@ const command: CommandInterface = {
 
       // Check if the target user exists in the server
       if (!targetUser)
-        throw {
+        throw new CustomError({
           name: "UserNotFound",
           message: "That user does not exist in this server",
-        };
+        });
 
       // Check if the target is the server owner
       if (targetUser.id === interaction.guild?.ownerId)
-        throw {
+        throw new CustomError({
           name: "Can'tKickOwner",
           message: "Why you would want to kick the owner of this server 🤨",
           type: "warning",
-        };
+        });
 
       // Check if the target is the bot itself
       if (targetUser.id === interaction.guild?.members.me?.id)
-        throw {
+        throw new CustomError({
           name: "Can'tKickMe",
           message: "Why you would want to kick me 😭",
           type: "warning",
-        };
+        });
 
       // Get role positions for hierarchy check
       await checkUserRolePosition(
@@ -82,10 +82,10 @@ const command: CommandInterface = {
 
         // Check if the logging channel exists
         if (!logChannel)
-          throw {
+          throw new CustomError({
             name: "ChannelNotFound",
             message: "The logging channel was not found",
-          };
+          });
 
         // Send log message to the designated channel if sendable
         if (!logChannel.isSendable()) return;

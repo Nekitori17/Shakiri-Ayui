@@ -5,6 +5,7 @@ import {
   entersState,
 } from "discord-voip";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -19,20 +20,20 @@ const command: CommandInterface = {
       const userVoiceChannel = interactionUserMember.voice.channel!;
 
       // Check if the command is used in a guild and if the guild has a voice adapter
-      if (!interaction.guild || !interaction.guild.voiceAdapterCreator) {
-        throw {
+      if (!interaction.guild || !interaction.guild.voiceAdapterCreator)
+        throw new CustomError({
           name: "NoGuildOrVoiceAdapter",
           message:
             "This command can only be used in a server with a voice adapter.",
-        };
-      }
+        });
+
       // Check if the bot has permission to join the user's voice channel
-      if (!userVoiceChannel.joinable) {
-        throw {
+      if (!userVoiceChannel.joinable)
+        throw new CustomError({
           name: "NotJoinable",
           message: "I can't join this voice channel.",
-        };
-      }
+        });
+
       // Join the voice channel
       const connection = joinVoiceChannel({
         channelId: userVoiceChannel.id,

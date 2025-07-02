@@ -1,5 +1,6 @@
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 import MiniGameUserData from "../../models/MiniGameUserData";
 import { CommandInterface } from "../../types/InteractionInterfaces";
@@ -14,24 +15,27 @@ const command: CommandInterface = {
 
       // Check if the user is a bot
       if (senderUserOption.bot || receiverUserOption.bot)
-        throw {
+        throw new CustomError({
           name: "BotUser",
           message: "Bro think they can play mini game 💀🙏",
-        };
+          type: "warning",
+        });
 
       // Check if sender and receiver are the same
       if (senderUserOption === receiverUserOption)
-        throw {
-          name: "Invalid user",
+        throw new CustomError({
+          name: "InvalidUser",
           message: "You cannot transfer balance to same user.",
-        };
+          type: "warning",
+        });
 
       // Check if the amount is valid
       if (amountOption <= 0)
-        throw {
+        throw new CustomError({
           name: "InvalidAmount",
           message: "Amount must be greater than 0.",
-        };
+          type: "warning",
+        });
 
       // Get sender and receiver data
       const senderUserMiniGameData = await MiniGameUserData.findOne({
@@ -43,21 +47,21 @@ const command: CommandInterface = {
 
       // Check if sender or receiver has an account.
       if (!senderUserMiniGameData)
-        throw {
+        throw new CustomError({
           name: "UserNotFound",
           message: `${senderUserOption} does not have a balance yet.`,
-        };
+        });
       if (!receiverUserMiniGameData)
-        throw {
+        throw new CustomError({
           name: "UserNotFound",
           message: `${receiverUserOption.id} does not have a balance yet.`,
-        };
+        });
 
       if (senderUserMiniGameData.balance < amountOption)
-        throw {
+        throw new CustomError({
           name: "InsufficientBalance",
           message: `${senderUserOption} does not have enough balance to transfer.`,
-        };
+        });
 
       // Update balance
       senderUserMiniGameData.balance -= amountOption;

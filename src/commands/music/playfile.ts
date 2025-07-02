@@ -7,6 +7,7 @@ import {
 } from "discord.js";
 import { QueryType, TrackSource, useMainPlayer } from "discord-player";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import { MusicPlayerSession } from "../../musicPlayerStoreSession";
 import { musicSourceIcons } from "../../constants/musicSourceIcons";
 import { CommandInterface } from "../../types/InteractionInterfaces";
@@ -29,10 +30,10 @@ const command: CommandInterface = {
       });
 
       if (!fileResult.hasTracks())
-        throw {
+        throw new CustomError({
           name: "NoResults",
           message: "Please try again or try a different query or platform",
-        };
+        });
 
       // Inform the user that the file is loading
       await interaction.editReply(

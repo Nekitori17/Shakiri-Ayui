@@ -1,5 +1,6 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from "discord.js";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import MiniGameUserData from "../../models/MiniGameUserData";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -12,17 +13,19 @@ const command: CommandInterface = {
 
       // Check if the user is a bot
       if (targetUserOption.bot)
-        throw {
+        throw new CustomError({
           name: "BotUser",
           message: "Bro think they can play mini game 💀🙏",
-        };
+          type: "warning",
+        });
 
       // Check if the user is trying to transfer to themselves
       if (targetUserOption.id === interaction.user.id)
-        throw {
+        throw new CustomError({
           name: "SelfTransfer",
           message: "You cannot transfer money to yourself.",
-        };
+          type: "warning",
+        });
 
       // Check if the amount is valid
       if (amountOption <= 0)

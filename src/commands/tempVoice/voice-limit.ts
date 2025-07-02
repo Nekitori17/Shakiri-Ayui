@@ -5,6 +5,7 @@ import {
 } from "discord.js";
 import UserSettings from "../../models/UserSettings";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import checkOwnTempVoice from "../../validator/checkOwnTempVoice";
 import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
@@ -15,12 +16,12 @@ const command: CommandInterface = {
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });
       const amountOfLimitOption = interaction.options.getInteger("limit", true);
 
-      if (amountOfLimitOption < 0)
-        throw {
+      if (amountOfLimitOption < 0 || amountOfLimitOption > 99)
+        throw new CustomError({
           name: "InvalidLimit",
-          message: "The limit cannot be a negative number.",
+          message: "The limit cannot be a negative number or greater than 99",
           type: "warning",
-        };
+        });
 
       // Find the user's settings, or create new ones if they don't exist
       const userSetting = await UserSettings.findOneAndUpdate(

@@ -10,6 +10,7 @@ import {
 } from "discord.js";
 import jsonStore from "json-store-typed";
 import sendError from "../../../helpers/utils/sendError";
+import { CustomError } from "../../../helpers/utils/CustomError";
 import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
@@ -29,10 +30,10 @@ const select: SelectMenuInterface = {
 
       // Check if the temporary voice channel belongs to the interacting user
       if (!checkOwnTempVoice(userVoiceChannel.id, interaction.user.id))
-        throw {
+        throw new CustomError({
           name: "NotOwnTempVoiceError",
           message: "This temporary voice channel does not belong to you.",
-        };
+        });
 
       // Filter out the current user and bots to find transferable members
       const transferableMembers = userVoiceChannel.members.filter(
@@ -40,12 +41,12 @@ const select: SelectMenuInterface = {
       );
 
       // If no transferable members are found, throw an error
-      if (!transferableMembers || transferableMembers.size === 0) {
-        throw {
+      if (!transferableMembers || transferableMembers.size === 0)
+        throw new CustomError({
           name: "NoUserCanTransfer",
           message: "There are no users to transfer in this channel.",
-        };
-      }
+          type: "info",
+        });
 
       // Pagination setup for displaying transferable members
       const AMOUNT_USER_IN_PAGE = 25;
@@ -89,23 +90,24 @@ const select: SelectMenuInterface = {
           );
 
         // Create pagination buttons
-        const buttonsPageRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-          new ButtonBuilder()
-            .setCustomId("temp-voice-transfer-page-prev")
-            .setEmoji("1387296301867073576")
-            .setStyle(ButtonStyle.Primary)
-            .setDisabled(page === 0),
-          new ButtonBuilder()
-            .setCustomId("temp-voice-transfer-page-current")
-            .setLabel(`${page + 1}/${maxPage}`)
-            .setStyle(ButtonStyle.Secondary)
-            .setDisabled(true),
-          new ButtonBuilder()
-            .setCustomId("temp-voice-transfer=page-next")
-            .setEmoji("1387296195256254564")
-            .setStyle(ButtonStyle.Primary)
-            .setDisabled(page >= maxPage - 1)
-        );
+        const buttonsPageRow =
+          new ActionRowBuilder<ButtonBuilder>().addComponents(
+            new ButtonBuilder()
+              .setCustomId("temp-voice-transfer-page-prev")
+              .setEmoji("1387296301867073576")
+              .setStyle(ButtonStyle.Primary)
+              .setDisabled(page === 0),
+            new ButtonBuilder()
+              .setCustomId("temp-voice-transfer-page-current")
+              .setLabel(`${page + 1}/${maxPage}`)
+              .setStyle(ButtonStyle.Secondary)
+              .setDisabled(true),
+            new ButtonBuilder()
+              .setCustomId("temp-voice-transfer=page-next")
+              .setEmoji("1387296195256254564")
+              .setStyle(ButtonStyle.Primary)
+              .setDisabled(page >= maxPage - 1)
+          );
 
         return {
           content:
@@ -177,9 +179,6 @@ const select: SelectMenuInterface = {
                   }),
                 ],
               });
-
-              // Stop the collector after a successful transfer
-              transferUserMenuCollector.stop();
             } catch (error) {
               sendError(transferUserMenuInteraction, error, true);
             }

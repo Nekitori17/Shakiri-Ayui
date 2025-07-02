@@ -1,6 +1,7 @@
 import { EmbedBuilder } from "discord.js";
 import { useQueue } from "discord-player";
 import sendError from "../../../helpers/utils/sendError";
+import { CustomError } from "../../../helpers/utils/CustomError";
 import { MusicPlayerSession } from "../../../musicPlayerStoreSession";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
@@ -13,10 +14,10 @@ const button: ButtonInterface = {
       const queue = useQueue(interaction.guildId!);
       // Check if a queue exists and has tracks
       if (!queue || queue.tracks.size === 0)
-        throw {
+        throw new CustomError({
           name: "NoQueue",
           message: "There is no queue to resume",
-        };
+        });
 
       // Increment the shuffle count for the guild in the session store
       const musicPlayerStoreSession = new MusicPlayerSession(

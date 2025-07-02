@@ -7,8 +7,9 @@ import {
 } from "discord.js";
 import { useQueue } from "discord-player";
 import sendError from "../../../helpers/utils/sendError";
-import { ButtonInterface } from "../../../types/InteractionInterfaces";
+import { CustomError } from "../../../helpers/utils/CustomError";
 import { MusicPlayerSession } from "../../../musicPlayerStoreSession";
+import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
 /**
  * Checks if a given value is a number.
@@ -27,10 +28,10 @@ const button: ButtonInterface = {
 
       // Check if a queue exists
       if (!queue)
-        throw {
+        throw new CustomError({
           name: "NoQueue",
           message: "There is no queue to set volume",
-        };
+        });
 
       // Create a modal for volume change
       const volumeChangeModal = new ModalBuilder()
@@ -64,18 +65,20 @@ const button: ButtonInterface = {
 
         // Error message for invalid input
         if (!isNumber(levelStrInputValue))
-          throw {
+          throw new CustomError({
             name: "ThisIsNotANumber",
             message: "Please try again with correct value",
-          };
+            type: "warning",
+          });
 
         const level = parseInt(levelStrInputValue);
         // Check if the volume level is out of range
         if (level < 0)
-          throw {
-            name: "OutOfRange",
-            message: "Please try again with value between 0 and 100",
-          };
+          throw new CustomError({
+            name: "InvalidVolume",
+            message: "Volume cannot be less than 0",
+            type: "warning",
+          });
 
         queue.node.setVolume(level);
         // Set the volume in the session store

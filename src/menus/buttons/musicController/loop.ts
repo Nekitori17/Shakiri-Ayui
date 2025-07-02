@@ -8,6 +8,7 @@ import {
 } from "discord.js";
 import { QueueRepeatMode, useQueue } from "discord-player";
 import sendError from "../../../helpers/utils/sendError";
+import { CustomError } from "../../../helpers/utils/CustomError";
 import { MusicPlayerSession } from "../../../musicPlayerStoreSession";
 import { repeatModeNames } from "../../../constants/musicRepeatModes";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
@@ -20,10 +21,10 @@ const button: ButtonInterface = {
       // Get the queue for the current guild
       const queue = useQueue(interaction.guildId!);
       if (!queue)
-        throw {
+        throw new CustomError({
           name: "NoQueue",
           message: "There is no queue to resume",
-        };
+        });
 
       // Create options for the loop mode select menu
       const loopModeSelectMenuOption = Object.entries(repeatModeNames).map(

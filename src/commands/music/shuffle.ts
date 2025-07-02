@@ -1,6 +1,7 @@
 import { EmbedBuilder, PermissionFlagsBits } from "discord.js";
 import { useQueue } from "discord-player";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import { MusicPlayerSession } from "../../musicPlayerStoreSession";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -13,10 +14,10 @@ const command: CommandInterface = {
       const queue = useQueue(interaction.guildId!);
       // If no queue exists or it's empty, throw an error
       if (!queue || queue.tracks.size === 0)
-        throw {
+        throw new CustomError({
           name: "NoQueue",
           message: "There is no queue to shuffle",
-        };
+        });
       // Shuffle the tracks in the queue
       queue.tracks.shuffle();
 

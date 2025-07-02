@@ -8,10 +8,11 @@ import {
   ButtonStyle,
 } from "discord.js";
 import sendError from "../../../helpers/utils/sendError";
+import { CustomError } from "../../../helpers/utils/CustomError";
 import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
-import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
-import UserSettings from "../../../models/UserSettings";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
+import UserSettings from "../../../models/UserSettings";
+import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
 const select: SelectMenuInterface = {
   async execute(interaction, client) {
@@ -22,12 +23,11 @@ const select: SelectMenuInterface = {
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
       // Check if the temporary voice channel belongs to the interacting user
-      if (!checkOwnTempVoice(userVoiceChannel.id, interaction.user.id)) {
-        throw {
+      if (!checkOwnTempVoice(userVoiceChannel.id, interaction.user.id))
+        throw new CustomError({
           name: "NotOwnTempVoiceError",
           message: "This temporary voice channel does not belong to you.",
-        };
-      }
+        });
 
       // Find and update user settings, creating if it doesn't exist
       const userSetting = await UserSettings.findOneAndUpdate(
@@ -51,11 +51,11 @@ const select: SelectMenuInterface = {
 
       // If no users are blocked, throw an info error
       if (blockedUsers.length === 0) {
-        throw {
+        throw new CustomError({
           name: "NoUserBlocked",
           message: "You have not blocked any users. Nice",
           type: "info",
-        };
+        });
       }
 
       // Pagination setup for displaying blocked users

@@ -8,6 +8,7 @@ import {
 } from "discord.js";
 import UserSettings from "../../../models/UserSettings";
 import sendError from "../../../helpers/utils/sendError";
+import { CustomError } from "../../../helpers/utils/CustomError";
 import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { genericVariableReplacer } from "../../../helpers/utils/variableReplacer";
@@ -21,10 +22,10 @@ const select: SelectMenuInterface = {
     try {
       // Check if the temporary voice channel belongs to the interacting user
       if (!checkOwnTempVoice(userVoiceChannel.id, interaction.user.id))
-        throw {
+        throw new CustomError({
           name: "NotOwnTempVoiceError",
           message: "This temporary voice channel does not belong to you.",
-        };
+        });
 
       // Create a modal for renaming the temporary voice channel
       const renameModal = new ModalBuilder()

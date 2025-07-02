@@ -1,9 +1,9 @@
-import config from "../../../config";
 import path from "path";
-import { GuildMember, Interaction, PermissionsBitField } from "discord.js";
+import { GuildMember, Interaction } from "discord.js";
 import sendError from "../../../helpers/utils/sendError";
 import isCooledDown from "../../../validator/isCooledDown";
 import { getLocalById } from "../../../helpers/utils/getLocal";
+import { CustomError } from "../../../helpers/utils/CustomError";
 import checkPermission from "../../../validator/checkPermission";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
@@ -36,20 +36,20 @@ const event: DiscordEventInterface = async (
       );
 
       if (!DEVELOPERS.includes(interaction.user.id))
-        throw {
+        throw new CustomError({
           name: "DeveloperOnly",
           message: "This button is for developers only.",
           type: "warning",
-        };
+        });
     }
 
     // Check if the user is required to be in a voice channel
     if (buttonObject.requiredVoiceChannel) {
       if (!(interaction.member as GuildMember).voice.channel)
-        throw {
+        throw new CustomError({
           name: "NoVoiceChannel",
           message: "To use this command, you must be in a voice channel",
-        };
+        });
     }
 
     // Check for button cooldown
@@ -63,11 +63,11 @@ const event: DiscordEventInterface = async (
 
       // If the button is not cooledDown, throw an error
       if (!cooledDown && nextTime)
-        throw {
+        throw new CustomError({
           name: "Cooldown",
           message: `Please wait <t:${nextTime}:R> before using this button again.`,
           type: "warning",
-        };
+        });
     }
 
     // Check for permissions

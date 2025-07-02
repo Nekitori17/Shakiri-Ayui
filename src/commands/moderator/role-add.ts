@@ -5,16 +5,17 @@ import {
   Role,
 } from "discord.js";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import { checkRolePosition } from "../../validator/checkRolePosition";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-    const targetUserOption = interaction.options.getUser("target")!;
-    const roleOption = interaction.options.getRole("role")!;
-
     try {
+      await interaction.deferReply();
+      const targetUserOption = interaction.options.getUser("target", true);
+      const roleOption = interaction.options.getRole("role", true);
+
       // Fetch the target user as a guild member
       const targetUser = await interaction.guild?.members.fetch(
         targetUserOption
@@ -22,27 +23,27 @@ const command: CommandInterface = {
 
       // Check if the target user exists in the server
       if (!targetUser)
-        throw {
+        throw new CustomError({
           name: "UserNotFound",
           message: "That user does not exist in this server",
-        };
-      
+        });
+
       // Check role positions for hierarchy
       await checkRolePosition(
         interaction.member!,
         interaction.guild!.members.me!,
         roleOption,
         interaction.guild!
-      )
+      );
 
       // Check if the target user already has the role
       if (targetUser.roles.cache.has(roleOption.id))
-        throw {
+        throw new CustomError({
           name: "RoleAlreadyAdded",
           message: "That user already has that role",
           type: "info",
-        };
-      
+        });
+
       // Add the role to the target user
       await targetUser.roles.add(roleOption as Role);
 

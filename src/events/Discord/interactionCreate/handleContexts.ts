@@ -1,9 +1,9 @@
-import config from "../../../config";
 import path from "path";
-import { Interaction, PermissionsBitField } from "discord.js";
+import { Interaction } from "discord.js";
 import sendError from "../../../helpers/utils/sendError";
 import isCooledDown from "../../../validator/isCooledDown";
 import { getLocal } from "../../../helpers/utils/getLocal";
+import { CustomError } from "../../../helpers/utils/CustomError";
 import checkPermission from "../../../validator/checkPermission";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
@@ -45,11 +45,11 @@ const event: DiscordEventInterface = (client, interaction: Interaction) => {
       );
 
       if (!DEVELOPERS.includes(interaction.user.id))
-        throw {
+        throw new CustomError({
           name: "DeveloperOnly",
           message: "This context menu is for developers only.",
           type: "warning",
-        };
+        });
     }
 
     // Check for context menu cooldown
@@ -63,11 +63,11 @@ const event: DiscordEventInterface = (client, interaction: Interaction) => {
 
       // If the command is not cooledDown, throw an error
       if (!cooledDown && nextTime)
-        throw {
+        throw new CustomError({
           name: "Cooldown",
           message: `Please wait <t:${nextTime}:R> before using this context menu again.`,
           type: "warning",
-        };
+        });
     }
 
     // Check for permissions

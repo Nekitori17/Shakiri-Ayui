@@ -5,6 +5,7 @@ import {
 } from "discord.js";
 import { useQueue } from "discord-player";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import { MusicPlayerSession } from "../../musicPlayerStoreSession";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -15,20 +16,20 @@ const command: CommandInterface = {
       const levelOption = interaction.options.getInteger("level", true);
 
       if (levelOption < 0)
-        throw {
+        throw new CustomError({
           name: "InvalidVolume",
           message: "Volume cannot be less than 0",
           type: "warning",
-        };
+        });
 
       // Get the music queue for the current guild
       const queue = useQueue(interaction.guildId!);
       // If no queue exists, throw an error
       if (!queue)
-        throw {
+        throw new CustomError({
           name: "NoQueue",
           message: "There is no queue to set volume",
-        };
+        });
 
       // Set the volume of the queue's node
       queue.node.setVolume(levelOption);
@@ -42,12 +43,10 @@ const command: CommandInterface = {
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
-            // Set the author of the embed with a message and icon
             .setAuthor({
               name: `🎶 Volume set to ${levelOption}!`,
               iconURL: "https://img.icons8.com/color/512/low-volume.png",
             })
-            // Set the color of the embed
             .setColor("#73ff00"),
         ],
       });

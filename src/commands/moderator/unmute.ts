@@ -2,21 +2,21 @@ import config from "../../config";
 import {
   ApplicationCommandOptionType,
   EmbedBuilder,
-  GuildMemberRoleManager,
   PermissionFlagsBits,
 } from "discord.js";
 import sendError from "../../helpers/utils/sendError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 import { checkUserRolePosition } from "../../validator/checkRolePosition";
 import { ModerationEmbedBuilder } from "../../helpers/embeds/moderationEmbedBuilder";
+import { CustomError } from "../../helpers/utils/CustomError";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-    const targetUserOption = interaction.options.getUser("target")!;
-    const reasonOption = interaction.options.getString("reason");
-
     try {
+      await interaction.deferReply();
+      const targetUserOption = interaction.options.getUser("target", true);
+      const reasonOption = interaction.options.getString("reason");
+
       // Fetch the target user as a guild member
       const targetUser = await interaction.guild?.members.fetch(
         targetUserOption
@@ -24,26 +24,26 @@ const command: CommandInterface = {
 
       // Check if the target user exists in the server
       if (!targetUser)
-        throw {
+        throw new CustomError({
           name: "UserNotFound",
           message: "That user does not exist in this server",
-        };
+        });
 
       // Check if the target is the server owner
       if (targetUser.id === interaction.guild?.ownerId)
-        throw {
+        throw new CustomError({
           name: "OwnerIsMuted?",
           message: "Nahhh. I don't think owner can be muted",
           type: "warning",
-        };
+        });
 
       // Check if the target is the bot itself
       if (targetUser.id === interaction.guild?.members.me?.id)
-        throw {
+        throw new CustomError({
           name: "OhhhMyGod...",
           message: "I even can't do that",
           type: "warning",
-        };
+        });
 
       // Get role positions for hierarchy check
       await checkUserRolePosition(
@@ -54,10 +54,11 @@ const command: CommandInterface = {
 
       // Check if the target user is not muted
       if (!targetUser?.isCommunicationDisabled())
-        throw {
+        throw new CustomError({
           name: "UserIsNotMuted",
           message: "This user is not muted",
-        };
+          type: "warning",
+        });
 
       // Remove the timeout (unmute) from the user
       await targetUser.timeout(null, reasonOption || undefined);
@@ -86,12 +87,12 @@ const command: CommandInterface = {
           settings.moderator.loggingChannel
         );
 
+        // Check if the logging channel exists
         if (!logChannel)
-          throw {
-            // Check if the logging channel exists
+          throw new CustomError({
             name: "ChannelNotFound",
             message: "The logging channel was not found",
-          };
+          });
 
         // Send log message to the designated channel if sendable
         if (!logChannel.isSendable()) return;

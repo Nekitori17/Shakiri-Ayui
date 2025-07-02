@@ -1,5 +1,6 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from "discord.js";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import MiniGameUserData from "../../models/MiniGameUserData";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -10,13 +11,13 @@ const command: CommandInterface = {
       const amountOption = interaction.options.getInteger("amount", true);
 
       // Check the value is valid
-      if (amountOption <= 0) {
-        throw {
+      if (amountOption <= 0) 
+        throw new CustomError({
           name: "InvalidAmount",
           message: "You cannot deposit a negative or zero amount.",
           type: "warning",
-        };
-      }
+        });
+      
 
       // Get mini game data of user
       const miniGameUserData = await MiniGameUserData.findOneAndUpdate(
@@ -35,25 +36,23 @@ const command: CommandInterface = {
       );
 
       // Check if the user has enough balance
-      if (miniGameUserData.balance < amountOption) {
-        throw {
+      if (miniGameUserData.balance < amountOption)
+        throw new CustomError({
           name: "InsufficientBalance",
           message: "You don't have enough coins in your balance to deposit.",
           type: "warning",
-        };
-      }
+        });
 
       // Check if the bank has enough capacity
       if (
         miniGameUserData.bank.balance + amountOption >
         miniGameUserData.bank.capacity
-      ) {
-        throw {
+      )
+        throw new CustomError({
           name: "BankCapacityExceeded",
           message: `Your bank does not have enough capacity to hold this amount. Your current capacity is ${miniGameUserData.bank.capacity} and you are trying to deposit ${amountOption}.`,
           type: "warning",
-        };
-      }
+        });
 
       // Update balance and bank balance
       miniGameUserData.balance -= amountOption;
@@ -87,6 +86,7 @@ const command: CommandInterface = {
       sendError(interaction, error);
     }
   },
+  alias: "dp",
   name: "deposit",
   description: "Deposit your coins into the bank.",
   deleted: false,

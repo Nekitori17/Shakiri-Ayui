@@ -5,6 +5,7 @@ import {
 } from "discord.js";
 import { useQueue, QueueRepeatMode } from "discord-player";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import { repeatModeNames } from "../../constants/musicRepeatModes";
 import { MusicPlayerSession } from "../../musicPlayerStoreSession";
 import { CommandInterface } from "../../types/InteractionInterfaces";
@@ -27,10 +28,10 @@ const command: CommandInterface = {
       const queue = useQueue(interaction.guildId!);
       // If no queue exists, throw an error
       if (!queue)
-        throw {
+        throw new CustomError({
           name: "NoQueue",
           message: "There is no queue to loop",
-        };
+        });
 
       // Set the repeat mode for the queue
       queue.setRepeatMode(repeatModeOption);

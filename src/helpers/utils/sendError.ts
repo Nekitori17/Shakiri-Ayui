@@ -1,101 +1,117 @@
 import { AttachmentBuilder, MessageFlags } from "discord.js";
+import { CustomError } from "./CustomError";
 import CommonEmbedBuilder from "../embeds/commonEmbedBuilder";
 import { AnyInteraction } from "../../types/AnyInteraction";
 
 /**
- * Recursively converts an unknown error object into a readable JSON string.
- *
- * @param error - The error object (can be any shape).
- * @returns A prettified string representation of the error.
+ * Recursively converts an unknown error object into a string representation.
+ * Handles circular references and ensures all properties are stringified.
+ * @param error The unknown error object to stringify.
+ * @returns A JSON string representation of the error.
  */
-function convertErrorToString(error: unknown): string {
+function stringifyError(error: unknown): string {
   if (typeof error !== "object" || error === null) {
     return String(error);
   }
 
-  const fullErrorObject: Record<string, unknown> = {};
-  const keys = Object.getOwnPropertyNames(error);
+  const entries: Record<string, unknown> = {};
+  const keys = Object.getOwnPropertyNames(error); // Get all enumerable and non-enumerable own properties
 
   for (const key of keys) {
     const value = (error as Record<string, unknown>)[key];
-    fullErrorObject[key] =
-      value instanceof Object ? convertErrorToString(value) : value;
+    entries[key] = value instanceof Object ? stringifyError(value) : value; // Recursively stringify nested objects
   }
 
-  return JSON.stringify(fullErrorObject, null, 2);
+  return JSON.stringify(entries, null, 2);
 }
 
 /**
- * A simplified custom error structure to standardize error responses.
+ * Builds an AttachmentBuilder containing detailed error information.
+ * This attachment can be sent along with an error message for debugging.
+ * @param error The Error object to build the attachment from.
  */
-interface CustomError {
-  name: string;
-  message: string;
-  type: "error" | "warning" | "info";
+function buildErrorAttachment(error: Error): AttachmentBuilder {
+  const timestamp = new Date().toISOString();
+  const logContent = [
+    `# Error Name: ${error.name}`,
+    `# Error Message: ${error.message}`,
+    `# Time: ${timestamp}`,
+    `# Error at: ${error.stack || "N/A"}`,
+    "========================",
+    stringifyError(error),
+  ].join("\n");
+
+  // Generate a unique filename for the log, including a timestamp and a high-resolution time component
+  const filename = `Error-${timestamp}_${(
+    process.hrtime.bigint() / 1_000_000n
+  ).toString()}.log`;
+
+  return new AttachmentBuilder(Buffer.from(logContent), { name: filename });
 }
 
 /**
- * Handles an error by replying to the user interaction with a styled embed.
- * If the error is an instance of `Error`, it also attaches a log file.
- *
- * @param interaction - The interaction (slash, context menu, or message command).
- * @param error - The error object, which can be a native Error or a custom error.
- * @param ephemeral - Whether the reply should be ephemeral (hidden to others).
+ * Handles and responds to an interaction with an error message.
+ * It defers the reply if not already replied/deferred, builds an error embed,
+ * and optionally attaches a detailed error log file.
+ * @param interaction The Discord interaction that caused the error.
+ * @param error The error object (can be Error, CustomError, or unknown).
+ * @param ephemeral Whether the error message should be ephemeral (only visible to the user). Defaults to false.
+ * @param newReply Whether to send a new reply or edit the existing one. Defaults to false (edits existing).
+ * @returns A Promise that resolves once the error message has been sent.
  */
-export default async (
+
+export default async function handleError(
   interaction: AnyInteraction,
-  error: Error | CustomError | any,
-  ephemeral = false
-): Promise<void> => {
-  // Defer reply if interaction has not been responded to
+  error: Error | CustomError | unknown,
+  ephemeral = false,
+  newReply = false
+): Promise<void> {
+  // Defer the reply if not already replied or deferred
   if (!interaction.replied && !interaction.deferred) {
     await interaction.deferReply({
       flags: ephemeral ? MessageFlags.Ephemeral : undefined,
     });
   }
 
-  const moreErrorInfo: AttachmentBuilder[] = [];
-
-  // If it's a native Error, create a detailed log attachment
+  const attachments: AttachmentBuilder[] = [];
+  // If the error is an instance of Error, build an attachment with its details
   if (error instanceof Error) {
-    const fileContent = [
-      `# Error Name: ${error.name}`,
-      `# Error Message: ${error.message}`,
-      `# Time: ${new Date().toISOString()}`,
-      `# Error at: ${error.stack || "N/A"}`,
-      "========================",
-      convertErrorToString(error),
-    ].join("\n");
-
-    moreErrorInfo.push(
-      new AttachmentBuilder(Buffer.from(fileContent), {
-        name: `Error-${new Date().toISOString()}_${(
-          process.hrtime.bigint() / 1000000n
-        ).toString()}.log`,
-      })
-    );
+    attachments.push(buildErrorAttachment(error));
   }
 
-  // Choose embed type based on custom error `type` field
-  const errorEmbed =
-    (error as CustomError)?.type === "warning"
-      ? CommonEmbedBuilder.warning({
-          title: error.name,
-          description: error.message,
-        })
-      : (error as CustomError)?.type === "info"
-      ? CommonEmbedBuilder.info({
-          title: error.name,
-          description: error.message,
-        })
-      : CommonEmbedBuilder.error({
-          title: error.name,
-          description: error.message,
-        });
+  // Extract error details, defaulting to generic values if not a CustomError
+  const {
+    name = "Unknown Error",
+    message = "No details provided",
+    type = "error",
+  } = error as CustomError;
 
-  // Send the embed and any attachments to the interaction
-  await interaction.followUp({
-    embeds: [errorEmbed],
-    files: moreErrorInfo,
+  // Select the appropriate embed builder based on the error type
+  const embed = {
+    warning: CommonEmbedBuilder.warning,
+    info: CommonEmbedBuilder.info,
+    error: CommonEmbedBuilder.error,
+  }[type]({
+    title: name,
+    description: message,
   });
-};
+
+  // Prepare the payload for the reply/followUp/editReply
+  const payload = {
+    embeds: [embed],
+    files: attachments,
+    ephemeral,
+  };
+
+  // Send the reply based on the newReply flag and interaction state
+
+  if (newReply) {
+    if (!interaction.replied) {
+      await interaction.reply(payload);
+    } else {
+      await interaction.followUp(payload);
+    }
+  } else {
+    await interaction.editReply(payload);
+  }
+}

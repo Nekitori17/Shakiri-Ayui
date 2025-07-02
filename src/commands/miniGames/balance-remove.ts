@@ -1,5 +1,6 @@
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 import MiniGameUserData from "../../models/MiniGameUserData";
 import { CommandInterface } from "../../types/InteractionInterfaces";
@@ -13,19 +14,20 @@ const command: CommandInterface = {
 
       // Check if the user is a bot
       if (targetUserOption.bot)
-        throw {
+        throw new CustomError({
           name: "BotUser",
           message: "Bro think they can play mini game 💀🙏",
-        };
+          type: "warning",
+        });
 
       // Check is invalid value
-      if (amountOption <= 0) {
+      if (amountOption <= 0) 
         throw {
           name: "InvalidAmount",
           message: "You cannot remove a negative or zero amount.",
           type: "warning",
         };
-      }
+      
 
       // Get mini game data of user
       const miniGameUserData = await MiniGameUserData.findOne({
@@ -34,18 +36,18 @@ const command: CommandInterface = {
 
       // If user does not have an account
       if (!miniGameUserData)
-        throw {
+        throw new CustomError({
           name: "NoAccount",
           message:
             "You don't have an account yet. Please use the daily command to create one.",
-        };
+        });
 
       // Check if the user has enough balance
       if (miniGameUserData.balance < amountOption)
-        throw {
+        throw new CustomError({
           name: "InsufficientBalance",
           message: "The user does not have enough balance to remove.",
-        };
+        });
 
       // Update balance
       miniGameUserData.balance -= amountOption;

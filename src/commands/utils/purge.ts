@@ -5,6 +5,7 @@ import {
   TextChannel,
 } from "discord.js";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -14,13 +15,13 @@ const command: CommandInterface = {
       const amountOption = interaction.options.getInteger("amount", true);
 
       // Validate the amount: it must be between 1 and 100
-      if (amountOption < 1 || amountOption > 100) {
-        throw {
+      if (amountOption < 1 || amountOption > 100)
+        throw new CustomError({
           name: "InvalidNumber",
           message: "Can't set the value less than 1 or greater than 100",
           type: "warning",
-        };
-      }
+        });
+
       // Perform bulk deletion of messages in the channel
       const deletedMessages = await (
         interaction.channel as TextChannel

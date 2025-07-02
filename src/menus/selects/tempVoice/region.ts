@@ -7,6 +7,7 @@ import {
   StringSelectMenuOptionBuilder,
 } from "discord.js";
 import sendError from "../../../helpers/utils/sendError";
+import { CustomError } from "../../../helpers/utils/CustomError";
 import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { rtcRegionList } from "../../../constants/rtcRegionList";
@@ -22,10 +23,10 @@ const select: SelectMenuInterface = {
 
       // Check if the temporary voice channel belongs to the interacting user
       if (!checkOwnTempVoice(userVoiceChannel.id, interaction.user.id))
-        throw {
+        throw new CustomError({
           name: "NotOwnTempVoiceError",
           message: "This temporary voice channel does not belong to you.",
-        };
+        });
 
       // Create options for the region select menu from rtcRegionList
       const regionSelectMenuOption = Object.entries(rtcRegionList).map(
@@ -40,7 +41,7 @@ const select: SelectMenuInterface = {
             .setPlaceholder("Select a region")
             .addOptions(regionSelectMenuOption)
         );
-      
+
       // Edit the deferred reply to display the region selection menu
       const regionSelectReply = await interaction.editReply({
         content: "Select a region for your temporary voice channel",
@@ -61,9 +62,10 @@ const select: SelectMenuInterface = {
             flags: MessageFlags.Ephemeral,
           });
 
+          // Set the RTC region for the voice channel
           const regionName = regionSelectInteraction.values[0];
-
           await userVoiceChannel.setRTCRegion(regionName);
+
           // Edit the reply to confirm the region change
           regionSelectInteraction.editReply({
             embeds: [

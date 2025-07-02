@@ -13,6 +13,7 @@ import {
 } from "discord.js";
 import { QueryType, Track, TrackSource, useMainPlayer } from "discord-player";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import { MusicPlayerSession } from "../../musicPlayerStoreSession";
 import { musicSourceIcons } from "../../constants/musicSourceIcons";
 import { CommandInterface } from "../../types/InteractionInterfaces";
@@ -36,11 +37,11 @@ const command: CommandInterface = {
 
       // If no tracks are found, throw an error
       if (!searchResult || searchResult.tracks.length === 0)
-        throw {
+        throw new CustomError({
           name: "NoResults",
           message:
             "Please try again or try a different queryOption or platform",
-        };
+        });
 
       // Define the number of tracks to display per page
       const AMOUNT_TRACK_IN_PAGE = 5;
@@ -205,10 +206,10 @@ const command: CommandInterface = {
               const track = searchResult.tracks.find((t) => t.id === trackId);
 
               if (!track)
-                throw {
+                throw new CustomError({
                   name: "NoTrack",
                   message: "Track not found",
-                };
+                });
 
               // Get the user's voice channel
               const userVoiceChannel = (
@@ -217,11 +218,12 @@ const command: CommandInterface = {
 
               // If user is not in a voice channel, throw an error
               if (!userVoiceChannel)
-                throw {
+                throw new CustomError({
                   name: "NoVoiceChannel",
                   message:
                     "You need to be in a voice channel to use this command",
-                };
+                  type: "warning",
+                });
 
               // Retrieve volume, repeat mode, and shuffle count from session store or queue
               const musicPlayerStoreSession = new MusicPlayerSession(
@@ -270,6 +272,7 @@ const command: CommandInterface = {
       sendError(interaction, error);
     }
   },
+  alias: "sr",
   name: "search",
   description: "Search for a song/URL and select from results",
   deleted: false,

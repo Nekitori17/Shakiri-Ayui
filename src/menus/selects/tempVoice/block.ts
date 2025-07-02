@@ -6,6 +6,7 @@ import {
   UserSelectMenuBuilder,
 } from "discord.js";
 import sendError from "../../../helpers/utils/sendError";
+import { CustomError } from "../../../helpers/utils/CustomError";
 import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import UserSettings from "../../../models/UserSettings";
@@ -14,18 +15,18 @@ import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 const select: SelectMenuInterface = {
   async execute(interaction, client) {
     // Get the user's voice channel
-    const userVoiceChannel = (interaction.member as GuildMember).voice
-      .channel;
-      
+    const userVoiceChannel = (interaction.member as GuildMember).voice.channel;
+
     try {
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
       // Check if the temporary voice channel belongs to the interacting user
       if (!checkOwnTempVoice(userVoiceChannel?.id!, interaction.user.id))
-        throw {
+        throw new CustomError({
           name: "NotOwnTempVoiceError",
           message: "This temporary voice channel does not belong to you.",
-        };
+          type: "warning",
+        });
 
       // Create an ActionRow with a UserSelectMenu for blocking users
       const allUserSelectRow =
@@ -58,7 +59,7 @@ const select: SelectMenuInterface = {
             flags: MessageFlags.Ephemeral,
           });
 
-          const users = userSelectInteraction.users;
+          const userBlocks = userSelectInteraction.users;
           const userSetting = await UserSettings.findOneAndUpdate(
             {
               userId: userSelectInteraction.user.id,
@@ -75,7 +76,7 @@ const select: SelectMenuInterface = {
           );
 
           // Add selected users to the blockedUsers list in user settings
-          users.forEach((user) => {
+          userBlocks.forEach((user) => {
             if (
               !userSetting.temporaryVoiceChannel.blockedUsers.includes(
                 user.id
@@ -88,8 +89,8 @@ const select: SelectMenuInterface = {
           // Save the updated user settings
           await userSetting.save();
 
-          users.forEach(async (user) => {
-            // Disconnect blocked users from the voice channel if they are in it
+          // Disconnect blocked users from the voice channel if they are in it
+          userBlocks.forEach(async (user) => {
             const member = await userSelectInteraction.guild?.members.fetch(
               user.id
             );
@@ -107,7 +108,7 @@ const select: SelectMenuInterface = {
             embeds: [
               CommonEmbedBuilder.success({
                 title: "> Blocked Users",
-                description: `Blocked users: ${users
+                description: `Blocked users: ${userBlocks
                   .map((user) => `<@${user.id}>`)
                   .join(", ")}`,
               }),

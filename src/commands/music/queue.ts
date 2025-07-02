@@ -9,6 +9,7 @@ import {
 } from "discord.js";
 import { Track, useQueue } from "discord-player";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -20,10 +21,10 @@ const command: CommandInterface = {
       const queue = useQueue(interaction.guildId!);
       // If no queue exists or it's empty, throw an error
       if (queue?.tracks.size == 0)
-        throw {
+        throw new CustomError({
           name: "NoQueue",
           message: "There is no queue to show",
-        };
+        });
 
       // Define the number of tracks to display per page
       const AMOUNT_TRACK_IN_PAGE = 10;

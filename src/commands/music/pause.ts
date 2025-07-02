@@ -1,6 +1,7 @@
 import { PermissionFlagsBits } from "discord.js";
 import { useQueue } from "discord-player";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -12,10 +13,10 @@ const command: CommandInterface = {
       const queue = useQueue(interaction.guildId!);
       // If no queue exists, throw an error
       if (!queue)
-        throw {
+        throw new CustomError({
           name: "NoQueue",
           message: "There is no queue to pause",
-        };
+        });
 
       // Pause the current track in the queue
       queue.node.setPaused(true);

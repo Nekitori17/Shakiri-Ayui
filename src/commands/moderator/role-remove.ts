@@ -1,21 +1,21 @@
 import {
   ApplicationCommandOptionType,
   EmbedBuilder,
-  GuildMemberRoleManager,
   PermissionFlagsBits,
   Role,
 } from "discord.js";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 import { checkRolePosition } from "../../validator/checkRolePosition";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-    const targetUserOption = interaction.options.getUser("target")!;
-    const roleOption = interaction.options.getRole("role")!;
-
     try {
+      await interaction.deferReply();
+      const targetUserOption = interaction.options.getUser("target", true);
+      const roleOption = interaction.options.getRole("role", true);
+
       // Fetch the target user as a guild member
       const targetUser = await interaction.guild?.members.fetch(
         targetUserOption
@@ -23,10 +23,10 @@ const command: CommandInterface = {
 
       // Check if the target user exists in the server
       if (!targetUser)
-        throw {
+        throw new CustomError({
           name: "UserNotFound",
           message: "That user does not exist in this server",
-        };
+        });
 
       // Check role positions for hierarchy
       await checkRolePosition(
@@ -58,11 +58,9 @@ const command: CommandInterface = {
         ],
       });
     } catch (error) {
-      // Handle any errors that occur during execution
       sendError(interaction, error);
     }
   },
-  // Command metadata
   name: "role-remove",
   description: "Remove a role from a user",
   deleted: false,

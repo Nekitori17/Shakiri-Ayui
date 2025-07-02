@@ -8,6 +8,7 @@ import {
 } from "discord.js";
 import UserSettings from "../../../models/UserSettings";
 import sendError from "../../../helpers/utils/sendError";
+import { CustomError } from "../../../helpers/utils/CustomError";
 import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
@@ -24,10 +25,10 @@ const select: SelectMenuInterface = {
     try {
       // Check if the temporary voice channel belongs to the interacting user
       if (!checkOwnTempVoice(userVoiceChannel.id, interaction.user.id))
-        throw {
+        throw new CustomError({
           name: "NotOwnTempVoiceError",
           message: "This temporary voice channel does not belong to you.",
-        };
+        });
 
       // Create a modal for setting the user limit
       const renameModal = new ModalBuilder()
@@ -62,19 +63,21 @@ const select: SelectMenuInterface = {
 
         // Validate if the input is a number
         if (!isNumber(amountOfLimitStrInputValue))
-          throw {
+          throw new CustomError({
             name: "ThisIsNotANumber",
             message: "Please try again with correct value",
-          };
+          });
 
+        // Convert the input value to a number and ensure it's an integer
         const amountOfLimit = Math.floor(Number(amountOfLimitStrInputValue));
 
+        // Validate if the amount is within the valid range (0-99)
         if (amountOfLimit < 0 || amountOfLimit > 99)
-          throw {
+          throw new CustomError({
             name: "InvalidNumber",
             message: "Please enter a number between 0 and 99.",
             type: "warning",
-          };
+          });
 
         // Find and update user settings, creating if it doesn't exist
         const userSetting = await UserSettings.findOneAndUpdate(

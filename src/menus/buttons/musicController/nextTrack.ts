@@ -1,6 +1,7 @@
 import { EmbedBuilder } from "discord.js";
 import { useQueue } from "discord-player";
 import sendError from "../../../helpers/utils/sendError";
+import { CustomError } from "../../../helpers/utils/CustomError";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
 const button: ButtonInterface = {
@@ -12,10 +13,10 @@ const button: ButtonInterface = {
       const queue = useQueue(interaction.guildId!);
       // Check if a queue exists
       if (!queue)
-        throw {
+        throw new CustomError({
           name: "NoQueue",
           message: "There is no queue to play",
-        };
+        });
 
       // Skip the current track
       queue.node.skip();

@@ -4,6 +4,7 @@ import {
   MessageFlags,
 } from "discord.js";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import checkOwnTempVoice from "../../validator/checkOwnTempVoice";
 import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 import UserSettings from "../../models/UserSettings";
@@ -37,11 +38,11 @@ const command: CommandInterface = {
           targetUserOption.id
         )
       )
-        throw {
+        throw new CustomError({
           name: "UserAlreadyBlocked",
           message: "This user is already blocked",
           type: "info",
-        };
+        });
 
       // Add the target user to the blocked users list and save settings
       userSetting.temporaryVoiceChannel.blockedUsers.push(targetUserOption.id);

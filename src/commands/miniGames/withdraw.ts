@@ -1,5 +1,6 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from "discord.js";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import MiniGameUserData from "../../models/MiniGameUserData";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -7,16 +8,15 @@ const command: CommandInterface = {
   async execute(interaction, client) {
     try {
       await interaction.deferReply();
-      const amountOption = interaction.options.getInteger("amount",true);
+      const amountOption = interaction.options.getInteger("amount", true);
 
       // Check the value is valid
-      if (amountOption <= 0) {
-        throw {
+      if (amountOption <= 0)
+        throw new CustomError({
           name: "InvalidAmount",
           message: "You cannot withdraw a negative or zero amount.",
           type: "warning",
-        };
-      }
+        });
 
       // Get mini game data of user
       const miniGameUserData = await MiniGameUserData.findOneAndUpdate(
@@ -35,13 +35,12 @@ const command: CommandInterface = {
       );
 
       // Check if the user has enough balance in the bank
-      if (miniGameUserData.bank.balance < amountOption) {
-        throw {
+      if (miniGameUserData.bank.balance < amountOption)
+        throw new CustomError({
           name: "InsufficientBankBalance",
           message: "You don't have enough coins in your bank to withdraw.",
           type: "warning",
-        };
-      }
+        });
 
       // Update balance and bank balance
       miniGameUserData.balance += amountOption;
@@ -75,6 +74,7 @@ const command: CommandInterface = {
       sendError(interaction, error);
     }
   },
+  alias: "wd",
   name: "withdraw",
   description: "Withdraw coins from your bank.",
   deleted: false,

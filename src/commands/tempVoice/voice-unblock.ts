@@ -9,6 +9,7 @@ import {
 } from "discord.js";
 import UserSettings from "../../models/UserSettings";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -36,13 +37,12 @@ const command: CommandInterface = {
       const blockedUsers =
         userSetting?.temporaryVoiceChannel.blockedUsers ?? [];
 
-      if (blockedUsers.length === 0) {
-        throw {
+      if (blockedUsers.length === 0)
+        throw new CustomError({
           name: "NoUserBlocked",
           message: "You have not blocked any users. Nice",
           type: "info",
-        };
-      }
+        });
 
       // Define the number of users to display per page
       const AMOUNT_USER_IN_PAGE = 25;
@@ -89,23 +89,24 @@ const command: CommandInterface = {
           );
 
         // Create pagination buttons
-        const buttonsPageRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-          new ButtonBuilder()
-            .setCustomId("temp-voice-unblock-page-prev")
-            .setEmoji("1387296301867073576")
-            .setStyle(ButtonStyle.Primary)
-            .setDisabled(page === 0),
-          new ButtonBuilder()
-            .setCustomId("temp-voice-unblock-page-current")
-            .setLabel(`${page + 1}/${maxPages}`)
-            .setStyle(ButtonStyle.Secondary)
-            .setDisabled(true),
-          new ButtonBuilder()
-            .setCustomId("temp-voice-unblock-page-next")
-            .setEmoji("1387296195256254564")
-            .setStyle(ButtonStyle.Primary)
-            .setDisabled(page >= maxPages - 1)
-        );
+        const buttonsPageRow =
+          new ActionRowBuilder<ButtonBuilder>().addComponents(
+            new ButtonBuilder()
+              .setCustomId("temp-voice-unblock-page-prev")
+              .setEmoji("1387296301867073576")
+              .setStyle(ButtonStyle.Primary)
+              .setDisabled(page === 0),
+            new ButtonBuilder()
+              .setCustomId("temp-voice-unblock-page-current")
+              .setLabel(`${page + 1}/${maxPages}`)
+              .setStyle(ButtonStyle.Secondary)
+              .setDisabled(true),
+            new ButtonBuilder()
+              .setCustomId("temp-voice-unblock-page-next")
+              .setEmoji("1387296195256254564")
+              .setStyle(ButtonStyle.Primary)
+              .setDisabled(page >= maxPages - 1)
+          );
 
         return {
           content:
@@ -175,7 +176,7 @@ const command: CommandInterface = {
               // Update the user's settings with the new blocked users list
               userSetting!.temporaryVoiceChannel.blockedUsers =
                 updatedBlockedUsers;
-                
+
               await userSetting.save();
               // Send a success embed indicating the users have been unblocked
               bannedUserMenuInteraction.editReply({

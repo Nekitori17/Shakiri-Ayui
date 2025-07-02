@@ -1,6 +1,7 @@
 import { EmbedBuilder } from "discord.js";
 import { useHistory } from "discord-player";
 import sendError from "../../../helpers/utils/sendError";
+import { CustomError } from "../../../helpers/utils/CustomError";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
 const button: ButtonInterface = {
@@ -12,10 +13,10 @@ const button: ButtonInterface = {
       const queueHistory = useHistory(interaction.guildId!);
       // Check if a queue history exists
       if (!queueHistory)
-        throw {
+        throw new CustomError({
           name: "NoQueue",
           message: "There is no queue to play",
-        };
+        });
 
       // Play the previous track in the history
       await queueHistory.previous();

@@ -1,6 +1,7 @@
 import { EmbedBuilder, PermissionFlagsBits } from "discord.js";
 import { useQueue, TrackSource, QueueRepeatMode } from "discord-player";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import { MusicPlayerSession } from "../../musicPlayerStoreSession";
 import { repeatModeNames } from "../../constants/musicRepeatModes";
 import { musicSourceIcons } from "../../constants/musicSourceIcons";
@@ -17,12 +18,13 @@ const command: CommandInterface = {
 
       // Retrieve the queue for the guild
       const queue = useQueue(interaction.guildId!);
+
+      // Throw error if no song is playing
       if (!queue || !queue.isPlaying())
-        // Throw error if no song is playing
-        throw {
+        throw new CustomError({
           name: "NoSongPlaying",
           message: "There is no song playing",
-        };
+        });
 
       const track = queue.currentTrack!;
       const progressBar = queue.node.createProgressBar({

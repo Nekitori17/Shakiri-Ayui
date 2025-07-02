@@ -5,6 +5,7 @@ import {
 } from "discord.js";
 import { LrcSearchResult, useMainPlayer, useQueue } from "discord-player";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -25,10 +26,10 @@ const command: CommandInterface = {
         });
 
         if (!lyrics.length)
-          throw {
+          throw new CustomError({
             name: "NoLyrics",
             message: "There is no lyrics to show",
-          };
+          });
 
         // Trim lyrics to fit embed description limit
         trimmedLyrics = lyrics[0].plainLyrics.substring(0, 1997);
@@ -37,10 +38,10 @@ const command: CommandInterface = {
         const queue = useQueue(interaction.guildId!);
 
         if (!queue)
-          throw {
+          throw new CustomError({
             name: "NoQueue",
             message: "There is no queue to get lyrics",
-          };
+          });
 
         // Search for lyrics of the current track
         lyrics = await player.lyrics.search({
@@ -48,10 +49,10 @@ const command: CommandInterface = {
         });
 
         if (!lyrics.length)
-          throw {
+          throw new CustomError({
             name: "NoLyrics",
             message: "There is no lyrics to show",
-          };
+          });
 
         // Trim lyrics to fit embed description limit
         trimmedLyrics = lyrics[0].plainLyrics.substring(0, 1997);

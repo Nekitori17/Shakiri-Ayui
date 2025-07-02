@@ -6,6 +6,7 @@ import {
   PermissionFlagsBits,
 } from "discord.js";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -19,10 +20,10 @@ const command: CommandInterface = {
 
       // Validate the channel type if provided
       if (channelSendOption?.type != ChannelType.GuildText)
-        throw {
+        throw new CustomError({
           name: "InvalidChannelType",
           message: "Channel must be a text channel!",
-        };
+        });
 
       // Fetch the current guild settings
       const guildSetting = await config.modules(interaction.guildId!);
@@ -32,7 +33,6 @@ const command: CommandInterface = {
         guildSetting.welcomer = {
           enabled: false,
           channelSend: undefined,
-          // Set default values for welcomer settings
           message: "> Welcome {user} to __{guild.name}__.",
           imageTitle: "Welcome #{guild.count}",
           imageBody: "{user.displayName}",

@@ -5,6 +5,7 @@ import {
   PermissionFlagsBits,
 } from "discord.js";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -18,10 +19,10 @@ const command: CommandInterface = {
 
       // Validate channel type if a channel is provided
       if (channelSetOption?.type != ChannelType.GuildText)
-        throw {
+        throw new CustomError({
           name: "InvalidChannelType",
           message: "Channel must be a text channel!",
-        };
+        });
 
       // Fetch the current guild settings
       const guildSetting = await config.modules(interaction.guildId!);

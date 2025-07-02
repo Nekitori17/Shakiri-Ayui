@@ -8,6 +8,7 @@ import {
   ButtonStyle,
 } from "discord.js";
 import sendError from "../../../helpers/utils/sendError";
+import { CustomError } from "../../../helpers/utils/CustomError";
 import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
@@ -20,13 +21,12 @@ const select: SelectMenuInterface = {
     try {
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-      if (!checkOwnTempVoice(userVoiceChannel.id, interaction.user.id)) {
+      if (!checkOwnTempVoice(userVoiceChannel.id, interaction.user.id))
         // Check if the temporary voice channel belongs to the interacting user
-        throw {
+        throw new CustomError({
           name: "NotOwnTempVoiceError",
           message: "This temporary voice channel does not belong to you.",
-        };
-      }
+        });
 
       const kickAbleMembers = userVoiceChannel.members.filter(
         // Filter out the current user and members with 'MoveMembers' or 'DeafenMembers' permissions
@@ -36,13 +36,13 @@ const select: SelectMenuInterface = {
           !member.permissions.has("DeafenMembers")
       );
 
-      if (!kickAbleMembers || kickAbleMembers.size === 0) {
+      if (!kickAbleMembers || kickAbleMembers.size === 0)
         // If no kickable members are found, throw an error
-        throw {
+        throw new CustomError({
           name: "NoUserCanKick",
           message: "There are no users to kick in this channel.",
-        };
-      }
+          type: "info",
+        });
 
       // Pagination setup for displaying kickable members
       const AMOUNT_USER_IN_PAGE = 25;
@@ -89,23 +89,24 @@ const select: SelectMenuInterface = {
           );
 
         // Create pagination buttons
-        const buttonsPageRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-          new ButtonBuilder()
-            .setCustomId("temp-voice-kick-previous")
-            .setEmoji("1387296301867073576")
-            .setStyle(ButtonStyle.Primary)
-            .setDisabled(page === 0),
-          new ButtonBuilder()
-            .setCustomId("temp-voice-kick-current")
-            .setLabel(`${page + 1}/${maxPage}`)
-            .setStyle(ButtonStyle.Secondary)
-            .setDisabled(true),
-          new ButtonBuilder()
-            .setCustomId("temp-voice-kick-next")
-            .setEmoji("1387296195256254564")
-            .setStyle(ButtonStyle.Primary)
-            .setDisabled(page >= maxPage - 1)
-        );
+        const buttonsPageRow =
+          new ActionRowBuilder<ButtonBuilder>().addComponents(
+            new ButtonBuilder()
+              .setCustomId("temp-voice-kick-previous")
+              .setEmoji("1387296301867073576")
+              .setStyle(ButtonStyle.Primary)
+              .setDisabled(page === 0),
+            new ButtonBuilder()
+              .setCustomId("temp-voice-kick-current")
+              .setLabel(`${page + 1}/${maxPage}`)
+              .setStyle(ButtonStyle.Secondary)
+              .setDisabled(true),
+            new ButtonBuilder()
+              .setCustomId("temp-voice-kick-next")
+              .setEmoji("1387296195256254564")
+              .setStyle(ButtonStyle.Primary)
+              .setDisabled(page >= maxPage - 1)
+          );
 
         return {
           content: "> Select a user to kick from your temporary voice channel",
@@ -175,8 +176,6 @@ const select: SelectMenuInterface = {
                 }),
               ],
             });
-            // Stop the collector after successful kick
-            userKickMenuCollector.stop();
           } catch (error) {
             sendError(userKickMenuInteraction, error, true);
           }

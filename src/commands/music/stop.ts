@@ -1,6 +1,7 @@
 import { EmbedBuilder, PermissionFlagsBits } from "discord.js";
 import { useQueue } from "discord-player";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import { MusicPlayerSession } from "../../musicPlayerStoreSession";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -13,10 +14,10 @@ const command: CommandInterface = {
       const queue = useQueue(interaction.guildId!);
       // If no queue exists, throw an error
       if (!queue)
-        throw {
+        throw new CustomError({
           name: "NoQueue",
           message: "There is no queue to stop",
-        };
+        });
       // Delete the queue, stopping playback and clearing all tracks
       queue.delete();
       // Clear session data related to the music player for this guild
@@ -29,7 +30,6 @@ const command: CommandInterface = {
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
-            // Set the author of the embed with a message and icon
             .setAuthor({
               name: "🎶 Queue has been stopped!",
               iconURL: "https://img.icons8.com/color/512/do-not-disturb.png",

@@ -16,7 +16,8 @@ const command: CommandInterface = {
     try {
       // Fetch the current guild settings
       const guildSetting = await config.modules(interaction.guildId!);
-
+      
+      // Create TextInputBuilders for each customizable setting
       const welcomerCustomizeModalComponents = [
         new TextInputBuilder()
           .setCustomId("welcome-message")

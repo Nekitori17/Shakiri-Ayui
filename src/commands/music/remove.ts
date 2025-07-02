@@ -5,6 +5,7 @@ import {
 } from "discord.js";
 import { useQueue } from "discord-player";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -17,10 +18,18 @@ const command: CommandInterface = {
       const queue = useQueue(interaction.guildId!);
       // If no queue exists, throw an error
       if (!queue)
-        throw {
+        throw new CustomError({
           name: "NoQueue",
           message: "There is no queue to remove",
-        };
+        });
+
+      // Validate the provided index
+      if (indexOption < 0 || indexOption > queue.tracks.size)
+        throw new CustomError({
+          name: "InvalidIndex",
+          message: "Invalid index provided",
+          type: "warning",
+        });
 
       // Remove the track at the specified index from the queue
       const track = queue.removeTrack(indexOption - 1);

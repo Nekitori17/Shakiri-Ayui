@@ -1,7 +1,8 @@
 import { ApplicationCommandOptionType } from "discord.js";
 import sendError from "../../helpers/utils/sendError";
-import UserSettings from "../../models/UserSettings";
+import { CustomError } from "../../helpers/utils/CustomError";
 import { translateLanguages } from "../../constants/translateLanguages";
+import UserSettings from "../../models/UserSettings";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -15,10 +16,10 @@ const command: CommandInterface = {
 
       // Check if the provided language option is valid
       if (!Object.keys(translateLanguages).includes(languageOption))
-        throw {
+        throw new CustomError({
           name: "LanguageNotFound",
           message: "Please enter a valid language (Ex: en, vi, ja,...)",
-        };
+        });
 
       // Find the user's settings, or create new settings if they don't exist
       const userSetting = await UserSettings.findOneAndUpdate(

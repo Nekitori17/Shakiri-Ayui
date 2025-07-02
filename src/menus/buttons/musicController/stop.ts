@@ -6,6 +6,7 @@ import {
 } from "discord.js";
 import { useQueue } from "discord-player";
 import sendError from "../../../helpers/utils/sendError";
+import { CustomError } from "../../../helpers/utils/CustomError";
 import { MusicPlayerSession } from "../../../musicPlayerStoreSession";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
@@ -19,10 +20,10 @@ const button: ButtonInterface = {
       // Check if a queue exists
       if (!queue)
         // If no queue, throw an error
-        throw {
+        throw new CustomError({
           name: "NoQueue",
           message: "There is no queue to stop",
-        };
+        });
 
       // Create "Yes" and "No" buttons for confirmation
       const confirmButtonRow =

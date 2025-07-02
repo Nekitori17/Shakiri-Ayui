@@ -1,11 +1,11 @@
-import config from "../../../config";
 import path from "path";
-import { GuildMember, Interaction, PermissionsBitField } from "discord.js";
+import { GuildMember, Interaction } from "discord.js";
 import sendError from "../../../helpers/utils/sendError";
-import { getLocal } from "../../../helpers/utils/getLocal";
-import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import isCooledDown from "../../../validator/isCooledDown";
+import { getLocal } from "../../../helpers/utils/getLocal";
 import checkPermission from "../../../validator/checkPermission";
+import { CustomError } from "../../../helpers/utils/CustomError";
+import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import { CommandInterface } from "../../../types/InteractionInterfaces";
 
@@ -49,11 +49,11 @@ const event: DiscordEventInterface = async (
       );
 
       if (!DEVELOPERS.includes(interaction.user.id))
-        throw {
+        throw new CustomError({
           name: "DeveloperOnly",
           message: "This command is for developers only.",
           type: "warning",
-        };
+        });
     }
 
     // Check for command cooldown
@@ -68,20 +68,20 @@ const event: DiscordEventInterface = async (
 
       // If the command is not cooledDown, throw an error
       if (!cooledDown && nextTime)
-        throw {
+        throw new CustomError({
           name: "Cooldown",
           message: `Please wait <t:${nextTime}:R> before using this command again.`,
           type: "warning",
-        };
+        });
     }
 
     // Check if the command requires the user to be in a voice channel
     if (commandObject.requiredVoiceChannel) {
       if (!(interaction.member as GuildMember).voice.channel)
-        throw {
+        throw new CustomError({
           name: "NoVoiceChannel",
           message: "To use this command, you must be in a voice channel",
-        };
+        });
     }
 
     // Check for permissions

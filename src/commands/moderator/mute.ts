@@ -7,9 +7,10 @@ import {
   PermissionFlagsBits,
 } from "discord.js";
 import sendError from "../../helpers/utils/sendError";
-import { CommandInterface } from "../../types/InteractionInterfaces";
+import { CustomError } from "../../helpers/utils/CustomError";
 import { checkUserRolePosition } from "../../validator/checkRolePosition";
 import { ModerationEmbedBuilder } from "../../helpers/embeds/moderationEmbedBuilder";
+import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
@@ -26,27 +27,27 @@ const command: CommandInterface = {
 
       // Check if the target user exists in the server
       if (!targetUser)
-        throw {
+        throw new CustomError({
           name: "UserNotFound",
           message: "That user does not exist in this server",
           type: "warning",
-        };
+        });
 
       // Check if the target is the server owner
       if (targetUser.id === interaction.guild?.ownerId)
-        throw {
+        throw new CustomError({
           name: "Can'tMuteOwner",
           message: "Why you would want to mute the owner of this server 🤨",
           type: "warning",
-        };
+        });
 
       // Check if the target is the bot itself
       if (targetUser.id === interaction.guild?.members.me?.id)
-        throw {
+        throw new CustomError({
           name: "Can'tMuteMe",
           message: "Why you would want to mute me 😭",
           type: "warning",
-        };
+        });
 
       // Get role positions for hierarchy check
       await checkUserRolePosition(
@@ -58,10 +59,11 @@ const command: CommandInterface = {
       // Parse and validate the duration string
       const msDuration = ms(durationOption as ms.StringValue);
       if (!msDuration)
-        throw {
+        throw new CustomError({
           name: "InvalidDuration",
           message: "Please provide a valid duration",
-        };
+        });
+
       const strDuration = prettyMs(msDuration);
 
       // Check if the user is already muted (for logging purposes)
@@ -97,10 +99,10 @@ const command: CommandInterface = {
 
         // Check if the logging channel exists
         if (!logChannel)
-          throw {
+          throw new CustomError({
             name: "ChannelNotFound",
             message: "The logging channel was not found",
-          };
+          });
 
         // Send log message to the designated channel if sendable
         if (!logChannel.isSendable()) return;

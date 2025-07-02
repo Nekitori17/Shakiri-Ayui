@@ -1,5 +1,6 @@
 import { getVoiceConnection } from "discord-voip";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 
@@ -14,10 +15,10 @@ const command: CommandInterface = {
 
       // If no voice connection is found, throw an error
       if (!connection)
-        throw {
+        throw new CustomError({
           name: "NoVoiceConnection",
           message: "I'm not in a voice channel.",
-        };
+        });
 
       // Destroy the voice connection, effectively leaving the channel
       connection.destroy();

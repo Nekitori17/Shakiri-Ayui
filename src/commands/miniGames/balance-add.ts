@@ -1,5 +1,6 @@
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
 import sendError from "../../helpers/utils/sendError";
+import { CustomError } from "../../helpers/utils/CustomError";
 import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 import MiniGameUserData from "../../models/MiniGameUserData";
 import { CommandInterface } from "../../types/InteractionInterfaces";
@@ -13,19 +14,20 @@ const command: CommandInterface = {
 
       // Check if the user is a bot
       if (targetUserOption.bot)
-        throw {
+        throw new CustomError({
           name: "BotUser",
           message: "Bro think they can play mini game 💀🙏",
-        };
+          type: "warning",
+        });
 
       // Check is invalid value
-      if (amountOption <= 0) {
-        throw {
+      if (amountOption <= 0) 
+        throw new CustomError({
           name: "InvalidAmount",
           message: "You cannot add a negative or zero amount.",
           type: "warning",
-        };
-      }
+        });
+      
 
       // Get mini game data of user
       const miniGameUserData = await MiniGameUserData.findOneAndUpdate(
