@@ -7,6 +7,7 @@ import {
 } from "discord.js";
 import sendError from "../../helpers/utils/sendError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
+import { checkUserRolePosition } from "../../validator/checkRolePosition";
 import { ModerationEmbedBuilder } from "../../helpers/embeds/moderationEmbedBuilder";
 
 const command: CommandInterface = {
@@ -45,28 +46,11 @@ const command: CommandInterface = {
         };
 
       // Get role positions for hierarchy check
-      const requestUserRolePosition = (
-        interaction.member?.roles as GuildMemberRoleManager
-      ).highest.position;
-      const targetUserRolePosition = targetUser.roles.highest.position;
-      const botRolePosition =
-        interaction.guild!.members.me!.roles.highest.position;
-
-      // Check if the command user has a higher role than the target
-      if (targetUserRolePosition >= requestUserRolePosition)
-        throw {
-          name: "InsufficientPermissions",
-          message: "They have the same/higher role than you",
-          type: "warning",
-        };
-
-      // Check if the bot has a higher role than the target
-      if (targetUserRolePosition >= botRolePosition!)
-        throw {
-          name: "InsufficientPermissions",
-          message: "They have the same/higher role than me",
-          type: "warning",
-        };
+      await checkUserRolePosition(
+        interaction.member!,
+        interaction.guild!.members.me!,
+        targetUser
+      );
 
       // Kick the user with the specified reason
       await targetUser.kick(reasonOption || undefined);

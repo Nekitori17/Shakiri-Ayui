@@ -7,6 +7,7 @@ import {
 } from "discord.js";
 import sendError from "../../helpers/utils/sendError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
+import { checkRolePosition } from "../../validator/checkRolePosition";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
@@ -27,40 +28,13 @@ const command: CommandInterface = {
           message: "That user does not exist in this server",
         };
 
-      // Get the highest role position of the user who initiated the command
-      const requestUserRolePosition = (
-        interaction.member?.roles as GuildMemberRoleManager
-      ).highest.position;
-      const targetRolePosition = roleOption.position;
-      // Get the highest role position of the bot
-      const botRolePosition =
-        interaction.guild?.members.me?.roles.highest.position;
-
-      // Check if the command user has a higher role than the target role
-      if (requestUserRolePosition < targetRolePosition)
-        throw {
-          name: "RolePositionError",
-          message:
-            "You cannot remove a role that is higher than your highest role",
-          type: "warning",
-        };
-
-      // Check if the bot has a higher role than the target role
-      if (botRolePosition! < targetRolePosition) {
-        throw {
-          name: "RolePositionError",
-          message: "I cannot remove a role that is higher than my highest role",
-          type: "warning",
-        };
-      }
-
-      // Check if the target user already has the role
-      if (!targetUser.roles.cache.has(roleOption.id))
-        throw {
-          name: "RoleNotAssigned",
-          message: "That user does not have that role",
-          type: "warning",
-        };
+      // Check role positions for hierarchy
+      await checkRolePosition(
+        interaction.member!,
+        interaction.guild!.members.me!,
+        roleOption,
+        interaction.guild!
+      );
 
       // Remove the role from the target user
       await targetUser.roles.remove(roleOption as Role);

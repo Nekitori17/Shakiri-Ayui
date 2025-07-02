@@ -1,11 +1,11 @@
 import {
   ApplicationCommandOptionType,
   EmbedBuilder,
-  GuildMemberRoleManager,
   PermissionFlagsBits,
   Role,
 } from "discord.js";
 import sendError from "../../helpers/utils/sendError";
+import { checkRolePosition } from "../../validator/checkRolePosition";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -26,33 +26,14 @@ const command: CommandInterface = {
           name: "UserNotFound",
           message: "That user does not exist in this server",
         };
-
-      const requestUserRolePosition = (
-        // Get the highest role position of the user who initiated the command
-        interaction.member?.roles as GuildMemberRoleManager
-      ).highest.position;
-      const targetRolePosition = roleOption.position;
-      const botRolePosition =
-        // Get the highest role position of the bot
-        interaction.guild?.members.me?.roles.highest.position;
-
-      // Check if the command user has a higher role than the target role
-      if (requestUserRolePosition < targetRolePosition)
-        throw {
-          name: "RolePositionError",
-          message:
-            "You cannot add a role that is higher than your highest role",
-          type: "warning",
-        };
-
-      // Check if the bot has a higher role than the target role
-      if (botRolePosition! < targetRolePosition) {
-        throw {
-          name: "RolePositionError",
-          message: "I cannot add a role that is higher than my highest role",
-          type: "warning",
-        };
-      }
+      
+      // Check role positions for hierarchy
+      await checkRolePosition(
+        interaction.member!,
+        interaction.guild!.members.me!,
+        roleOption,
+        interaction.guild!
+      )
 
       // Check if the target user already has the role
       if (targetUser.roles.cache.has(roleOption.id))
