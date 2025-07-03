@@ -10,6 +10,8 @@ import {
   ButtonInteraction,
   UserSelectMenuInteraction,
   VoiceBasedChannel,
+  Message,
+  Guild,
 } from "discord.js";
 import sendError from "../../../helpers/utils/sendError";
 import UserSettings from "../../../models/UserSettings";
@@ -18,8 +20,18 @@ import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
+// Helper function to create a button for joining a channel via a link
+function createJoinChannelLinkButton(link: string) {
+  return new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setLabel("Join")
+      .setStyle(ButtonStyle.Link)
+      .setURL(link)
+  );
+}
+
 // Helper function to create invite buttons
-function createInviteButtons(): ActionRowBuilder<ButtonBuilder> {
+function createInviteButtons() {
   return new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder()
       .setCustomId("invite-temp-voice-confirm-join")
@@ -37,10 +49,7 @@ function createInviteButtons(): ActionRowBuilder<ButtonBuilder> {
 }
 
 // Helper function to check if user is blocked
-async function isUserBlocked(
-  invitedUserId: string,
-  inviterId: string
-): Promise<boolean> {
+async function isUserBlocked(invitedUserId: string, inviterId: string) {
   const inviteUserSetting = await UserSettings.findOne({
     userId: invitedUserId,
   });
@@ -53,13 +62,13 @@ async function isUserBlocked(
 // Helper function to handle join button logic
 async function handleJoinButton(
   interaction: ButtonInteraction,
-  inviteMessage: any,
+  inviteMessage: Message,
   originalVoiceChannel: VoiceBasedChannel,
-  inviterId: string
+  inviter: User,
+  inviterGuild: Guild
 ) {
-  const invitedMember = await interaction.guild?.members.fetch(
-    interaction.user.id
-  );
+  const invitedMember = await inviterGuild.members.fetch(interaction.user.id);
+
   if (!invitedMember) {
     throw new CustomError({
       name: "UserNotInGuild",
@@ -68,13 +77,12 @@ async function handleJoinButton(
   }
 
   // Get current state of inviter's voice channel
-  const currentInviterMember = await interaction.guild!.members.fetch(
-    inviterId
-  );
+  const currentInviterMember = await inviterGuild.members.fetch(inviter.id);
   const currentVoiceChannel = currentInviterMember.voice.channel;
 
   // Check if channel was deleted
   if (!currentVoiceChannel) {
+    await interaction.deferUpdate();
     return inviteMessage.edit({
       content: null,
       embeds: [
@@ -89,6 +97,7 @@ async function handleJoinButton(
 
   // Check if channel changed
   if (originalVoiceChannel.id !== currentVoiceChannel.id) {
+    await interaction.deferUpdate();
     return inviteMessage.edit({
       content: null,
       embeds: [
@@ -106,6 +115,7 @@ async function handleJoinButton(
     originalVoiceChannel.userLimit !== 0 &&
     originalVoiceChannel.members.size >= originalVoiceChannel.userLimit
   ) {
+    await interaction.deferUpdate();
     return inviteMessage.edit({
       content: null,
       embeds: [
@@ -120,6 +130,7 @@ async function handleJoinButton(
 
   // Check if user is already in channel
   if (originalVoiceChannel.members.has(interaction.user.id)) {
+    await interaction.deferUpdate();
     return inviteMessage.edit({
       content: null,
       embeds: [
@@ -135,30 +146,21 @@ async function handleJoinButton(
   // Check if user is in a voice channel
   if (!invitedMember.voice.channel) {
     const inviteUrl = await originalVoiceChannel.createInvite();
+    await interaction.deferUpdate();
     return inviteMessage.edit({
       content: null,
       embeds: [
         CommonEmbedBuilder.info({
-          title: "> Not in Voice Channel",
-          description: `You are not in a voice channel. Please join a voice channel and try again.\n\nOr you can try to join by this link\n${inviteUrl.url}`,
+          title: "> Not in Voice Channel Or Same Guild",
+          description:
+            `You are not in a voice channel or you are not in the same guild as the temporary voice channel.` +
+            "\n" +
+            `Please join a voice channel and try again.` +
+            "\n\n" +
+            `Or you can try to join by the button in bellow`,
         }),
       ],
-      components: [],
-    });
-  }
-
-  // Check if user is in same guild
-  if (invitedMember.voice.channel?.guildId !== originalVoiceChannel.guild.id) {
-    const inviteUrl = await originalVoiceChannel.createInvite();
-    return inviteMessage.edit({
-      content: null,
-      embeds: [
-        CommonEmbedBuilder.info({
-          title: "> Not in Same Guild",
-          description: `You are not in the same guild as the owner of this channel.\n\nOr you can try to join by this link\n${inviteUrl.url}`,
-        }),
-      ],
-      components: [],
+      components: [createJoinChannelLinkButton(inviteUrl.url)],
     });
   }
 
@@ -170,7 +172,7 @@ async function handleJoinButton(
     embeds: [
       CommonEmbedBuilder.success({
         title: "> Joined Channel",
-        description: `You have joined the temporary voice channel.`,
+        description: `You have joined ${inviter}'s temporary voice channel.`,
       }),
     ],
     components: [],
@@ -182,9 +184,8 @@ async function handleJoinButton(
 // Helper function to handle block button
 async function handleBlockButton(
   interaction: ButtonInteraction,
-  inviteMessage: any,
-  inviterId: string,
-  inviterDisplayName: string
+  inviteMessage: Message,
+  inviter: User
 ) {
   const userSettings = await UserSettings.findOneAndUpdate(
     { userId: interaction.user.id },
@@ -192,7 +193,7 @@ async function handleBlockButton(
     { upsert: true, new: true }
   );
 
-  userSettings.temporaryVoiceChannel.blockedUsers.push(inviterId);
+  userSettings.temporaryVoiceChannel.blockedUsers.push(inviter.id);
   await userSettings.save();
 
   await inviteMessage.edit({
@@ -200,7 +201,7 @@ async function handleBlockButton(
     embeds: [
       CommonEmbedBuilder.info({
         title: "> Blocked",
-        description: `You have blocked ${inviterDisplayName} from inviting you to their temporary voice channel.`,
+        description: `You have blocked ${inviter} from inviting you to their temporary voice channel.`,
       }),
     ],
     components: [],
@@ -211,30 +212,26 @@ async function handleBlockButton(
 
 // Helper function to handle button interactions
 async function handleButtonInteraction(
-  buttonInteraction: ButtonInteraction,
-  inviteMessage: any,
+  inviteButtonInteraction: ButtonInteraction,
+  inviteMessage: Message,
   originalVoiceChannel: VoiceBasedChannel,
-  inviterId: string,
-  inviterDisplayName: string
+  inviter: User,
+  inviterGuild: Guild
 ) {
-  const { customId } = buttonInteraction;
+  const { customId } = inviteButtonInteraction;
 
   if (customId === "invite-temp-voice-confirm-join") {
     return handleJoinButton(
-      buttonInteraction,
+      inviteButtonInteraction,
       inviteMessage,
       originalVoiceChannel,
-      inviterId
+      inviter,
+      inviterGuild
     );
   }
 
   if (customId === "invite-temp-voice-confirm-block") {
-    return handleBlockButton(
-      buttonInteraction,
-      inviteMessage,
-      inviterId,
-      inviterDisplayName
-    );
+    return handleBlockButton(inviteButtonInteraction, inviteMessage, inviter);
   }
 
   if (customId === "invite-temp-voice-confirm-deny") {
@@ -247,6 +244,7 @@ async function sendInviteToUser(
   invitedUser: User,
   inviterUser: User,
   originalVoiceChannel: VoiceBasedChannel,
+  inviterGuild: Guild,
   sentUsers: User[],
   cantSendUsers: User[]
 ) {
@@ -275,24 +273,25 @@ async function sendInviteToUser(
 
     sentUsers.push(invitedUser);
 
-    // Create collector for button interactions
-    const collector = inviteMessage.createMessageComponentCollector({
-      componentType: ComponentType.Button,
-      filter: (i) => i.user.id === invitedUser.id,
-      time: 120_000,
-    });
+    // Create inviteSelectCollector for button interactions
+    const inviteMessageCollector =
+      inviteMessage.createMessageComponentCollector({
+        componentType: ComponentType.Button,
+        filter: (i) => i.user.id === invitedUser.id,
+        time: 120_000,
+      });
 
-    collector.on("collect", async (buttonInteraction) => {
+    inviteMessageCollector.on("collect", async (inviteButtonInteraction) => {
       try {
         await handleButtonInteraction(
-          buttonInteraction,
+          inviteButtonInteraction,
           inviteMessage,
           originalVoiceChannel,
-          inviterUser.id,
-          inviterUser.displayName
+          inviterUser,
+          inviterGuild
         );
       } catch (error) {
-        sendError(buttonInteraction, error);
+        sendError(inviteButtonInteraction, error);
       }
     });
   } catch (error) {
@@ -317,6 +316,7 @@ async function handleUserSelection(
         user,
         selectInteraction.user,
         originalVoiceChannel,
+        selectInteraction.guild!,
         sentUsers,
         cantSendUsers
       )
@@ -331,7 +331,7 @@ async function handleUserSelection(
     )}`;
   }
 
-  // Edit the reply to confirm the invited users
+  // Edit the inviteSelectReply to confirm the invited users
   await selectInteraction.editReply({
     content: null,
     embeds: [
@@ -369,22 +369,23 @@ const select: SelectMenuInterface = {
             .setMaxValues(10)
         );
 
-      const reply = await interaction.editReply({
+      const inviteSelectReply = await interaction.editReply({
         content: "> Select a user to invite to your temporary voice channel",
         components: [selectMenuRow],
       });
 
-      // Create collector
-      const collector = reply.createMessageComponentCollector({
-        componentType: ComponentType.UserSelect,
-        time: 60_000,
-      });
+      // Create inviteSelectCollector
+      const inviteSelectCollector =
+        inviteSelectReply.createMessageComponentCollector({
+          componentType: ComponentType.UserSelect,
+          time: 60_000,
+        });
 
-      collector.on("collect", async (selectInteraction) => {
+      inviteSelectCollector.on("collect", async (inviteSelectInteraction) => {
         try {
-          await handleUserSelection(selectInteraction, userVoiceChannel);
+          await handleUserSelection(inviteSelectInteraction, userVoiceChannel);
         } catch (error) {
-          sendError(selectInteraction, error, true);
+          sendError(inviteSelectInteraction, error, true);
         }
       });
     } catch (error) {
