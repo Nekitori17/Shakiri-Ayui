@@ -36,7 +36,6 @@ const event: DiscordEventInterface = async (
       ) {
         temporaryChannels.del(oldState.channelId!); // Remove the channel from the temporary channels store
         await oldState.channel.delete(); // Delete the voice channel
-        await oldState.channel.delete(); // Delete the voice channel
       }
     }
 
