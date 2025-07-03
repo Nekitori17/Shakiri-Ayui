@@ -60,7 +60,7 @@ function buildErrorAttachment(error: Error) {
  * @returns A Promise that resolves once the error message has been sent.
  */
 
-export default async function handleError(
+export default async function (
   interaction: AnyInteraction,
   error: Error | CustomError | unknown,
   newReply = false,
