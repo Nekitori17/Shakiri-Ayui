@@ -8,6 +8,7 @@ import {
 } from "discord.js";
 import { getLocal } from "../../../helpers/utils/getLocal";
 import areDifferent from "../../../helpers/utils/areDifferent";
+import handleErrorLog from "../../../helpers/utils/handleErrorLog";
 import getApplicationCommands from "../../../helpers/utils/getApplicationCommands";
 import {
   CommandInterface,
@@ -78,7 +79,7 @@ export default async (client: Client) => {
         `=======================================`
     );
   } catch (error) {
-    console.log(`There was an error: ${error}`);
+    handleErrorLog(error)
   }
 };
 

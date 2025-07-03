@@ -1,5 +1,6 @@
 import path from "path";
 import getAllFiles from "../helpers/utils/getAllFiles";
+import handleErrorLog from "../helpers/utils/handleErrorLog";
 import { DiscordEventInterface } from "../types/EventInterfaces";
 
 export default (client: any) => {
@@ -32,6 +33,7 @@ export default (client: any) => {
     } catch (error: any) {
       console.log(`\x1b[31m\x1b[1m|> ${error.name}\x1b[0m`);
       console.log(`\x1b[32m${error.message}\x1b[0m`);
+      handleErrorLog(error);
     }
   }
 };

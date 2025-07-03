@@ -1,5 +1,6 @@
 import { AttachmentBuilder, MessageFlags } from "discord.js";
 import { CustomError } from "./CustomError";
+import handleErrorLog from "./handleErrorLog";
 import CommonEmbedBuilder from "../embeds/commonEmbedBuilder";
 import { AnyInteraction } from "../../types/AnyInteraction";
 
@@ -63,55 +64,58 @@ function buildErrorAttachment(error: Error) {
 export default async function (
   interaction: AnyInteraction,
   error: Error | CustomError | unknown,
-  newReply = false,
-  ephemeral = false
 ) {
-  // Defer the reply if not already replied or deferred
-  if (!interaction.replied && !interaction.deferred) {
-    await interaction.deferReply({
-      flags: ephemeral ? MessageFlags.Ephemeral : undefined,
-    });
-  }
-
-  const attachments: AttachmentBuilder[] = [];
-  // If the error is an instance of Error, build an attachment with its details
-  if (error instanceof Error) {
-    attachments.push(buildErrorAttachment(error));
-  }
-
-  // Extract error details, defaulting to generic values if not a CustomError
-  const {
-    name = "Unknown Error",
-    message = "No details provided",
-    type = "error",
-  } = error as CustomError;
-
-  // Select the appropriate embed builder based on the error type
-  const embed = {
-    warning: CommonEmbedBuilder.warning,
-    info: CommonEmbedBuilder.info,
-    error: CommonEmbedBuilder.error,
-  }[type]({
-    title: name,
-    description: message,
-  });
-
-  // Prepare the payload for the reply/followUp/editReply
-  const payload = {
-    embeds: [embed],
-    files: attachments,
-    ephemeral,
-  };
-
-  // Send the reply based on the newReply flag and interaction state
-
-  if (newReply) {
-    if (!interaction.replied) {
-      await interaction.reply(payload);
-    } else {
-      await interaction.followUp(payload);
+  try {
+    // Defer the reply if not already replied or deferred
+    if (!interaction.replied && !interaction.deferred) {
+      await interaction.deferReply({
+        flags: ephemeral ? MessageFlags.Ephemeral : undefined,
+      });
     }
-  } else {
-    await interaction.editReply(payload);
+
+    const attachments: AttachmentBuilder[] = [];
+    // If the error is an instance of Error, build an attachment with its details
+    if (error instanceof Error) {
+      handleErrorLog(error);
+      attachments.push(buildErrorAttachment(error));
+    }
+
+    // Extract error details, defaulting to generic values if not a CustomError
+    const {
+      name = "Unknown Error",
+      message = "No details provided",
+      type = "error",
+    } = error as CustomError;
+
+    // Select the appropriate embed builder based on the error type
+    const embed = {
+      warning: CommonEmbedBuilder.warning,
+      info: CommonEmbedBuilder.info,
+      error: CommonEmbedBuilder.error,
+    }[type]({
+      title: name,
+      description: message,
+    });
+
+    // Prepare the payload for the reply/followUp/editReply
+    const payload = {
+      embeds: [embed],
+      files: attachments,
+      ephemeral,
+    };
+
+    // Send the reply based on the newReply flag and interaction state
+
+    if (newReply) {
+      if (!interaction.replied) {
+        await interaction.reply(payload);
+      } else {
+        await interaction.followUp(payload);
+      }
+    } else {
+      await interaction.editReply(payload);
+    }
+  } catch (error) {
+    handleErrorLog(error);
   }
 }

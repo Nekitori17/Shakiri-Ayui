@@ -20,7 +20,6 @@ export default async ({
   buffer?: Buffer;
   format: keyof sharp.FormatEnum | sharp.AvailableFormatInfo;
 }) => {
-  try {
     let fileInputBuffer: Buffer;
 
     // Load file from URL if provided
@@ -56,7 +55,5 @@ export default async ({
     return new AttachmentBuilder(fileConverted, {
       name: fileName,
     });
-  } catch (error) {
-    console.error(`Error processing file: ${error}`);
-  }
+
 };

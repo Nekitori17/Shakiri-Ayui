@@ -56,6 +56,9 @@ MONGODB_CONNECTION_URI = ""
 
 ## Array of user id that can access developer commands. Example: ["123456789","987654321"]
 DEVELOPER_ACCOUNT_IDS = ""
+
+# Webhook for logging error.
+WEBHOOK_LOG_ERROR_URL = ""
 ```
 
 <h3>Starting</h3>
