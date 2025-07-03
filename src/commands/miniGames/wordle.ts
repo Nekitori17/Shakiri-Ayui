@@ -36,7 +36,7 @@ const accentColorStatus: {
  * @param guessCount The number of guesses it took to win.
  * @returns The calculated reward amount.
  */
-function calculateReward(guessCount: number): number {
+function calculateReward(guessCount: number) {
   const baseReward = 500;
   const penaltyPerGuess = 80;
   // The reward is the base reward minus a penalty for each guess after the first.

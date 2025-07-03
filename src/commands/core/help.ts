@@ -42,7 +42,7 @@ const command: CommandInterface = {
        * @param category The category of commands to list.
        * @returns An EmbedBuilder object.
        */
-      function commandListEmbed(category: string): EmbedBuilder {
+      function commandListEmbed(category: string) {
         const commandCategory =
           commandCategories[category as keyof typeof commandCategories];
 

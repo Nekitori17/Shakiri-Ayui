@@ -31,7 +31,7 @@ const event: DiscordEventInterface = async (client) => {
 
   // Initialize index for cycling through statuses
   let index: number = 0;
-  setInterval((): void => {
+  setInterval(() => {
     if (index === statusList.length) index = 0;
     client.user?.setPresence({
       activities: [

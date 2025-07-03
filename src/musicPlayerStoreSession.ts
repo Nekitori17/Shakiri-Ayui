@@ -31,7 +31,7 @@ export class MusicPlayerSession {
   /**
    * Gets the internal session data object for the guild.
    */
-  private get data(): SessionData {
+  private get data() {
     return sessionMap.get(this.guildId)!;
   }
 
@@ -39,7 +39,7 @@ export class MusicPlayerSession {
    * Sets the volume level for the guild.
    * @param level The volume level to set.
    */
-  public setVolume(level: number): void {
+  public setVolume(level: number) {
     this.data.volume = level;
   }
 
@@ -48,7 +48,7 @@ export class MusicPlayerSession {
    * If no volume is set, it defaults to the volume stored in the guild settings.
    * @returns The current volume level.
    */
-  public async getVolume(): Promise<number> {
+  public async getVolume() {
     const queue = useQueue(this.guildId);
     return (
       this.data.volume ||
@@ -61,14 +61,14 @@ export class MusicPlayerSession {
    * Sets the number of times the queue has been shuffled for the guild.
    * @param times The number of times the queue has been shuffled.
    */
-  public setShuffledTimes(times: number): void {
+  public setShuffledTimes(times: number) {
     this.data.shuffledTimes = times;
   }
 
   /**
    * Adds one to the number of times the queue has been shuffled for the guild.
    */
-  public addShuffledTimes(): void {
+  public addShuffledTimes() {
     this.data.shuffledTimes = (this.data.shuffledTimes ?? 0) + 1;
   }
 
@@ -76,7 +76,7 @@ export class MusicPlayerSession {
    * Retrieves the number of times the queue has been shuffled for the guild.
    * @returns The number of times the queue has been shuffled.
    */
-  public getShuffledTimes(): number {
+  public getShuffledTimes() {
     return this.data.shuffledTimes ?? 0;
   }
 
@@ -84,7 +84,7 @@ export class MusicPlayerSession {
    * Determines whether the queue has been shuffled at least once.
    * @returns True if the queue has been shuffled, false otherwise.
    */
-  public isShuffled(): boolean {
+  public isShuffled() {
     return (this.data.shuffledTimes ?? 0) > 0;
   }
 
@@ -92,7 +92,7 @@ export class MusicPlayerSession {
    * Sets the loop mode for the guild.
    * @param mode The loop mode to set.
    */
-  public setRepeatMode(mode: QueueRepeatMode): void {
+  public setRepeatMode(mode: QueueRepeatMode) {
     this.data.repeatMode = mode;
   }
 
@@ -100,14 +100,14 @@ export class MusicPlayerSession {
    * Retrieves the loop mode for the guild.
    * @returns The current loop mode.
    */
-  public getRepeatMode(): QueueRepeatMode {
+  public getRepeatMode() {
     return this.data.repeatMode ?? QueueRepeatMode.OFF;
   }
 
   /**
    * Clears all stored session data for the guild.
    */
-  public clear(): void {
+  public clear() {
     sessionMap.delete(this.guildId);
   }
 }

@@ -15,7 +15,7 @@ export default (
   directory: string,
   folderOnly: boolean = false,
   exception: string[] = []
-): string[] => {
+)=> {
   // Read all entries (files and folders) in the directory
   const files = fs.readdirSync(directory, { withFileTypes: true });
 

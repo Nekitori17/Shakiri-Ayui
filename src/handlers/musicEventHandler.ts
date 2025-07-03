@@ -4,7 +4,7 @@ import { Player } from "discord-player";
 import getAllFiles from "../helpers/utils/getAllFiles";
 import { MusicEventInterface } from "../types/EventInterfaces";
 
-export default (client: Client, player: Player): void => {
+export default (client: Client, player: Player) => {
   // Get all music event files
   const eventFiles = getAllFiles(path.join(__dirname, "..", "events", "Music"));
 

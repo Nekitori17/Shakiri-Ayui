@@ -9,7 +9,7 @@ import { AnyInteraction } from "../../types/AnyInteraction";
  * @param error The unknown error object to stringify.
  * @returns A JSON string representation of the error.
  */
-function stringifyError(error: unknown): string {
+function stringifyError(error: unknown) {
   if (typeof error !== "object" || error === null) {
     return String(error);
   }
@@ -30,7 +30,7 @@ function stringifyError(error: unknown): string {
  * This attachment can be sent along with an error message for debugging.
  * @param error The Error object to build the attachment from.
  */
-function buildErrorAttachment(error: Error): AttachmentBuilder {
+function buildErrorAttachment(error: Error) {
   const timestamp = new Date().toISOString();
   const logContent = [
     `# Error Name: ${error.name}`,
@@ -65,7 +65,7 @@ export default async function handleError(
   error: Error | CustomError | unknown,
   ephemeral = false,
   newReply = false
-): Promise<void> {
+) {
   // Defer the reply if not already replied or deferred
   if (!interaction.replied && !interaction.deferred) {
     await interaction.deferReply({

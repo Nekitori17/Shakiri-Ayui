@@ -2,7 +2,7 @@ import path from "path";
 import getAllFiles from "../helpers/utils/getAllFiles";
 import { DiscordEventInterface } from "../types/EventInterfaces";
 
-export default (client: any): void => {
+export default (client: any) => {
   // Get all event folders
   const eventFolders = getAllFiles(
     path.join(__dirname, "..", "events", "Discord"),

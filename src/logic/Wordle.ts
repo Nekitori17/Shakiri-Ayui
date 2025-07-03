@@ -122,7 +122,7 @@ class WordleGame {
    * @returns An array of `GuessCheckBox` representing the result of the guess.
    * @throws {WordleGameException} If the guess is invalid or the game is over.
    */
-  public guess(guessInput: string): GuessCheckBox[] {
+  public guess(guessInput: string) {
     // Check if the game is already over
     if (this.status !== "playing")
       throw new WordleGameException("🎮 Game is already over.");
@@ -200,7 +200,7 @@ class WordleGame {
    * Gets the current state of the game board.
    * @returns The game board as a 2D array of `GuessCheckBox` values.
    */
-  public getBoard(): GuessCheckBox[][] {
+  public getBoard() {
     return this.board;
   }
 
@@ -208,7 +208,7 @@ class WordleGame {
    *    Gets the list of words already guessed by the player.
    * @returns An array of guessed words.
    */
-  public getGuesses(): string[] {
+  public getGuesses() {
     return this.guessed;
   }
 
@@ -216,7 +216,7 @@ class WordleGame {
    * Gets the list of characters that are not in the word.
    * @returns An array of wrong characters.
    */
-  public getWrongChars(): string[] {
+  public getWrongChars() {
     return this.wrongChars;
   }
 
@@ -224,7 +224,7 @@ class WordleGame {
    * Gets the current status of the game.
    * @returns The current status of the game.
    */
-  public getStatus(): WordleGameStatus {
+  public getStatus() {
     return this.status;
   }
 
@@ -232,7 +232,7 @@ class WordleGame {
    * Gets the secret word of the game.
    * @returns The secret word.
    */
-  public getWord(): string {
+  public getWord() {
     return this.word;
   }
 
@@ -240,7 +240,7 @@ class WordleGame {
    * Gets the number of guesses already made.
    * @returns The current guess count.
    */
-  public getCurrentGuessCount(): number {
+  public getCurrentGuessCount() {
     return this.guessed.length;
   }
 }

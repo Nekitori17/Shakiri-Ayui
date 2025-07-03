@@ -19,7 +19,7 @@ export default async ({
   url?: string;
   buffer?: Buffer;
   format: keyof sharp.FormatEnum | sharp.AvailableFormatInfo;
-}): Promise<AttachmentBuilder | undefined> => {
+}) => {
   try {
     let fileInputBuffer: Buffer;
 

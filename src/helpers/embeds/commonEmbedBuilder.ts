@@ -22,7 +22,7 @@ export default class CommonEmbedBuilder {
     title: string;
     description: string;
     footer?: string;
-  }): EmbedBuilder {
+  }) {
     return new EmbedBuilder()
       .setAuthor({
         name: "Info",
@@ -50,7 +50,7 @@ export default class CommonEmbedBuilder {
     title: string;
     description: string;
     footer?: string;
-  }): EmbedBuilder {
+  }) {
     return new EmbedBuilder()
       .setAuthor({
         name: "Success",
@@ -78,7 +78,7 @@ export default class CommonEmbedBuilder {
     title: string;
     description: string;
     footer?: string;
-  }): EmbedBuilder {
+  }) {
     return new EmbedBuilder()
       .setAuthor({
         name: "Warning",
@@ -106,7 +106,7 @@ export default class CommonEmbedBuilder {
     title: string;
     description: string;
     footer?: string;
-  }): EmbedBuilder {
+  }) {
     return new EmbedBuilder()
       .setAuthor({
         name: "Error",
