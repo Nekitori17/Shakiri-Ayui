@@ -78,11 +78,11 @@ const select: SelectMenuInterface = {
             ],
           });
         } catch (error) {
-          sendError(regionSelectInteraction, error, true);
+          sendError(regionSelectInteraction, error);
         }
       });
     } catch (error) {
-      sendError(interaction, error, true);
+      sendError(interaction, error);
     }
   },
   disabled: false,

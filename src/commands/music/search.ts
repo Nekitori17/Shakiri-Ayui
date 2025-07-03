@@ -264,7 +264,7 @@ const command: CommandInterface = {
               });
             }
           } catch (error) {
-            sendError(searchResultSelectInteraction, error, true);
+            sendError(searchResultSelectInteraction, error);
           }
         }
       );

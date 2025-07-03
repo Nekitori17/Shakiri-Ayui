@@ -99,10 +99,10 @@ const button: ButtonInterface = {
           ],
         });
       } catch (error) {
-        sendError(volumeChangeInteraction, error, true);
+        sendError(volumeChangeInteraction, error);
       }
     } catch (error) {
-      sendError(interaction, error, true);
+      sendError(interaction, error);
     }
   },
   disabled: false,

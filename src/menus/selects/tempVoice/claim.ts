@@ -54,7 +54,7 @@ const select: SelectMenuInterface = {
         ],
       });
     } catch (error) {
-      sendError(interaction, error, true);
+      sendError(interaction, error);
     }
   },
   disabled: false,

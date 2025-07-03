@@ -180,13 +180,13 @@ const select: SelectMenuInterface = {
                 ],
               });
             } catch (error) {
-              sendError(transferUserMenuInteraction, error, true);
+              sendError(transferUserMenuInteraction, error);
             }
           }
         }
       );
     } catch (error) {
-      sendError(interaction, error, true);
+      sendError(interaction, error);
     }
   },
   disabled: false,

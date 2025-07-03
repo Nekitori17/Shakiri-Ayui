@@ -97,10 +97,10 @@ const select: SelectMenuInterface = {
           ],
         });
       } catch (error) {
-        sendError(renameModalInteraction, error, true);
+        sendError(renameModalInteraction, error);
       }
     } catch (error) {
-      sendError(interaction, error, true);
+      sendError(interaction, error);
     }
   },
   disabled: false,

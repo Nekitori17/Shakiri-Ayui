@@ -202,13 +202,13 @@ const select: SelectMenuInterface = {
                 ],
               });
             } catch (error) {
-              sendError(blockedUserMenuInteraction, error, true);
+              sendError(blockedUserMenuInteraction, error);
             }
           }
         }
       );
     } catch (error) {
-      sendError(interaction, error, true);
+      sendError(interaction, error);
     }
   },
   disabled: false,

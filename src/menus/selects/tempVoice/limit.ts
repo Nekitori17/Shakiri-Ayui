@@ -112,10 +112,10 @@ const select: SelectMenuInterface = {
           ],
         });
       } catch (error) {
-        sendError(limitUserModalInteraction, error, true);
+        sendError(limitUserModalInteraction, error);
       }
     } catch (error) {
-      sendError(interaction, error, true);
+      sendError(interaction, error);
     }
   },
   disabled: false,

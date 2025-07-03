@@ -190,7 +190,7 @@ const command: CommandInterface = {
                 ],
               });
             } catch (error) {
-              sendError(bannedUserMenuInteraction, error, true);
+              sendError(bannedUserMenuInteraction, error);
             }
           }
         }

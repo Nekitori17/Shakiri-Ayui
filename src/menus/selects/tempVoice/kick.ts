@@ -177,12 +177,12 @@ const select: SelectMenuInterface = {
               ],
             });
           } catch (error) {
-            sendError(userKickMenuInteraction, error, true);
+            sendError(userKickMenuInteraction, error);
           }
         }
       });
     } catch (error) {
-      sendError(interaction, error, true);
+      sendError(interaction, error);
     }
   },
   disabled: false,

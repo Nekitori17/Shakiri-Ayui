@@ -385,11 +385,11 @@ const select: SelectMenuInterface = {
         try {
           await handleUserSelection(inviteSelectInteraction, userVoiceChannel);
         } catch (error) {
-          sendError(inviteSelectInteraction, error, true);
+          sendError(inviteSelectInteraction, error);
         }
       });
     } catch (error) {
-      sendError(interaction, error, true);
+      sendError(interaction, error);
     }
   },
   disabled: false,

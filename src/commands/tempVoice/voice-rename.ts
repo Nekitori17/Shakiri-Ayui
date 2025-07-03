@@ -64,7 +64,7 @@ const command: CommandInterface = {
         ],
       });
     } catch (error) {
-      sendError(interaction, error, true);
+      sendError(interaction, error);
     }
   },
   name: "voice-rename",

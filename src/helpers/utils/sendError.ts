@@ -63,8 +63,8 @@ function buildErrorAttachment(error: Error) {
 export default async function handleError(
   interaction: AnyInteraction,
   error: Error | CustomError | unknown,
-  ephemeral = false,
-  newReply = false
+  newReply = false,
+  ephemeral = false
 ) {
   // Defer the reply if not already replied or deferred
   if (!interaction.replied && !interaction.deferred) {

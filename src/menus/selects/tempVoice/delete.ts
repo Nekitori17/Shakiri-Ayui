@@ -32,7 +32,7 @@ const select: SelectMenuInterface = {
       // Delete the voice channel itself
       userVoiceChannel?.delete();
     } catch (error) {
-      sendError(interaction, error, true);
+      sendError(interaction, error);
     }
   },
   disabled: false,
