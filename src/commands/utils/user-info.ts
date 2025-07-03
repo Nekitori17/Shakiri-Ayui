@@ -54,8 +54,12 @@ const command: CommandInterface = {
                 value: `${targetUser?.roles.cache
                   .values()
                   .toArray()
-                  .slice(0, 15)
-                  .join(" ")}`,
+                  .slice(0, 10)
+                  .join(" ")}${
+                  targetUser && targetUser?.roles.cache.size > 10
+                    ? `... +${targetUser?.roles.cache.size - 10}`
+                    : ""
+                }`,
                 inline: false,
               },
             ])

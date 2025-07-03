@@ -59,8 +59,13 @@ const command: CommandInterface = {
               {
                 name: "Futures",
                 value: `${interaction.guild?.features
-                  .map((f) => _.capitalize(f))
-                  .join(", ")}`,
+                  .slice(0, 10)
+                  .map((f) => `\`${_.capitalize(_.startCase(_.toLower(f)))}\``)
+                  .join(", ")}${
+                  interaction.guild && interaction.guild?.features.length > 10
+                    ? `... +${interaction.guild?.features.length - 10}`
+                    : ""
+                }`,
                 inline: false,
               },
               {
@@ -69,7 +74,11 @@ const command: CommandInterface = {
                   .values()
                   .toArray()
                   .slice(0, 15)
-                  .join(" ")}`,
+                  .join(" ")}${
+                  interaction.guild && interaction.guild?.roles.cache.size > 15
+                    ? `... +${interaction.guild?.roles.cache.size - 15}`
+                    : ""
+                }`,
                 inline: false,
               },
               {
@@ -78,7 +87,11 @@ const command: CommandInterface = {
                   .values()
                   .toArray()
                   .slice(0, 15)
-                  .join("")}`,
+                  .join("")}${
+                  interaction.guild && interaction.guild?.emojis.cache.size > 15
+                    ? `... +${interaction.guild?.emojis.cache.size - 15}`
+                    : ""
+                }`,
                 inline: false,
               },
             ])
