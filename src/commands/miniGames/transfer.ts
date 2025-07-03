@@ -29,10 +29,10 @@ const command: CommandInterface = {
 
       // Check if the amount is valid
       if (amountOption <= 0)
-        throw {
+        throw new CustomError({
           name: "InvalidAmount",
           message: "You cannot transfer 0 or negative money.",
-        };
+        });
 
       // Get sender mini game data
       const senderMiniGameUserData = await MiniGameUserData.findOne({
@@ -41,18 +41,18 @@ const command: CommandInterface = {
 
       // Check if sender has an account
       if (!senderMiniGameUserData)
-        throw {
+        throw new CustomError({
           name: "NoAccount",
           message:
             "You don't have an account yet. Please use the daily command to create one.",
-        };
+        });
 
       // Check if sender has enough balance
       if (senderMiniGameUserData.balance < amountOption)
-        throw {
+        throw new CustomError({
           name: "InsufficientBalance",
           message: "You don't have enough money to transfer.",
-        };
+        });
 
       // Get target mini game data
       const targetMiniGameUserData = await MiniGameUserData.findOneAndUpdate(

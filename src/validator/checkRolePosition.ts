@@ -5,6 +5,7 @@ import {
   GuildMember,
   Role,
 } from "discord.js";
+import { CustomError } from "../helpers/utils/CustomError";
 
 /**
  * Retrieves the highest role position (lowest numerical value) of a member within a guild.
@@ -58,19 +59,19 @@ export async function checkUserRolePosition(
 
   // Check if the command user has a higher role than the target
   if (targetRolePosition >= userRolePosition)
-    throw {
+    throw new CustomError({
       name: "InsufficientPermissions",
       message: "They have the same/higher role than you",
       type: "warning",
-    };
+    });
 
   // Check if the bot has a higher role than the target
   if (targetRolePosition >= botRolePosition)
-    throw {
+    throw new CustomError({
       name: "InsufficientPermissions",
       message: "They have the same/higher role than me",
       type: "warning",
-    };
+    });
 }
 
 export async function checkRolePosition(
@@ -89,17 +90,17 @@ export async function checkRolePosition(
 
   // Check if the command user has a higher role than the target role
   if (targetRolePosition >= userRolePosition)
-    throw {
+    throw new CustomError({
       name: "RolePositionError",
       message: "You cannot add a role that is higher than your highest role",
       type: "warning",
-    };
+    });
 
   // Check if the bot has a higher role than the target role
   if (targetRolePosition >= botRolePosition)
-    throw {
+    throw new CustomError({
       name: "RolePositionError",
       message: "I cannot add a role that is higher than my highest role",
       type: "warning",
-    };
+    });
 }

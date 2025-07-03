@@ -20,20 +20,18 @@ const command: CommandInterface = {
       
 
       // Get mini game data of user
-      const miniGameUserData = await MiniGameUserData.findOneAndUpdate(
+      const miniGameUserData = await MiniGameUserData.findOne(
         {
           userId: interaction.user.id,
-        },
-        {
-          $setOnInsert: {
-            userId: interaction.user.id,
-          },
-        },
-        {
-          upsert: true,
-          new: true,
         }
       );
+
+      // Check if sender or receiver has an account.
+            if (!miniGameUserData)
+              throw new CustomError({
+                name: "NoAccount",
+                message: `You do not have a balance yet.`,
+              });
 
       // Check if the user has enough balance
       if (miniGameUserData.balance < amountOption)

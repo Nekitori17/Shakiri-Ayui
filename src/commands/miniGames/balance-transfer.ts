@@ -48,12 +48,12 @@ const command: CommandInterface = {
       // Check if sender or receiver has an account.
       if (!senderUserMiniGameData)
         throw new CustomError({
-          name: "UserNotFound",
+          name: "NoAccoun",
           message: `${senderUserOption} does not have a balance yet.`,
         });
       if (!receiverUserMiniGameData)
         throw new CustomError({
-          name: "UserNotFound",
+          name: "NoAccount",
           message: `${receiverUserOption.id} does not have a balance yet.`,
         });
 

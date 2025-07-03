@@ -22,11 +22,11 @@ const command: CommandInterface = {
 
       // Check is invalid value
       if (amountOption <= 0) 
-        throw {
+        throw new CustomError({
           name: "InvalidAmount",
           message: "You cannot remove a negative or zero amount.",
           type: "warning",
-        };
+        });
       
 
       // Get mini game data of user

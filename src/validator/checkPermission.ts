@@ -1,5 +1,6 @@
 import config from "../config";
 import { PermissionsBitField } from "discord.js";
+import { CustomError } from "../helpers/utils/CustomError";
 
 /**
  * Checks if the bot and user have the necessary permissions.
@@ -29,14 +30,15 @@ export default function (
   );
 
   if (missingBotPermissions.length > 0) {
-    throw {
+    throw new CustomError({
       name: "MissingPermissions",
       message: `I am missing the following permission(s): \`${new PermissionsBitField(
         missingBotPermissions
       )
         .toArray()
         .join(", ")}\` to use this command.`,
-    };
+      response: new PermissionsBitField(missingBotPermissions).toArray(),
+    });
   }
 
   // Check if user permissions are required
@@ -47,15 +49,16 @@ export default function (
         !userPermissionHas.has(perm)
     );
 
-    if (missingUserPermissions.length > 0) {
-      throw {
+    if (missingUserPermissions.length > 0)
+      throw new CustomError({
         name: "MissingPermissions",
         message: `You are missing the following permission(s): \`${new PermissionsBitField(
           missingUserPermissions
         )
           .toArray()
           .join(", ")}\` to use this command.`,
-      };
-    }
+
+        response: new PermissionsBitField(missingUserPermissions).toArray(),
+      });
   }
 }
