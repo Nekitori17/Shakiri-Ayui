@@ -99,8 +99,12 @@ const select: SelectMenuInterface = {
       } catch (error) {
         sendError(renameModalInteraction, error);
       }
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+
+      return false;
     }
   },
   disabled: false,

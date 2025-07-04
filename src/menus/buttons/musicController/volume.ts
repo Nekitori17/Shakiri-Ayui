@@ -101,8 +101,12 @@ const button: ButtonInterface = {
       } catch (error) {
         sendError(volumeChangeInteraction, error);
       }
+      
+      return true;
     } catch (error) {
       sendError(interaction, error);
+
+      return false;
     }
   },
   disabled: false,

@@ -34,8 +34,12 @@ const command: CommandInterface = {
 
       // Edit the deferred reply to indicate success
       interaction.editReply("✅ | Done!");
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+
+      return false;
     }
   },
   name: "send-temp-voice-menu",

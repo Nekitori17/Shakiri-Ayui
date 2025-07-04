@@ -70,8 +70,12 @@ const command: CommandInterface = {
           }),
         ],
       });
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+
+      return false;
     }
   },
   name: "set-temp-voice",

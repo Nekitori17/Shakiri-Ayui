@@ -118,8 +118,12 @@ const select: SelectMenuInterface = {
           sendError(userSelectInteraction, error);
         }
       });
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+
+      return false;
     }
   },
   disabled: false,

@@ -1,15 +1,18 @@
 import path from "path";
 import { Interaction } from "discord.js";
 import sendError from "../../../helpers/utils/sendError";
-import isCooledDown from "../../../validator/isCooledDown";
 import { getLocal } from "../../../helpers/utils/getLocal";
 import { CustomError } from "../../../helpers/utils/CustomError";
 import checkPermission from "../../../validator/checkPermission";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
+import { CooldownData, isCooledDown, updateCooldown } from "../../../cooldown";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import { ContextInterface } from "../../../types/InteractionInterfaces";
 
-const event: DiscordEventInterface = (client, interaction: Interaction) => {
+const event: DiscordEventInterface = async (
+  client,
+  interaction: Interaction
+) => {
   if (!interaction.isContextMenuCommand()) return;
 
   try {
@@ -52,22 +55,26 @@ const event: DiscordEventInterface = (client, interaction: Interaction) => {
         });
     }
 
+    let cooldownData: CooldownData | undefined;
+
     // Check for context menu cooldown
     if (contextObject.cooldown) {
-      const { cooledDown, nextTime } = isCooledDown(
+      const cooldownResponse = isCooledDown(
         interaction.commandName,
-        "command",
+        "context",
         contextObject.cooldown,
         interaction.user.id
       );
 
       // If the command is not cooledDown, throw an error
-      if (!cooledDown && nextTime)
+      if (!cooldownResponse.cooledDown && cooldownResponse.nextTime)
         throw new CustomError({
           name: "Cooldown",
-          message: `Please wait <t:${nextTime}:R> before using this context menu again.`,
+          message: `Please wait <t:${cooldownResponse.nextTime}:R> before using this context menu again.`,
           type: "warning",
         });
+
+      cooldownData = cooldownResponse;
     }
 
     // Check for permissions
@@ -79,7 +86,8 @@ const event: DiscordEventInterface = (client, interaction: Interaction) => {
     );
 
     // Execute the context menu
-    contextObject.execute(interaction, client);
+    const succeed = await contextObject.execute(interaction, client) ?? true;
+    if (succeed) updateCooldown(cooldownData);
   } catch (error) {
     if (error instanceof Error) {
       console.log(

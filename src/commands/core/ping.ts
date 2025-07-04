@@ -10,6 +10,8 @@ const command: CommandInterface = {
     await interaction.editReply(
       `> 🏓 Pong! Bot Latency is \`${ping}ms\` | API Latency is \`${client.ws.ping}\`ms.`
     );
+
+    return true;
   },
   name: "ping",
   description: "Get the bot's ping",

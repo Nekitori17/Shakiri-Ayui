@@ -268,13 +268,17 @@ const command: CommandInterface = {
           }
         }
       );
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+
+      return false;
     }
   },
   alias: "sr",
   name: "search",
-  description: "Search for a song/URL and select from results",
+  description: "Search for a song/URL and select to play from results",
   deleted: false,
   devOnly: false,
   options: [

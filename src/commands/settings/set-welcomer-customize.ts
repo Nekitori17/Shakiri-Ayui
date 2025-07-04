@@ -160,8 +160,12 @@ const command: CommandInterface = {
       } catch (error) {
         sendError(welcomerCustomizeModalInteraction, error);
       }
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+
+      return false;
     }
   },
   name: "set-welcomer-customize",

@@ -128,8 +128,12 @@ const command: CommandInterface = {
           menuCategoriesSelectInteraction.deferUpdate();
         }
       );
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+      
+      return false;
     }
   },
   alias: "h",

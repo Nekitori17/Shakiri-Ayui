@@ -1,11 +1,11 @@
 import path from "path";
 import { GuildMember, Interaction } from "discord.js";
 import sendError from "../../../helpers/utils/sendError";
-import isCooledDown from "../../../validator/isCooledDown";
 import { getLocal } from "../../../helpers/utils/getLocal";
 import checkPermission from "../../../validator/checkPermission";
 import { CustomError } from "../../../helpers/utils/CustomError";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
+import { CooldownData, isCooledDown, updateCooldown } from "../../../cooldown";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import { CommandInterface } from "../../../types/InteractionInterfaces";
 
@@ -56,10 +56,12 @@ const event: DiscordEventInterface = async (
         });
     }
 
+    let cooldownData: CooldownData | undefined;
+
     // Check for command cooldown
     if (commandObject.cooldown) {
       // Check if the command is currently cooledDown for the user
-      const { cooledDown, nextTime } = isCooledDown(
+      const cooldownResponse = isCooledDown(
         interaction.commandName,
         "command",
         commandObject.cooldown,
@@ -67,12 +69,14 @@ const event: DiscordEventInterface = async (
       );
 
       // If the command is not cooledDown, throw an error
-      if (!cooledDown && nextTime)
+      if (!cooldownResponse.cooledDown && cooldownResponse.nextTime)
         throw new CustomError({
           name: "Cooldown",
-          message: `Please wait <t:${nextTime}:R> before using this command again.`,
+          message: `Please wait <t:${cooldownResponse.nextTime}:R> before using this command again.`,
           type: "warning",
         });
+
+      cooldownData = cooldownResponse;
     }
 
     // Check if the command requires the user to be in a voice channel
@@ -93,7 +97,8 @@ const event: DiscordEventInterface = async (
     );
 
     // Execute the command
-    commandObject.execute(interaction, client);
+    const succeed = await commandObject.execute(interaction, client) ?? true;
+    if (succeed) updateCooldown(cooldownData);
   } catch (error) {
     if (error instanceof Error) {
       console.log(

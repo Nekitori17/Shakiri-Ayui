@@ -388,8 +388,12 @@ const select: SelectMenuInterface = {
           sendError(inviteSelectInteraction, error);
         }
       });
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+      
+      return false;
     }
   },
   disabled: false,

@@ -38,8 +38,12 @@ const button: ButtonInterface = {
             .setColor("#a6ff00"),
         ],
       });
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+
+      return false;
     }
   },
   disabled: false,

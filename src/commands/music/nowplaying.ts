@@ -89,8 +89,12 @@ const command: CommandInterface = {
           extendMusicControllerButtonRow,
         ],
       });
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+
+      return false;
     }
   },
   alias: "np",

@@ -50,8 +50,12 @@ const command: CommandInterface = {
             .setColor("#5a01ff"),
         ],
       });
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+
+      return false;
     }
   },
   name: "loop",

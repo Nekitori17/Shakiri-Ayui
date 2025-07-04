@@ -25,8 +25,12 @@ const button: ButtonInterface = {
         queue.node.pause();
         interaction.deferUpdate();
       }
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+
+      return false;
     }
   },
   disabled: false,

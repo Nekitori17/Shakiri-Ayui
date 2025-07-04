@@ -31,8 +31,12 @@ const command: CommandInterface = {
       interaction.editReply(
         `> <:colortrashcan:1387287624632242327> Deleted ${deletedMessages.size} message.`
       );
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+
+      return false;
     }
   },
   name: "purge",

@@ -53,8 +53,12 @@ const select: SelectMenuInterface = {
           }),
         ],
       });
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+
+      return false;
     }
   },
   disabled: false,

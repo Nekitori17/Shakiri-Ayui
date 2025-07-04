@@ -38,8 +38,12 @@ const command: CommandInterface = {
             .setColor("#a6ff00"),
         ],
       });
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+
+      return false;
     }
   },
   alias: "sf",

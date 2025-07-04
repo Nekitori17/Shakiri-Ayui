@@ -73,7 +73,10 @@ export interface CommandInterface extends BaseInteractionInterface {
    * @param interaction - The slash command interaction
    * @param client - The Discord client
    */
-  execute: (interaction: ChatInputCommandInteraction, client: Client) => void;
+  execute: (
+    interaction: ChatInputCommandInteraction,
+    client: Client
+  ) => Promise<boolean | undefined> | boolean;
 
   /** Optional command alias */
   alias?: string;
@@ -118,7 +121,10 @@ export interface ContextInterface<
    * @param interaction - The context menu interaction
    * @param client - The Discord client
    */
-  execute: (interaction: ContextInteractionMap<T>, client: Client) => void;
+  execute: (
+    interaction: ContextInteractionMap<T>,
+    client: Client
+  ) => Promise<boolean | undefined> | boolean;
 
   /** Name of the context menu command */
   name: string;
@@ -145,7 +151,10 @@ export interface ButtonInterface extends BaseInteractionInterface {
    * @param interaction - The button interaction
    * @param client - The Discord client
    */
-  execute: (interaction: ButtonInteraction, client: Client) => void;
+  execute: (
+    interaction: ButtonInteraction,
+    client: Client
+  ) => Promise<boolean | undefined> | boolean;
 
   /** Whether the button is currently disabled */
   disabled: boolean;
@@ -160,7 +169,10 @@ export interface SelectMenuInterface extends BaseInteractionInterface {
    * @param interaction - The select menu interaction
    * @param client - The Discord client
    */
-  execute: (interaction: StringSelectMenuInteraction, client: Client) => void;
+  execute: (
+    interaction: StringSelectMenuInteraction,
+    client: Client
+  ) => Promise<boolean | undefined> | boolean;
 
   /** Whether the select menu is currently disabled */
   disabled: boolean;

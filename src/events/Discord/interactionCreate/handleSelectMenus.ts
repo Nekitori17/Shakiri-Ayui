@@ -1,10 +1,10 @@
 import path from "path";
 import { GuildMember, Interaction } from "discord.js";
 import sendError from "../../../helpers/utils/sendError";
-import isCooledDown from "../../../validator/isCooledDown";
 import { getLocalById } from "../../../helpers/utils/getLocal";
 import { CustomError } from "../../../helpers/utils/CustomError";
 import checkPermission from "../../../validator/checkPermission";
+import { CooldownData, isCooledDown, updateCooldown } from "../../../cooldown";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
@@ -53,22 +53,26 @@ const event: DiscordEventInterface = async (
         });
     }
 
+    let cooldownData: CooldownData | undefined;
+
     // Check for select menu cooldown
     if (selectMenuOptionObject.cooldown) {
-      const { cooledDown, nextTime } = isCooledDown(
-        interaction.customId.slice(1),
-        "button",
+      const cooldownResponse = isCooledDown(
+        interaction.values[0],
+        "select",
         selectMenuOptionObject.cooldown,
         interaction.user.id
       );
 
       // If the select menu is not cooledDown, throw an error
-      if (!cooledDown && nextTime)
+      if (!cooldownResponse.cooledDown && cooldownResponse.nextTime)
         throw new CustomError({
           name: "Cooldown",
-          message: `Please wait <t:${nextTime}:R> before using this select menu again.`,
+          message: `Please wait <t:${cooldownResponse.nextTime}:R> before using this select menu again.`,
           type: "warning",
         });
+
+      cooldownData = cooldownResponse;
     }
 
     // Check for permissions
@@ -80,7 +84,8 @@ const event: DiscordEventInterface = async (
     );
 
     // Execute the select menu's action
-    selectMenuOptionObject.execute(interaction, client);
+    const succeed = await selectMenuOptionObject.execute(interaction, client) ?? true;
+    if (succeed) updateCooldown(cooldownData);
   } catch (error) {
     if (error instanceof Error) {
       console.log(

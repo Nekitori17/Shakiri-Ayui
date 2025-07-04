@@ -77,8 +77,12 @@ const command: CommandInterface = {
             .setTimestamp(),
         ],
       });
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+
+      return false;
     }
   },
   alias: "dl",

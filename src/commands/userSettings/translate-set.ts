@@ -45,8 +45,12 @@ const command: CommandInterface = {
         // Send a confirmation message to the user
         `> <:colorwrench:1387287084099833977> You have set your translate language to \`${translateLanguages[languageOption]}\``
       );
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+
+      return false;
     }
   },
   name: "translate-set",

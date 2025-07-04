@@ -1,10 +1,10 @@
 import path from "path";
 import { GuildMember, Interaction } from "discord.js";
 import sendError from "../../../helpers/utils/sendError";
-import isCooledDown from "../../../validator/isCooledDown";
 import { getLocalById } from "../../../helpers/utils/getLocal";
 import { CustomError } from "../../../helpers/utils/CustomError";
 import checkPermission from "../../../validator/checkPermission";
+import { CooldownData, isCooledDown, updateCooldown } from "../../../cooldown";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
@@ -52,9 +52,11 @@ const event: DiscordEventInterface = async (
         });
     }
 
+    let cooldownData: CooldownData | undefined;
+
     // Check for button cooldown
     if (buttonObject.cooldown) {
-      const { cooledDown, nextTime } = isCooledDown(
+      const cooldownResponse = isCooledDown(
         interaction.customId.slice(1),
         "button",
         buttonObject.cooldown,
@@ -62,12 +64,14 @@ const event: DiscordEventInterface = async (
       );
 
       // If the button is not cooledDown, throw an error
-      if (!cooledDown && nextTime)
+      if (!cooldownResponse.cooledDown && cooldownResponse.nextTime)
         throw new CustomError({
           name: "Cooldown",
-          message: `Please wait <t:${nextTime}:R> before using this button again.`,
+          message: `Please wait <t:${cooldownResponse.nextTime}:R> before using this button again.`,
           type: "warning",
         });
+
+      cooldownData = cooldownResponse;
     }
 
     // Check for permissions
@@ -79,7 +83,8 @@ const event: DiscordEventInterface = async (
     );
 
     // Execute the button's action
-    buttonObject.execute(interaction, client);
+    const succeed = await buttonObject.execute(interaction, client) ?? true;
+    if (succeed) updateCooldown(cooldownData);
   } catch (error) {
     if (error instanceof Error) {
       console.log(

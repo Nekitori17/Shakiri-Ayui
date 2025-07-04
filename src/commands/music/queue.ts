@@ -141,8 +141,12 @@ const command: CommandInterface = {
           }
         }
       );
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+
+      return false;
     }
   },
   alias: "qe",

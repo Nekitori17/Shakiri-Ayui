@@ -102,8 +102,12 @@ const command: CommandInterface = {
             .setColor("#00f2ff"),
         ],
       });
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+
+      false
     }
   },
   name: "server-info",

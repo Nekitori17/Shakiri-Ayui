@@ -50,8 +50,12 @@ const context: ContextInterface<ApplicationCommandType.Message> = {
 
       // Edit the deferred reply with the translated message.
       interaction.editReply(messageTranslated.result);
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+
+      return false;
     }
   },
   name: "Translate this message",

@@ -114,8 +114,12 @@ const select: SelectMenuInterface = {
       } catch (error) {
         sendError(limitUserModalInteraction, error);
       }
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+
+      return false;
     }
   },
   disabled: false,

@@ -100,8 +100,12 @@ const command: CommandInterface = {
         components: [functionButtonRow],
         files: [chartIllustration!],
       });
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+      
+      return false;
     }
   },
   name: "phira-chart",

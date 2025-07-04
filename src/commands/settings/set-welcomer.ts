@@ -95,8 +95,12 @@ const command: CommandInterface = {
         ],
         files: [advancedSettingFileAttachment],
       });
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+
+      return false;
     }
   },
   name: "set-welcomer",

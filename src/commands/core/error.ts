@@ -8,8 +8,12 @@ const command: CommandInterface = {
       await interaction.deferReply();
       
       throw new Error("Test error");
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+      
+      return false;
     }
   },
   name: "error",

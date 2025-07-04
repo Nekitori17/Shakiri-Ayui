@@ -94,8 +94,12 @@ const button: ButtonInterface = {
           }
         }
       );
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+
+      return false;
     }
   },
   disabled: false,

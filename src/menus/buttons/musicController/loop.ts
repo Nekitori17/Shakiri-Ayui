@@ -90,8 +90,12 @@ const button: ButtonInterface = {
           sendError(loopModeSelectInteraction, error);
         }
       });
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+
+      return false;
     }
   },
   disabled: false,

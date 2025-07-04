@@ -37,8 +37,12 @@ const command: CommandInterface = {
             .setColor("#ff3131"),
         ],
       });
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+
+      return false;
     }
   },
   alias: "st",

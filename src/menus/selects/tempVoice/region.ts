@@ -81,8 +81,12 @@ const select: SelectMenuInterface = {
           sendError(regionSelectInteraction, error);
         }
       });
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+
+      return false;
     }
   },
   disabled: false,

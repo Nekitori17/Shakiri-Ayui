@@ -22,8 +22,12 @@ const command: CommandInterface = {
       queue.node.setPaused(true);
       // Delete the deferred reply, as the action is immediate and doesn't require a persistent message
       interaction.deleteReply();
+
+      return true;
     } catch (error) {
       sendError(interaction, error);
+
+      return false;
     }
   },
   alias: "ps",
