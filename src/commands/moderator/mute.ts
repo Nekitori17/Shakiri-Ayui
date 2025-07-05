@@ -14,12 +14,12 @@ import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-    const targetUserOption = interaction.options.getUser("target")!;
-    const durationOption = interaction.options.getString("duration") || "1h";
-    const reasonOption = interaction.options.getString("reason");
-
     try {
+      await interaction.deferReply();
+      const targetUserOption = interaction.options.getUser("target", true);
+      const durationOption = interaction.options.getString("duration") || "1h";
+      const reasonOption = interaction.options.getString("reason");
+
       // Fetch the target user as a guild member
       const targetUser = await interaction.guild?.members.fetch(
         targetUserOption

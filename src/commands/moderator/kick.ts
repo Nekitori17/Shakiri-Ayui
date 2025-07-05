@@ -12,11 +12,11 @@ import { CustomError } from "../../helpers/utils/CustomError";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
-    await interaction.deferReply();
-    const targetUserOption = interaction.options.getUser("target")!;
-    const reasonOption = interaction.options.getString("reason");
-
     try {
+      await interaction.deferReply();
+      const targetUserOption = interaction.options.getUser("target", true);
+      const reasonOption = interaction.options.getString("reason");
+
       // Fetch the target user as a guild member
       const targetUser = await interaction.guild?.members.fetch(
         targetUserOption
