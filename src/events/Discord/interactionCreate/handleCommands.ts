@@ -1,13 +1,11 @@
-import path from "path";
 import { GuildMember, Interaction } from "discord.js";
 import sendError from "../../../helpers/utils/sendError";
-import { getLocal } from "../../../helpers/utils/getLocal";
+import { getExactCommandObject } from "../../../preloaded";
 import checkPermission from "../../../validator/checkPermission";
 import { CustomError } from "../../../helpers/utils/CustomError";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { CooldownData, isCooledDown, updateCooldown } from "../../../cooldown";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
-import { CommandInterface } from "../../../types/InteractionInterfaces";
 
 const event: DiscordEventInterface = async (
   client,
@@ -16,15 +14,9 @@ const event: DiscordEventInterface = async (
   // Check if the interaction is a chat input command
   if (!interaction.isChatInputCommand()) return;
 
-  const localCommands = getLocal<CommandInterface>(
-    path.join(__dirname, "../../../commands")
-  );
-
   try {
     // Find the command object based on the interaction's command name
-    const commandObject = localCommands.find(
-      (command) => command.name === interaction.commandName
-    );
+    const commandObject = getExactCommandObject(interaction.commandName);
 
     if (!commandObject) return;
 
@@ -97,7 +89,7 @@ const event: DiscordEventInterface = async (
     );
 
     // Execute the command
-    const succeed = await commandObject.execute(interaction, client) ?? true;
+    const succeed = (await commandObject.execute(interaction, client)) ?? true;
     if (succeed) updateCooldown(cooldownData);
   } catch (error) {
     if (error instanceof Error) {

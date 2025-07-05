@@ -2,10 +2,11 @@ require("dotenv").config();
 import mongoose from "mongoose";
 import { Client, IntentsBitField } from "discord.js";
 import { Player } from "discord-player";
-import registerMusicExtractor from "./handlers/registerMusicExtractor";
+import { preload } from "./preloaded";
 import musicEventHandler from "./handlers/musicEventHandler";
 import discordEventHandler from "./handlers/discordEventHandler";
 import handleErrorLog from "./helpers/utils/handleErrorLog";
+import registerMusicExtractor from "./handlers/registerMusicExtractor";
 
 const client = new Client({
   intents: [
@@ -30,6 +31,12 @@ const player = new Player(client);
 
 async function run(client: Client) {
   try {
+    console.log("⭐============Shakiri Ayui============⭐");
+
+    console.log("🔮 | Starting prepare everything");
+    preload();
+    console.log("🍞 | Loaded all stuffs into RAM");
+
     await registerMusicExtractor(player);
 
     console.log("💿 | Connecting to MongoDB...");
@@ -40,6 +47,7 @@ async function run(client: Client) {
     discordEventHandler(client);
     musicEventHandler(client, player);
 
+    client.setMaxListeners(100);
     client.login(process.env.BOT_TOKEN as string);
   } catch (error: any) {
     console.log(`\x1b[31m\x1b[1m=> ${error.name}\x1b[0m`);

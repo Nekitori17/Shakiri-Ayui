@@ -1,13 +1,11 @@
-import path from "path";
 import { Interaction } from "discord.js";
+import { getContextObject } from "../../../preloaded";
 import sendError from "../../../helpers/utils/sendError";
-import { getLocal } from "../../../helpers/utils/getLocal";
 import { CustomError } from "../../../helpers/utils/CustomError";
 import checkPermission from "../../../validator/checkPermission";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { CooldownData, isCooledDown, updateCooldown } from "../../../cooldown";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
-import { ContextInterface } from "../../../types/InteractionInterfaces";
 
 const event: DiscordEventInterface = async (
   client,
@@ -16,15 +14,8 @@ const event: DiscordEventInterface = async (
   if (!interaction.isContextMenuCommand()) return;
 
   try {
-    // Get all local context menus
-    const localContexts = getLocal<ContextInterface>(
-      path.join(__dirname, "../../../contexts")
-    );
-
     // Find the context menu object based on the interaction's command name
-    const contextObject = localContexts.find(
-      (command) => command.name === interaction.commandName
-    );
+    const contextObject = getContextObject(interaction.commandName);
 
     if (!contextObject) return;
 
@@ -86,7 +77,7 @@ const event: DiscordEventInterface = async (
     );
 
     // Execute the context menu
-    const succeed = await contextObject.execute(interaction, client) ?? true;
+    const succeed = (await contextObject.execute(interaction, client)) ?? true;
     if (succeed) updateCooldown(cooldownData);
   } catch (error) {
     if (error instanceof Error) {

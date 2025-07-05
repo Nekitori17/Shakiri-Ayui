@@ -1,12 +1,11 @@
-import path from "path";
+import _ from "lodash";
 import { GuildMember, Interaction } from "discord.js";
+import { getButtonObject } from "../../../preloaded";
 import sendError from "../../../helpers/utils/sendError";
-import { getLocalById } from "../../../helpers/utils/getLocal";
 import { CustomError } from "../../../helpers/utils/CustomError";
 import checkPermission from "../../../validator/checkPermission";
 import { CooldownData, isCooledDown, updateCooldown } from "../../../cooldown";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
-import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
 const event: DiscordEventInterface = async (
   client,
@@ -22,11 +21,10 @@ const event: DiscordEventInterface = async (
     const [category, customId] = interaction.customId.split("_");
 
     // Get the button object from local files
-    const buttonObject = getLocalById<ButtonInterface>(
-      path.join(__dirname, "../../../menus/buttons"),
-      category.replace("$", ""),
-      customId
-    );
+    const buttonObject = getButtonObject(
+      _.camelCase(category.replace("$", "")),
+      _.camelCase(customId)
+    )
 
     if (!buttonObject) return;
 

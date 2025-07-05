@@ -1,12 +1,11 @@
-import path from "path";
+import _ from "lodash";
 import { GuildMember, Interaction } from "discord.js";
+import { getSelectObject } from "../../../preloaded";
 import sendError from "../../../helpers/utils/sendError";
-import { getLocalById } from "../../../helpers/utils/getLocal";
 import { CustomError } from "../../../helpers/utils/CustomError";
 import checkPermission from "../../../validator/checkPermission";
 import { CooldownData, isCooledDown, updateCooldown } from "../../../cooldown";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
-import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
 const event: DiscordEventInterface = async (
   client,
@@ -19,10 +18,9 @@ const event: DiscordEventInterface = async (
 
   try {
     // Get the select menu option object from local files
-    const selectMenuOptionObject = getLocalById<SelectMenuInterface>(
-      path.join(__dirname, "../../../menus/selects"),
-      interaction.customId.replace("$", ""),
-      interaction.values[0]
+    const selectMenuOptionObject = getSelectObject(
+      _.camelCase(interaction.customId.replace("$", "")),
+      _.camelCase(interaction.values[0])
     );
 
     if (!selectMenuOptionObject) return;
@@ -84,7 +82,8 @@ const event: DiscordEventInterface = async (
     );
 
     // Execute the select menu's action
-    const succeed = await selectMenuOptionObject.execute(interaction, client) ?? true;
+    const succeed =
+      (await selectMenuOptionObject.execute(interaction, client)) ?? true;
     if (succeed) updateCooldown(cooldownData);
   } catch (error) {
     if (error instanceof Error) {
