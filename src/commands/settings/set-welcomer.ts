@@ -19,7 +19,7 @@ const command: CommandInterface = {
       const resetOption = interaction.options.getBoolean("reset");
 
       // Validate the channel type if provided
-      if (channelSendOption?.type != ChannelType.GuildText)
+      if (channelSendOption && channelSendOption.type != ChannelType.GuildText)
         throw new CustomError({
           name: "InvalidChannelType",
           message: "Channel must be a text channel!",

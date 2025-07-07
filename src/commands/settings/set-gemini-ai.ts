@@ -18,7 +18,7 @@ const command: CommandInterface = {
       const channelSetOption = interaction.options.getChannel("channel");
 
       // Validate channel type if a channel is provided
-      if (channelSetOption?.type != ChannelType.GuildText)
+      if (channelSetOption && channelSetOption.type != ChannelType.GuildText)
         throw new CustomError({
           name: "InvalidChannelType",
           message: "Channel must be a text channel!",

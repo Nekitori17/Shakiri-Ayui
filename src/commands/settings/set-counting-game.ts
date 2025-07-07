@@ -19,7 +19,7 @@ const command: CommandInterface = {
       const startNumberOption = interaction.options.getNumber("start-number");
 
       //
-      if (channelSetOption?.type != ChannelType.GuildText)
+      if (channelSetOption && channelSetOption.type != ChannelType.GuildText)
         throw new CustomError({
           name: "InvalidChannelType",
           message: "Channel must be a text channel!",
