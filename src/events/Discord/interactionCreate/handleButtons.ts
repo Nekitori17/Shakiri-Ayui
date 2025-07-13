@@ -24,7 +24,7 @@ const event: DiscordEventInterface = async (
     const buttonObject = getButtonObject(
       _.camelCase(category.replace("$", "")),
       _.camelCase(customId)
-    )
+    );
 
     if (!buttonObject) return;
 
@@ -73,15 +73,17 @@ const event: DiscordEventInterface = async (
     }
 
     // Check for permissions
-    checkPermission(
-      interaction.member?.permissions,
-      interaction.guild?.members.me?.permissions,
-      buttonObject.botPermissionsRequired,
-      buttonObject.userPermissionsRequired
-    );
+    if (interaction.guild) {
+      checkPermission(
+        interaction.member?.permissions,
+        interaction.guild.members.me?.permissions,
+        buttonObject.botPermissionsRequired,
+        buttonObject.userPermissionsRequired
+      );
+    }
 
     // Execute the button's action
-    const succeed = await buttonObject.execute(interaction, client) ?? true;
+    const succeed = (await buttonObject.execute(interaction, client)) ?? true;
     if (succeed) updateCooldown(cooldownData);
   } catch (error) {
     if (error instanceof Error) {

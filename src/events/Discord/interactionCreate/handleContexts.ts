@@ -69,12 +69,14 @@ const event: DiscordEventInterface = async (
     }
 
     // Check for permissions
+    if (interaction.guild) {
     checkPermission(
       interaction.member?.permissions,
-      interaction.guild?.members.me?.permissions,
+      interaction.guild.members.me?.permissions,
       contextObject.botPermissionsRequired,
       contextObject.userPermissionsRequired
     );
+  }
 
     // Execute the context menu
     const succeed = (await contextObject.execute(interaction, client)) ?? true;

@@ -74,12 +74,14 @@ const event: DiscordEventInterface = async (
     }
 
     // Check for permissions
-    checkPermission(
-      interaction.member?.permissions,
-      interaction.guild?.members.me?.permissions,
-      selectMenuOptionObject.botPermissionsRequired,
-      selectMenuOptionObject.userPermissionsRequired
-    );
+    if (interaction.guild) {
+      checkPermission(
+        interaction.member?.permissions,
+        interaction.guild?.members.me?.permissions,
+        selectMenuOptionObject.botPermissionsRequired,
+        selectMenuOptionObject.userPermissionsRequired
+      );
+    }
 
     // Execute the select menu's action
     const succeed =

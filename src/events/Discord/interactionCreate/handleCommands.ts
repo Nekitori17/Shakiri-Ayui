@@ -81,12 +81,14 @@ const event: DiscordEventInterface = async (
     }
 
     // Check for permissions
-    checkPermission(
-      interaction.member?.permissions,
-      interaction.guild?.members.me?.permissions,
-      commandObject.botPermissionsRequired,
-      commandObject.userPermissionsRequired
-    );
+    if (interaction.guild) {
+      checkPermission(
+        interaction.member?.permissions,
+        interaction.guild.members.me?.permissions,
+        commandObject.botPermissionsRequired,
+        commandObject.userPermissionsRequired
+      );
+    }
 
     // Execute the command
     const succeed = (await commandObject.execute(interaction, client)) ?? true;
