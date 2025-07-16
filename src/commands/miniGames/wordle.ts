@@ -17,7 +17,7 @@ import WordleGame, {
   WordleGameException,
   WordleGameStatus,
 } from "../../logic/Wordle";
-import sendError from "../../helpers/utils/sendError";
+import { handleInteractionError } from "../../helpers/utils/handleError";
 import MiniGameUserData from "../../models/MiniGameUserData";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -356,7 +356,10 @@ const command: CommandInterface = {
                       flags: MessageFlags.Ephemeral,
                     });
                   } else {
-                    sendError(wordleActionButtonInteraction, error);
+                    handleInteractionError(
+                      wordleActionButtonInteraction,
+                      error
+                    );
                   }
                 }
               }
@@ -411,14 +414,14 @@ const command: CommandInterface = {
               wordleActionButtonInteraction.deferUpdate();
             }
           } catch (error) {
-            sendError(wordleActionButtonInteraction, error);
+            handleInteractionError(wordleActionButtonInteraction, error);
           }
         }
       );
 
       return true;
     } catch (error) {
-      sendError(interaction, error);
+      handleInteractionError(interaction, error);
 
       return false;
     }

@@ -1,25 +1,21 @@
 import { handleInteractionError } from "../../helpers/utils/handleError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
-// Just a command to test error function
 const command: CommandInterface = {
   async execute(interaction, client) {
     try {
       await interaction.deferReply();
-      
-      throw new Error("Test error");
 
-      return true;
+      interaction.deleteReply();
     } catch (error) {
       handleInteractionError(interaction, error);
-      
       return false;
     }
   },
-  name: "error",
-  description: "Test error",
+  name: "test",
+  description: "Test command",
   deleted: false,
-  devOnly: false,
+  devOnly: true,
   useInDm: true,
   requiredVoiceChannel: false,
 };

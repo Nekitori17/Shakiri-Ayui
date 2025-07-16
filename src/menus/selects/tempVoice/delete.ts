@@ -1,9 +1,9 @@
 import path from "path";
 import { GuildMember } from "discord.js";
 import jsonStore from "json-store-typed";
-import sendError from "../../../helpers/utils/sendError";
 import { CustomError } from "../../../helpers/utils/CustomError";
 import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
+import { handleInteractionError } from "../../../helpers/utils/handleError";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
 const select: SelectMenuInterface = {
@@ -34,7 +34,7 @@ const select: SelectMenuInterface = {
 
       return true;
     } catch (error) {
-      sendError(interaction, error);
+      handleInteractionError(interaction, error);
 
       return false;
     }

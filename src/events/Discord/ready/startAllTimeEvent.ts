@@ -1,6 +1,6 @@
 import path from "path";
 import { getLocal } from "../../../helpers/utils/getLocal";
-import handleErrorLog from "../../../helpers/utils/handleErrorLog";
+import { errorLogger } from "../../../helpers/utils/handleError";
 import {
   DiscordEventInterface,
   TimeEventInterface,
@@ -131,7 +131,7 @@ const event: DiscordEventInterface = async (client, c) => {
       }
     }
   } catch (error) {
-    handleErrorLog(error);
+    errorLogger(error);
   }
 };
 

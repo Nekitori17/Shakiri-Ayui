@@ -5,8 +5,8 @@ import {
   EmbedBuilder,
 } from "discord.js";
 import { useQueue } from "discord-player";
-import sendError from "../../../helpers/utils/sendError";
 import { CustomError } from "../../../helpers/utils/CustomError";
+import { handleInteractionError } from "../../../helpers/utils/handleError";
 import { MusicPlayerSession } from "../../../musicPlayerStoreSession";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
@@ -90,14 +90,14 @@ const button: ButtonInterface = {
               musicPlayerStoreSession.clear();
             }
           } catch (error) {
-            sendError(interaction, error);
+            handleInteractionError(interaction, error);
           }
         }
       );
 
       return true;
     } catch (error) {
-      sendError(interaction, error);
+      handleInteractionError(interaction, error);
 
       return false;
     }

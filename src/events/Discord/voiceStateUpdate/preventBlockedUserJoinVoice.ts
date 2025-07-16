@@ -1,7 +1,7 @@
 import path from "path";
 import { VoiceState } from "discord.js";
 import jsonStore from "json-store-typed";
-import handleErrorLog from "../../../helpers/utils/handleErrorLog";
+import { errorLogger } from "../../../helpers/utils/handleError";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import UserSettings from "../../../models/UserSettings";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
@@ -45,7 +45,7 @@ const event: DiscordEventInterface = async (
       });
     }
   } catch (error) {
-    handleErrorLog(error);
+    errorLogger(error);
   }
 };
 

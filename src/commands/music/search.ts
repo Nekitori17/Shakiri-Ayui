@@ -12,10 +12,10 @@ import {
   StringSelectMenuOptionBuilder,
 } from "discord.js";
 import { QueryType, Track, TrackSource, useMainPlayer } from "discord-player";
-import sendError from "../../helpers/utils/sendError";
 import { CustomError } from "../../helpers/utils/CustomError";
-import { MusicPlayerSession } from "../../musicPlayerStoreSession";
+import { handleInteractionError } from "../../helpers/utils/handleError";
 import { musicSourceIcons } from "../../constants/musicSourceIcons";
+import { MusicPlayerSession } from "../../musicPlayerStoreSession";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -264,14 +264,14 @@ const command: CommandInterface = {
               });
             }
           } catch (error) {
-            sendError(searchResultSelectInteraction, error);
+            handleInteractionError(searchResultSelectInteraction, error);
           }
         }
       );
 
       return true;
     } catch (error) {
-      sendError(interaction, error);
+      handleInteractionError(interaction, error);
 
       return false;
     }

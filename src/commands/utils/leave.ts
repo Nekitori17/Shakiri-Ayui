@@ -1,8 +1,8 @@
 import { getVoiceConnection } from "discord-voip";
-import sendError from "../../helpers/utils/sendError";
 import { CustomError } from "../../helpers/utils/CustomError";
-import { CommandInterface } from "../../types/InteractionInterfaces";
+import { handleInteractionError } from "../../helpers/utils/handleError";
 import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
+import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
@@ -35,7 +35,7 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      sendError(interaction, error);
+      handleInteractionError(interaction, error);
 
       return false;
     }

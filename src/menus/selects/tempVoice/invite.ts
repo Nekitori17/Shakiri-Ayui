@@ -13,10 +13,10 @@ import {
   Message,
   Guild,
 } from "discord.js";
-import sendError from "../../../helpers/utils/sendError";
 import UserSettings from "../../../models/UserSettings";
 import { CustomError } from "../../../helpers/utils/CustomError";
 import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
+import { handleInteractionError } from "../../../helpers/utils/handleError";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
@@ -291,7 +291,7 @@ async function sendInviteToUser(
           inviterGuild
         );
       } catch (error) {
-        sendError(inviteButtonInteraction, error);
+        handleInteractionError(inviteButtonInteraction, error);
       }
     });
   } catch (error) {
@@ -385,13 +385,13 @@ const select: SelectMenuInterface = {
         try {
           await handleUserSelection(inviteSelectInteraction, userVoiceChannel);
         } catch (error) {
-          sendError(inviteSelectInteraction, error);
+          handleInteractionError(inviteSelectInteraction, error);
         }
       });
 
       return true;
     } catch (error) {
-      sendError(interaction, error);
+      handleInteractionError(interaction, error);
       
       return false;
     }

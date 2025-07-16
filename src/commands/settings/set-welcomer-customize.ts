@@ -7,7 +7,7 @@ import {
   TextInputBuilder,
   TextInputStyle,
 } from "discord.js";
-import sendError from "../../helpers/utils/sendError";
+import { handleInteractionError } from "../../helpers/utils/handleError";
 import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -158,12 +158,12 @@ const command: CommandInterface = {
           files: [advancedSettingFileAttachment],
         });
       } catch (error) {
-        sendError(welcomerCustomizeModalInteraction, error);
+        handleInteractionError(welcomerCustomizeModalInteraction, error);
       }
 
       return true;
     } catch (error) {
-      sendError(interaction, error);
+      handleInteractionError(interaction, error);
 
       return false;
     }

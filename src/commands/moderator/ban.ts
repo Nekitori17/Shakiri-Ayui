@@ -4,8 +4,8 @@ import {
   EmbedBuilder,
   PermissionFlagsBits,
 } from "discord.js";
-import sendError from "../../helpers/utils/sendError";
 import { CustomError } from "../../helpers/utils/CustomError";
+import { handleInteractionError } from "../../helpers/utils/handleError";
 import { checkUserRolePosition } from "../../validator/checkRolePosition";
 import { ModerationEmbedBuilder } from "../../helpers/embeds/moderationEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
@@ -101,7 +101,7 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      sendError(interaction, error);
+      handleInteractionError(interaction, error);
 
       return false;
     }

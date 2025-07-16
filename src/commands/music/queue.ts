@@ -8,8 +8,8 @@ import {
   PermissionFlagsBits,
 } from "discord.js";
 import { Track, useQueue } from "discord-player";
-import sendError from "../../helpers/utils/sendError";
 import { CustomError } from "../../helpers/utils/CustomError";
+import { handleInteractionError } from "../../helpers/utils/handleError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -144,7 +144,7 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      sendError(interaction, error);
+      handleInteractionError(interaction, error);
 
       return false;
     }
@@ -155,7 +155,7 @@ const command: CommandInterface = {
   deleted: false,
   devOnly: false,
   useInDm: false,
-  requiredVoiceChannel: true,
+  requiredVoiceChannel: false,
   userPermissionsRequired: [PermissionFlagsBits.Connect],
   botPermissionsRequired: [
     PermissionFlagsBits.Connect,

@@ -1,7 +1,7 @@
 import { useQueue } from "discord-player";
-import sendError from "../../../helpers/utils/sendError";
 import { CustomError } from "../../../helpers/utils/CustomError";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
+import { handleInteractionError } from "../../../helpers/utils/handleError";
 
 const button: ButtonInterface = {
   async execute(interaction, client) {
@@ -28,7 +28,7 @@ const button: ButtonInterface = {
 
       return true;
     } catch (error) {
-      sendError(interaction, error);
+      handleInteractionError(interaction, error);
 
       return false;
     }

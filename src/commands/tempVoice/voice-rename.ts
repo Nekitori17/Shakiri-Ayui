@@ -4,9 +4,9 @@ import {
   MessageFlags,
 } from "discord.js";
 import UserSettings from "../../models/UserSettings";
-import sendError from "../../helpers/utils/sendError";
-import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 import checkOwnTempVoice from "../../validator/checkOwnTempVoice";
+import { handleInteractionError } from "../../helpers/utils/handleError";
+import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 import { genericVariableReplacer } from "../../helpers/utils/variableReplacer";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -66,7 +66,7 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      sendError(interaction, error);
+      handleInteractionError(interaction, error);
 
       return false;
     }

@@ -1,9 +1,9 @@
 import _ from "lodash";
 import { GuildMember, Interaction } from "discord.js";
 import { getSelectObject } from "../../../preloaded";
-import sendError from "../../../helpers/utils/sendError";
 import { CustomError } from "../../../helpers/utils/CustomError";
 import checkPermission from "../../../validator/checkPermission";
+import { handleInteractionError } from "../../../helpers/utils/handleError";
 import { CooldownData, isCooledDown, updateCooldown } from "../../../cooldown";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
@@ -96,7 +96,7 @@ const event: DiscordEventInterface = async (
       console.log(error);
     }
 
-    sendError(interaction, error);
+    handleInteractionError(interaction, error);
   }
 };
 

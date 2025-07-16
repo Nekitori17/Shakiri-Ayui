@@ -8,8 +8,8 @@ import {
   StringSelectMenuOptionBuilder,
 } from "discord.js";
 import UserSettings from "../../models/UserSettings";
-import sendError from "../../helpers/utils/sendError";
 import { CustomError } from "../../helpers/utils/CustomError";
+import { handleInteractionError } from "../../helpers/utils/handleError";
 import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -190,7 +190,7 @@ const command: CommandInterface = {
                 ],
               });
             } catch (error) {
-              sendError(bannedUserMenuInteraction, error);
+              handleInteractionError(bannedUserMenuInteraction, error);
             }
           }
         }
@@ -198,7 +198,7 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      sendError(interaction, error);
+      handleInteractionError(interaction, error);
 
       return false;
     }
@@ -207,7 +207,7 @@ const command: CommandInterface = {
   description: "Unblock a user from your temporary voice channel",
   deleted: false,
   devOnly: false,
-  useInDm: false,
+  useInDm: true,
   requiredVoiceChannel: false,
 };
 

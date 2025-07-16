@@ -1,7 +1,7 @@
 import { EmbedBuilder, MessageFlags, PermissionFlagsBits } from "discord.js";
-import { CommandInterface } from "../../types/InteractionInterfaces";
-import sendError from "../../helpers/utils/sendError";
+import { handleInteractionError } from "../../helpers/utils/handleError";
 import temporaryVoiceMenu from "../../components/temporaryVoiceMenu";
+import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
@@ -37,7 +37,7 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      sendError(interaction, error);
+      handleInteractionError(interaction, error);
 
       return false;
     }

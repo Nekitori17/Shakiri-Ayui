@@ -7,7 +7,7 @@ import {
   StringSelectMenuOptionBuilder,
 } from "discord.js";
 import getAllFiles from "../../helpers/utils/getAllFiles";
-import sendError from "../../helpers/utils/sendError";
+import { handleInteractionError } from "../../helpers/utils/handleError";
 import { commandCategories } from "../../constants/commandCategories";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -131,7 +131,7 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      sendError(interaction, error);
+      handleInteractionError(interaction, error);
       
       return false;
     }

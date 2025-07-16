@@ -4,10 +4,10 @@ import {
   PermissionFlagsBits,
 } from "discord.js";
 import { useQueue, QueueRepeatMode } from "discord-player";
-import sendError from "../../helpers/utils/sendError";
 import { CustomError } from "../../helpers/utils/CustomError";
-import { repeatModeNames } from "../../constants/musicRepeatModes";
+import { handleInteractionError } from "../../helpers/utils/handleError";
 import { MusicPlayerSession } from "../../musicPlayerStoreSession";
+import { repeatModeNames } from "../../constants/musicRepeatModes";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -53,7 +53,7 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      sendError(interaction, error);
+      handleInteractionError(interaction, error);
 
       return false;
     }

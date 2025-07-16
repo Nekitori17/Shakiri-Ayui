@@ -2,7 +2,7 @@ import { Player } from "discord-player";
 import isCanUseYoutube from "../validator/isCanUseYoutube";
 import { YoutubeiExtractor } from "discord-player-youtubei";
 import { DefaultExtractors } from "@discord-player/extractor";
-import handleErrorLog from "../helpers/utils/handleErrorLog";
+import { errorLogger } from "../helpers/utils/handleError";
 
 export default async (player: Player) => {
   try {
@@ -32,6 +32,6 @@ export default async (player: Player) => {
 
     console.log("✅ | Music extractors loaded successfully!");
   } catch (error) {
-    handleErrorLog(error);
+    errorLogger(error);
   }
 };

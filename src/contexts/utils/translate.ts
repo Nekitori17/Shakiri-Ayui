@@ -1,10 +1,6 @@
 import axios from "axios";
-import {
-  ApplicationCommandType,
-  MessageContextMenuCommandInteraction,
-  MessageFlags,
-} from "discord.js";
-import sendError from "../../helpers/utils/sendError";
+import { ApplicationCommandType, MessageFlags } from "discord.js";
+import { handleInteractionError } from "../../helpers/utils/handleError";
 import UserSettings from "../../models/UserSettings";
 import { ContextInterface } from "../../types/InteractionInterfaces";
 
@@ -46,14 +42,14 @@ const context: ContextInterface<ApplicationCommandType.Message> = {
             },
           }
         )
-        .then((res) => res.data)
+        .then((res) => res.data);
 
       // Edit the deferred reply with the translated message.
       interaction.editReply(messageTranslated.result);
 
       return true;
     } catch (error) {
-      sendError(interaction, error);
+      handleInteractionError(interaction, error);
 
       return false;
     }
@@ -62,7 +58,7 @@ const context: ContextInterface<ApplicationCommandType.Message> = {
   type: ApplicationCommandType.Message,
   deleted: false,
   devOnly: false,
-  useInDm: false,
+  useInDm: true,
   requiredVoiceChannel: false,
 };
 

@@ -9,9 +9,9 @@ import {
   StringSelectMenuOptionBuilder,
 } from "discord.js";
 import jsonStore from "json-store-typed";
-import sendError from "../../../helpers/utils/sendError";
 import { CustomError } from "../../../helpers/utils/CustomError";
 import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
+import { handleInteractionError } from "../../../helpers/utils/handleError";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
@@ -180,7 +180,7 @@ const select: SelectMenuInterface = {
                 ],
               });
             } catch (error) {
-              sendError(transferUserMenuInteraction, error);
+              handleInteractionError(transferUserMenuInteraction, error);
             }
           }
         }
@@ -188,7 +188,7 @@ const select: SelectMenuInterface = {
 
       return true;
     } catch (error) {
-      sendError(interaction, error);
+      handleInteractionError(interaction, error);
 
       return false;
     }

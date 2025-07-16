@@ -1,7 +1,7 @@
 import { EmbedBuilder } from "discord.js";
 import { useMainPlayer, useQueue } from "discord-player";
-import sendError from "../../../helpers/utils/sendError";
 import { CustomError } from "../../../helpers/utils/CustomError";
+import { handleInteractionError } from "../../../helpers/utils/handleError";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
 const button: ButtonInterface = {
@@ -57,7 +57,7 @@ const button: ButtonInterface = {
 
       return true;
     } catch (error) {
-      sendError(interaction, error);
+      handleInteractionError(interaction, error);
 
       return false;
     }

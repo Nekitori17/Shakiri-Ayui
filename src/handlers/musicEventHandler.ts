@@ -2,7 +2,7 @@ import path from "path";
 import { Client } from "discord.js";
 import { Player } from "discord-player";
 import getAllFiles from "../helpers/utils/getAllFiles";
-import handleErrorLog from "../helpers/utils/handleErrorLog";
+import { errorLogger } from "../helpers/utils/handleError";
 import { MusicEventInterface } from "../types/EventInterfaces";
 
 export default (client: Client, player: Player) => {
@@ -19,6 +19,6 @@ export default (client: Client, player: Player) => {
       eventFunction(player, client);
     }
   } catch (error) {
-    handleErrorLog(error);
+    errorLogger(error);
   }
 };

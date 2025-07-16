@@ -1,6 +1,6 @@
 import config from "../../../config";
 import { GuildMember } from "discord.js";
-import handleErrorLog from "../../../helpers/utils/handleErrorLog";
+import { errorLogger } from "../../../helpers/utils/handleError";
 import generateWelcomeImage from "../../../helpers/tools/generateWelcomeImage";
 import { genericVariableReplacer } from "../../../helpers/utils/variableReplacer";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
@@ -50,7 +50,7 @@ const event: DiscordEventInterface = async (client, member: GuildMember) => {
         files: [welcomeImage],
       });
   } catch (error) {
-    handleErrorLog(error);
+    errorLogger(error);
   }
 };
 

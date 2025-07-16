@@ -1,8 +1,8 @@
 import { GuildMember, Interaction } from "discord.js";
-import sendError from "../../../helpers/utils/sendError";
 import { getExactCommandObject } from "../../../preloaded";
 import checkPermission from "../../../validator/checkPermission";
 import { CustomError } from "../../../helpers/utils/CustomError";
+import { handleInteractionError } from "../../../helpers/utils/handleError";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { CooldownData, isCooledDown, updateCooldown } from "../../../cooldown";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
@@ -102,7 +102,7 @@ const event: DiscordEventInterface = async (
       console.log(error);
     }
 
-    sendError(interaction, error);
+    handleInteractionError(interaction, error);
   }
 };
 

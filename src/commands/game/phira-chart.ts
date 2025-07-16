@@ -7,7 +7,7 @@ import {
   EmbedBuilder,
 } from "discord.js";
 import mediaConverter from "../../helpers/tools/mediaConverter";
-import sendError from "../../helpers/utils/sendError";
+import { handleInteractionError } from "../../helpers/utils/handleError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -103,7 +103,7 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      sendError(interaction, error);
+      handleInteractionError(interaction, error);
       
       return false;
     }
@@ -120,7 +120,6 @@ const command: CommandInterface = {
       required: true,
     },
   ],
-  cooldown: 10,
   useInDm: true,
   requiredVoiceChannel: false,
 };

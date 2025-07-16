@@ -6,10 +6,10 @@ import {
   PermissionFlagsBits,
 } from "discord.js";
 import { QueryType, TrackSource, useMainPlayer } from "discord-player";
-import sendError from "../../helpers/utils/sendError";
 import { CustomError } from "../../helpers/utils/CustomError";
-import { MusicPlayerSession } from "../../musicPlayerStoreSession";
+import { handleInteractionError } from "../../helpers/utils/handleError";
 import { musicSourceIcons } from "../../constants/musicSourceIcons";
+import { MusicPlayerSession } from "../../musicPlayerStoreSession";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -87,7 +87,7 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      sendError(interaction, error);
+      handleInteractionError(interaction, error);
 
       return false;
     }

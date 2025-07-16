@@ -6,8 +6,8 @@ import {
   TextInputStyle,
 } from "discord.js";
 import { useQueue } from "discord-player";
-import sendError from "../../../helpers/utils/sendError";
 import { CustomError } from "../../../helpers/utils/CustomError";
+import { handleInteractionError } from "../../../helpers/utils/handleError";
 import { MusicPlayerSession } from "../../../musicPlayerStoreSession";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
@@ -99,12 +99,12 @@ const button: ButtonInterface = {
           ],
         });
       } catch (error) {
-        sendError(volumeChangeInteraction, error);
+        handleInteractionError(volumeChangeInteraction, error);
       }
       
       return true;
     } catch (error) {
-      sendError(interaction, error);
+      handleInteractionError(interaction, error);
 
       return false;
     }

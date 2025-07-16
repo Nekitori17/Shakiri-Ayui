@@ -7,10 +7,10 @@ import {
   StringSelectMenuOptionBuilder,
 } from "discord.js";
 import { QueueRepeatMode, useQueue } from "discord-player";
-import sendError from "../../../helpers/utils/sendError";
 import { CustomError } from "../../../helpers/utils/CustomError";
-import { MusicPlayerSession } from "../../../musicPlayerStoreSession";
+import { handleInteractionError } from "../../../helpers/utils/handleError";
 import { repeatModeNames } from "../../../constants/musicRepeatModes";
+import { MusicPlayerSession } from "../../../musicPlayerStoreSession";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
 const button: ButtonInterface = {
@@ -87,13 +87,13 @@ const button: ButtonInterface = {
             components: [],
           });
         } catch (error) {
-          sendError(loopModeSelectInteraction, error);
+          handleInteractionError(loopModeSelectInteraction, error);
         }
       });
 
       return true;
     } catch (error) {
-      sendError(interaction, error);
+      handleInteractionError(interaction, error);
 
       return false;
     }

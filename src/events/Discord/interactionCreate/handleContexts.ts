@@ -1,8 +1,8 @@
 import { Interaction } from "discord.js";
 import { getContextObject } from "../../../preloaded";
-import sendError from "../../../helpers/utils/sendError";
 import { CustomError } from "../../../helpers/utils/CustomError";
 import checkPermission from "../../../validator/checkPermission";
+import { handleInteractionError } from "../../../helpers/utils/handleError";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { CooldownData, isCooledDown, updateCooldown } from "../../../cooldown";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
@@ -90,7 +90,7 @@ const event: DiscordEventInterface = async (
       console.log(error);
     }
 
-    sendError(interaction, error);
+    handleInteractionError(interaction, error);
   }
 };
 

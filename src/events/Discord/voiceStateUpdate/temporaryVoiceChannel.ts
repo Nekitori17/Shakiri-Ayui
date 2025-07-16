@@ -2,7 +2,7 @@ import config from "../../../config";
 import path from "path";
 import { ChannelType, VoiceState } from "discord.js";
 import jsonStore from "json-store-typed";
-import handleErrorLog from "../../../helpers/utils/handleErrorLog";
+import { errorLogger } from "../../../helpers/utils/handleError";
 import { genericVariableReplacer } from "../../../helpers/utils/variableReplacer";
 import UserSettings from "../../../models/UserSettings";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
@@ -75,7 +75,7 @@ const event: DiscordEventInterface = async (
         temporaryChannels.set(channel.id, newState.member?.id); // Store the new channel ID and its owner's ID
       });
   } catch (error) {
-    handleErrorLog(error);
+    errorLogger(error);
   }
 };
 
