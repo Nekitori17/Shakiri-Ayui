@@ -1,12 +1,11 @@
-require("dotenv").config();
 import mongoose from "mongoose";
-import { Client, IntentsBitField } from "discord.js";
+import { Client, IntentsBitField, Partials } from "discord.js";
 import { Player } from "discord-player";
 import { preload } from "./preloaded";
 import musicEventHandler from "./handlers/musicEventHandler";
 import discordEventHandler from "./handlers/discordEventHandler";
-import handleErrorLog from "./helpers/utils/handleErrorLog";
 import registerMusicExtractor from "./handlers/registerMusicExtractor";
+import { errorLogger } from "./helpers/utils/handleError";
 
 const client = new Client({
   intents: [
@@ -24,6 +23,14 @@ const client = new Client({
     IntentsBitField.Flags.DirectMessageReactions,
     IntentsBitField.Flags.DirectMessages,
     IntentsBitField.Flags.MessageContent,
+  ],
+  partials: [
+    Partials.Channel,
+    Partials.GuildMember,
+    Partials.Message,
+    Partials.Reaction,
+    Partials.ThreadMember,
+    Partials.User,
   ],
 });
 
@@ -52,7 +59,7 @@ async function run(client: Client) {
   } catch (error: any) {
     console.log(`\x1b[31m\x1b[1m=> ${error.name}\x1b[0m`);
     console.log(`\x1b[32m${error.message}\x1b[0m`);
-    handleErrorLog(error);
+    errorLogger(error);
   }
 }
 

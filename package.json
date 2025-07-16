@@ -28,7 +28,6 @@
     "discord-player": "^7.1.0",
     "discord-player-youtubei": "^1.5.0",
     "discord.js": "^14.21.0",
-    "dotenv": "^17.2.0",
     "ffmpeg-static": "^5.2.0",
     "json-store-typed": "^1.1.0",
     "lodash": "^4.17.21",
