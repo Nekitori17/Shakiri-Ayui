@@ -1,7 +1,8 @@
-import { PermissionFlagsBits } from "discord.js";
+import { ActivityType, PermissionFlagsBits, PresenceData } from "discord.js";
 import GuildSettings from "./models/GuildSettings";
 
-export default {
+
+const config = {
   modules: async (guildId: string) => {
     return await GuildSettings.findOneAndUpdate(
       { guildId },
@@ -13,7 +14,9 @@ export default {
       }
     );
   },
-  statusIntervalTime: 10000,
+  prefix: "a!",
+  presenceRotateList: [] as PresenceData[],
+  presenceIntervalTime: 10000,
   defaultBotPermissionsRequired: [
     PermissionFlagsBits.ViewChannel,
     PermissionFlagsBits.SendMessages,
@@ -21,3 +24,31 @@ export default {
     PermissionFlagsBits.AttachFiles,
   ],
 };
+
+const presenceRotateList: PresenceData[] = [
+  {
+    activities: [{
+      name: `${config.prefix}help | /help`,
+      type: ActivityType.Listening,
+    }],
+    status: "online",
+  },
+  {
+    activities: [{
+      name: `I'm the cutest bot`,
+      type: ActivityType.Watching,
+    }],
+    status: "idle",
+  },
+  {
+    activities: [{
+      name: `Developed by Nekitori17`,
+      type: ActivityType.Competing,
+    }],
+    status: "dnd",
+  },
+];
+
+config.presenceRotateList = presenceRotateList;
+
+export default config;
