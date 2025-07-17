@@ -70,7 +70,9 @@ const command: CommandInterface = {
         embeds: [
           new EmbedBuilder()
             .setAuthor({
-              name: `🎶 | Added ${track.title} by ${track.author} to the queue!`,
+              name: `🎶 | Added ${track.playlist?.title || track.title} by ${
+                track.playlist?.author.name || track.author
+              } to the queue!`,
               iconURL: track.thumbnail,
               url: track.url,
             })
