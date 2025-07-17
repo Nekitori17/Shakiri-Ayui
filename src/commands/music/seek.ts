@@ -31,6 +31,7 @@ const command: CommandInterface = {
           name: "InvalidTime",
           message:
             "Please provide a valid time format like `3:20`, `1:02:33` or `35``",
+          type: "warning",
         });
       }
 
@@ -39,6 +40,7 @@ const command: CommandInterface = {
         throw new CustomError({
           name: "TimeOutOfRange",
           message: `The provided time exceeds the track's duration (\`${trackTimeline.track?.duration}\`)`,
+          type: "warning",
         });
       }
       // Set the position of the current track in the timeline
