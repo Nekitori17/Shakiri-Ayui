@@ -78,13 +78,13 @@ const select: SelectMenuInterface = {
             ],
           });
         } catch (error) {
-          handleInteractionError(regionSelectInteraction, error);
+          handleInteractionError(regionSelectInteraction, error, true);
         }
       });
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      handleInteractionError(interaction, error, true);
 
       return false;
     }

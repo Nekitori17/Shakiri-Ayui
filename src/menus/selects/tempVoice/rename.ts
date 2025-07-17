@@ -97,12 +97,12 @@ const select: SelectMenuInterface = {
           ],
         });
       } catch (error) {
-        handleInteractionError(renameModalInteraction, error);
+        handleInteractionError(renameModalInteraction, error, true);
       }
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      handleInteractionError(interaction, error, true);
 
       return false;
     }

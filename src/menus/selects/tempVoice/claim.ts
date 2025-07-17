@@ -56,7 +56,7 @@ const select: SelectMenuInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      handleInteractionError(interaction, error, true);
 
       return false;
     }

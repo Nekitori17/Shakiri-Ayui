@@ -197,7 +197,7 @@ const select: SelectMenuInterface = {
                 ],
               });
             } catch (error) {
-              handleInteractionError(blockedUserMenuInteraction, error);
+              handleInteractionError(blockedUserMenuInteraction, error, true);
             }
           }
         }
@@ -205,7 +205,7 @@ const select: SelectMenuInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      handleInteractionError(interaction, error, true);
 
       return false;
     }
