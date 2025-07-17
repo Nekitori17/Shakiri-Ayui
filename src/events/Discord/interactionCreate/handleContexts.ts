@@ -90,7 +90,7 @@ const event: DiscordEventInterface = async (
       console.log(error);
     }
 
-    handleInteractionError(interaction, error);
+    handleInteractionError(interaction, error, true);
   }
 };
 

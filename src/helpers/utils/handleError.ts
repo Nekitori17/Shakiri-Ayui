@@ -1,51 +1,55 @@
 import fs from "fs";
 import path from "path";
-import { AttachmentBuilder, WebhookClient, MessageFlags } from "discord.js";
+import {
+  AttachmentBuilder,
+  WebhookClient,
+  MessageFlags,
+  MessagePayload,
+  InteractionReplyOptions,
+  InteractionEditReplyOptions,
+} from "discord.js";
 import { CustomError } from "./CustomError";
 import CommonEmbedBuilder from "../embeds/commonEmbedBuilder";
 import { AnyInteraction } from "../../types/AnyInteraction";
 
+// Path to the logs folder
 const logFolderPath = path.join(__dirname, "../../../logs");
 
 /**
- * Ensures that the log folder exists.
+ * Ensures the logs folder exists.
  */
-function createLogFolder() {
-  if (!fs.existsSync(logFolderPath)) {
-    fs.mkdirSync(logFolderPath, { recursive: true });
-  }
+function ensureLogFolder() {
+  fs.mkdirSync(logFolderPath, { recursive: true });
 }
 
 /**
- * Recursively converts an unknown error object into a string representation.
- * Handles circular references and ensures all properties are stringified.
- * @param error The unknown error object
- * @returns A JSON string representation of the error
+ * Recursively stringifies an unknown error object.
+ * Handles nested values and avoids non-object types.
  */
 function stringifyError(error: unknown): string {
-  if (typeof error !== "object" || error === null) {
-    return String(error);
-  }
+  if (typeof error !== "object" || error === null) return String(error);
 
-  const entries: Record<string, unknown> = {};
-  const keys = Object.getOwnPropertyNames(error);
-
-  for (const key of keys) {
+  const result: Record<string, unknown> = {};
+  for (const key of Object.getOwnPropertyNames(error)) {
     const value = (error as Record<string, unknown>)[key];
-    entries[key] = value instanceof Object ? stringifyError(value) : value;
+    result[key] = typeof value === "object" ? stringifyError(value) : value;
   }
 
-  return JSON.stringify(entries, null, 2);
+  return JSON.stringify(result, null, 2);
 }
 
 /**
- * Creates the error log content and file name.
- * @param error The Error object
- * @returns Object containing filename and logContentBuffer
+ * Creates a formatted error log file from an Error instance.
+ * @param error The error to log
+ * @returns The filename and log content buffer
  */
-function createErrorLogFile(error: Error) {
+function createErrorLog(error: Error) {
   const timestamp = new Date().toISOString().replace(/:/g, "-");
-  const logContent = [
+  const filename = `Error-${timestamp}_${
+    process.hrtime.bigint() / 1_000_000n
+  }.log`;
+
+  const content = [
     `# Error Name: ${error.name}`,
     `# Error Message: ${error.message}`,
     `# Time: ${timestamp}`,
@@ -54,217 +58,110 @@ function createErrorLogFile(error: Error) {
     stringifyError(error),
   ].join("\n");
 
-  const logContentBuffer = Buffer.from(logContent);
-  const filename = `Error-${timestamp}_${(
-    process.hrtime.bigint() / 1_000_000n
-  ).toString()}.log`;
-
-  return { filename, logContentBuffer };
+  return { filename, buffer: Buffer.from(content) };
 }
 
 /**
- * Writes the error log to a `.log` file in the logs directory.
- * @param error The Error object
+ * Writes the error log to a local file.
  */
-function writeErrorLogToFile(error: Error) {
-  createLogFolder();
-  const { filename, logContentBuffer } = createErrorLogFile(error);
-  fs.writeFileSync(path.join(logFolderPath, filename), logContentBuffer, {
-    encoding: "utf-8",
-  });
+function writeLogToFile(error: Error) {
+  ensureLogFolder();
+  const { filename, buffer } = createErrorLog(error);
+  fs.writeFileSync(path.join(logFolderPath, filename), buffer, "utf-8");
 }
 
 /**
- * Builds a Discord file attachment from an error.
- * @param error The Error object
- * @returns A Discord.js AttachmentBuilder instance
+ * Builds a Discord attachment file from the error log.
  */
-function buildErrorAttachment(error: Error): AttachmentBuilder {
-  const { filename, logContentBuffer } = createErrorLogFile(error);
-  return new AttachmentBuilder(logContentBuffer, { name: filename });
+function buildErrorAttachment(error: Error) {
+  const { filename, buffer } = createErrorLog(error);
+  return new AttachmentBuilder(buffer, { name: filename });
 }
 
 /**
- * Sends the error to a Discord webhook (if environment variable is set).
- * @param error The Error object
+ * Sends the error report to a Discord webhook (if URL is set in env).
  */
 function sendToWebhook(error: Error) {
-  const WEBHOOK_LOG_URL = process.env.WEBHOOK_LOG_ERROR_URL;
-  if (!WEBHOOK_LOG_URL) return;
+  const url = process.env.WEBHOOK_LOG_ERROR_URL;
+  if (!url) return;
 
-  const webhookClient = new WebhookClient({ url: WEBHOOK_LOG_URL });
-  const errorLogAttachment = buildErrorAttachment(error);
+  const webhook = new WebhookClient({ url });
+  const attachment = buildErrorAttachment(error);
 
-  webhookClient.send({
+  webhook.send({
     embeds: [
       CommonEmbedBuilder.error({
         title: "Error Log",
         description:
-          `An error occurred at <t:${Math.floor(Date.now() / 1000)}:F>` +
-          "\n\n" +
-          `**Error Name**: ${error.name}` +
-          `\n` +
-          `**Error Message**: ${error.message}`,
+          `An error occurred at <t:${Math.floor(Date.now() / 1000)}:F>\n\n` +
+          `**Error Name**: ${error.name}\n**Error Message**: ${error.message}`,
       }),
     ],
-    files: [errorLogAttachment],
+    files: [attachment],
   });
 }
 
 /**
- * Handles a raw error: logs to file and optionally sends to webhook.
- * @param error Error or unknown object
- * @param sendWebhook Whether to send to Discord webhook (default: true)
+ * Main logger function to handle and optionally report an error.
+ * @param error The error object or unknown value
+ * @param sendWebhook Whether to also send to Discord webhook
  */
-export async function errorLogger(
-  error: Error | unknown,
-  sendWebhook = true
-) {
+export async function errorLogger(error: unknown, sendWebhook = true) {
   try {
     const err = error instanceof Error ? error : new Error(String(error));
-    writeErrorLogToFile(err);
-
-    if (sendWebhook) {
-      sendToWebhook(err);
-    }
-  } catch (err) {
-    console.error("\x1b[31m|> Error while logging error\x1b[0m");
-    console.error("\x1b[32m", err, "\x1b[0m");
+    writeLogToFile(err);
+    if (sendWebhook) sendToWebhook(err);
+  } catch (e) {
+    console.error(
+      "\x1b[31m|> Error while logging error\x1b[0m",
+      "\n\x1b[32m",
+      e,
+      "\x1b[0m"
+    );
   }
 }
 
 /**
- * Checks if an interaction is still valid (not expired and not already responded to)
- * @param interaction The Discord interaction
- * @returns boolean indicating if the interaction is still valid
+ * Checks if a Discord interaction is still valid (not expired).
  */
 function isInteractionValid(interaction: AnyInteraction): boolean {
-  // Check if interaction is expired (Discord interactions expire after 15 minutes)
-  const createdAt = interaction.createdTimestamp;
-  const now = Date.now();
-  const INTERACTION_TIMEOUT = 15 * 60 * 1000; // 15 minutes in milliseconds
-  
-  if (now - createdAt > INTERACTION_TIMEOUT) {
-    return false;
-  }
-  
-  return true;
+  return Date.now() - interaction.createdTimestamp < 15 * 60 * 1000;
 }
 
 /**
- * Safely defers an interaction reply with proper error handling
- * @param interaction The Discord interaction
- * @param ephemeral Whether the message should be ephemeral
- * @returns Promise<boolean> indicating if the defer was successful
+ * Safely defers a Discord interaction reply if it hasn't been deferred or replied to yet.
+ * The reply will be ephemeral.
+ * @param interaction The interaction to defer.
  */
-async function safelyDeferReply(
-  interaction: AnyInteraction,
-  ephemeral?: boolean
-): Promise<boolean> {
-  try {
-    // Check if interaction is still valid
-    if (!isInteractionValid(interaction)) {
-      console.warn("Interaction is expired, cannot defer reply");
-      return false;
-    }
-
-    // Check if already replied or deferred
-    if (interaction.replied || interaction.deferred) {
-      return true; // Already handled
-    }
-
+async function safetyDeferReply(interaction: AnyInteraction) {
+  if (!interaction.deferred && !interaction.replied) {
     await interaction.deferReply({
-      flags: ephemeral ? MessageFlags.Ephemeral : undefined,
+      flags: MessageFlags.Ephemeral,
     });
-    
-    return true;
-  } catch (error) {
-    console.error("Failed to defer reply:", error);
-    return false;
   }
 }
 
 /**
- * Safely sends a response to an interaction with proper error handling
- * @param interaction The Discord interaction
- * @param payload The message payload
- * @param newReply Whether to send a new reply or edit the existing one
- * @returns Promise<boolean> indicating if the response was successful
- */
-async function safelySendResponse(
-  interaction: AnyInteraction,
-  payload: any,
-  newReply?: boolean
-): Promise<boolean> {
-  try {
-    if (!isInteractionValid(interaction)) {
-      console.warn("Interaction is expired, cannot send response");
-      return false;
-    }
-
-    if (newReply) {
-      if (!interaction.replied) {
-        await interaction.followUp(payload);
-      } else {
-        await interaction.reply(payload);
-      }
-    } else {
-      if (interaction.deferred) {
-        await interaction.editReply(payload);
-      } else if (!interaction.replied) {
-        await interaction.reply(payload);
-      } else {
-        await interaction.followUp(payload);
-      }
-    }
-    
-    return true;
-  } catch (error) {
-    console.error("Failed to send response:", error);
-    return false;
-  }
-}
-
-/**
- * Handles and responds to an interaction with an error message.
- * Defer reply if needed, create an embed, attach error log, and respond to user.
- * @param interaction The Discord interaction
- * @param error Error, CustomError, or unknown
- * @param ephemeral Whether the message should be ephemeral (optional)
- * @param newReply Whether to send a new reply or edit the existing one (optional)
+ * Handles an error occurring in a Discord interaction.
+ * Logs the error, builds an embed, and sends a reply to the user.
  */
 export async function handleInteractionError(
   interaction: AnyInteraction,
-  error: Error | CustomError | unknown,
+  error: unknown,
   ephemeral?: boolean,
   newReply?: boolean
 ) {
   try {
-    // Check if interaction is still valid
     if (!isInteractionValid(interaction)) {
-      console.warn("Interaction is expired, logging error only");
-      if (error instanceof Error) {
-        errorLogger(error);
-      }
+      if (error instanceof Error) errorLogger(error);
       return;
     }
 
-    // Safely defer reply if not already handled
-    const deferSuccess = await safelyDeferReply(interaction, ephemeral);
-    if (!deferSuccess && !interaction.replied && !interaction.deferred) {
-      console.warn("Failed to defer reply and interaction is not handled");
-      if (error instanceof Error) {
-        errorLogger(error);
-      }
-      return;
-    }
+    await safetyDeferReply(interaction);
 
-    const attachments: AttachmentBuilder[] = [];
-
-    if (error instanceof Error) {
-      errorLogger(error);
-      attachments.push(buildErrorAttachment(error));
-    }
+    const attachments =
+      error instanceof Error ? [buildErrorAttachment(error)] : [];
+    if (error instanceof Error) errorLogger(error);
 
     const {
       name = "Unknown Error",
@@ -272,28 +169,27 @@ export async function handleInteractionError(
       type = "error",
     } = error as CustomError;
 
-    const embed = {
-      warning: CommonEmbedBuilder.warning,
-      info: CommonEmbedBuilder.info,
-      error: CommonEmbedBuilder.error,
-    }[type]({
-      title: name,
-      description: message,
-    });
+    const embed =
+      {
+        warning: CommonEmbedBuilder.warning,
+        info: CommonEmbedBuilder.info,
+        error: CommonEmbedBuilder.error,
+      }[type] || CommonEmbedBuilder.error;
 
-    const payload = {
-      embeds: [embed],
+    const replyPayload = {
+      embeds: [embed({ title: name, description: message })],
       files: attachments,
-      ephemeral,
     };
 
-    // Safely send response
-    const responseSuccess = await safelySendResponse(interaction, payload, newReply);
-    if (!responseSuccess) {
-      console.warn("Failed to send error response to user");
+    if (newReply) {
+      await interaction.followUp({
+        ...replyPayload,
+        flags: ephemeral ? MessageFlags.Ephemeral : undefined,
+      });
+    } else {
+      await interaction.editReply(replyPayload);
     }
   } catch (err) {
-    console.error("Error in handleInteractionError:", err);
     errorLogger(err);
   }
 }
