@@ -134,6 +134,98 @@ export async function errorLogger(
 }
 
 /**
+ * Checks if an interaction is still valid (not expired and not already responded to)
+ * @param interaction The Discord interaction
+ * @returns boolean indicating if the interaction is still valid
+ */
+function isInteractionValid(interaction: AnyInteraction): boolean {
+  // Check if interaction is expired (Discord interactions expire after 15 minutes)
+  const createdAt = interaction.createdTimestamp;
+  const now = Date.now();
+  const INTERACTION_TIMEOUT = 15 * 60 * 1000; // 15 minutes in milliseconds
+  
+  if (now - createdAt > INTERACTION_TIMEOUT) {
+    return false;
+  }
+  
+  return true;
+}
+
+/**
+ * Safely defers an interaction reply with proper error handling
+ * @param interaction The Discord interaction
+ * @param ephemeral Whether the message should be ephemeral
+ * @returns Promise<boolean> indicating if the defer was successful
+ */
+async function safelyDeferReply(
+  interaction: AnyInteraction,
+  ephemeral?: boolean
+): Promise<boolean> {
+  try {
+    // Check if interaction is still valid
+    if (!isInteractionValid(interaction)) {
+      console.warn("Interaction is expired, cannot defer reply");
+      return false;
+    }
+
+    // Check if already replied or deferred
+    if (interaction.replied || interaction.deferred) {
+      return true; // Already handled
+    }
+
+    await interaction.deferReply({
+      flags: ephemeral ? MessageFlags.Ephemeral : undefined,
+    });
+    
+    return true;
+  } catch (error) {
+    console.error("Failed to defer reply:", error);
+    return false;
+  }
+}
+
+/**
+ * Safely sends a response to an interaction with proper error handling
+ * @param interaction The Discord interaction
+ * @param payload The message payload
+ * @param newReply Whether to send a new reply or edit the existing one
+ * @returns Promise<boolean> indicating if the response was successful
+ */
+async function safelySendResponse(
+  interaction: AnyInteraction,
+  payload: any,
+  newReply?: boolean
+): Promise<boolean> {
+  try {
+    if (!isInteractionValid(interaction)) {
+      console.warn("Interaction is expired, cannot send response");
+      return false;
+    }
+
+    if (newReply) {
+      if (!interaction.replied) {
+        await interaction.followUp(payload);
+      } else {
+        await interaction.reply(payload);
+      }
+    } else {
+      if (interaction.deferred) {
+        await interaction.editReply(payload);
+      } else if (!interaction.replied) {
+        await interaction.reply(payload);
+      } else {
+        await interaction.followUp(payload);
+      }
+    }
+    
+    return true;
+  } catch (error) {
+    console.error("Failed to send response:", error);
+    return false;
+  }
+}
+
+/**
  * Handles and responds to an interaction with an error message.
  * Defer reply if needed, create an embed, attach error log, and respond to user.
  * @param interaction The Discord interaction
@@ -148,11 +240,23 @@ export async function handleInteractionError(
   newReply?: boolean
 ) {
   try {
-    // Defer if not already handled
-    if (!interaction.replied && !interaction.deferred) {
-      await interaction.deferReply({
-        flags: ephemeral ? MessageFlags.Ephemeral : undefined,
-      });
+    // Check if interaction is still valid
+    if (!isInteractionValid(interaction)) {
+      console.warn("Interaction is expired, logging error only");
+      if (error instanceof Error) {
+        errorLogger(error);
+      }
+      return;
+    }
+
+    // Safely defer reply if not already handled
+    const deferSuccess = await safelyDeferReply(interaction, ephemeral);
+    if (!deferSuccess && !interaction.replied && !interaction.deferred) {
+      console.warn("Failed to defer reply and interaction is not handled");
+      if (error instanceof Error) {
+        errorLogger(error);
+      }
+      return;
     }
 
     const attachments: AttachmentBuilder[] = [];
@@ -183,16 +287,13 @@ export async function handleInteractionError(
       ephemeral,
     };
 
-    if (newReply) {
-      if (!interaction.replied) {
-        await interaction.followUp(payload);
-      } else {
-        await interaction.reply(payload);
-      }
-    } else {
-      await interaction.editReply(payload);
+    // Safely send response
+    const responseSuccess = await safelySendResponse(interaction, payload, newReply);
+    if (!responseSuccess) {
+      console.warn("Failed to send error response to user");
     }
   } catch (err) {
+    console.error("Error in handleInteractionError:", err);
     errorLogger(err);
   }
 }
