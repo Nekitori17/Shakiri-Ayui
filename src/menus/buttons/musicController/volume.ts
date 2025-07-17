@@ -1,3 +1,4 @@
+import _ from "lodash";
 import {
   ActionRowBuilder,
   EmbedBuilder,
@@ -10,15 +11,6 @@ import { CustomError } from "../../../helpers/utils/CustomError";
 import { handleInteractionError } from "../../../helpers/utils/handleError";
 import { MusicPlayerSession } from "../../../musicPlayerStoreSession";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
-
-/**
- * Checks if a given value is a number.
- * @param value The value to check.
- * @returns True if the value is a number, false otherwise.
- */
-function isNumber(value: any) {
-  return !isNaN(parseFloat(value)) && isFinite(value);
-}
 
 const button: ButtonInterface = {
   async execute(interaction, client) {
@@ -64,7 +56,7 @@ const button: ButtonInterface = {
         // Check if the input value is a valid number
 
         // Error message for invalid input
-        if (!isNumber(levelStrInputValue))
+        if (!_.isNumber(levelStrInputValue))
           throw new CustomError({
             name: "ThisIsNotANumber",
             message: "Please try again with correct value",

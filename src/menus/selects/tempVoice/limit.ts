@@ -1,3 +1,4 @@
+import _ from "lodash";
 import {
   ActionRowBuilder,
   GuildMember,
@@ -12,10 +13,6 @@ import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
 import { handleInteractionError } from "../../../helpers/utils/handleError";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
-
-function isNumber(value: any) {
-  return !isNaN(parseFloat(value)) && isFinite(value);
-}
 
 const select: SelectMenuInterface = {
   async execute(interaction, client) {
@@ -62,7 +59,7 @@ const select: SelectMenuInterface = {
           limitUserModalInteraction.fields.getTextInputValue("amount");
 
         // Validate if the input is a number
-        if (!isNumber(amountOfLimitStrInputValue))
+        if (!_.isNumber(amountOfLimitStrInputValue))
           throw new CustomError({
             name: "ThisIsNotANumber",
             message: "Please try again with correct value",
