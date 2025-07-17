@@ -50,12 +50,10 @@ const command: CommandInterface = {
 
       // Calculate total users and maximum pages
       const totalUsers = blockedUsers.length;
+      const maxPages = Math.ceil(totalUsers / AMOUNT_USER_IN_PAGE) || 1;
 
-      // Determine the chunk size for partitioning users into pages
-      const maxPages = Math.floor(totalUsers / AMOUNT_USER_IN_PAGE) || 1;
-      const chunkSize = Math.ceil(totalUsers / maxPages);
-
-      blockedUsersPartition.push(..._.chunk(blockedUsers, chunkSize));
+      // Chunk users by the desired amount per page
+      blockedUsersPartition.push(..._.chunk(blockedUsers, AMOUNT_USER_IN_PAGE));
 
       let currentPage = 0;
 

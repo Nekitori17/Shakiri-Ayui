@@ -1,3 +1,4 @@
+import _ from "lodash";
 import path from "path";
 import {
   ActionRowBuilder,
@@ -53,18 +54,13 @@ const select: SelectMenuInterface = {
       const transferableMemberArray = Array.from(transferableMembers.values());
       const transferableMembersPartition: GuildMember[][] = [];
       let currentPage = 0;
-      const maxPage = Math.ceil(
-        transferableMemberArray.length / AMOUNT_USER_IN_PAGE
-      );
+      const maxPage =
+        Math.ceil(transferableMemberArray.length / AMOUNT_USER_IN_PAGE) || 1;
 
-      for (let i = 0; i < maxPage; i++) {
-        transferableMembersPartition.push(
-          transferableMemberArray.slice(
-            i * AMOUNT_USER_IN_PAGE,
-            (i + 1) * AMOUNT_USER_IN_PAGE
-          )
-        );
-      }
+      // Chunk members by the desired amount per page
+      transferableMembersPartition.push(
+        ..._.chunk(transferableMemberArray, AMOUNT_USER_IN_PAGE)
+      );
 
       /**
        * Generates the content for a page displaying transferable users.

@@ -1,3 +1,4 @@
+import _ from "lodash";
 import {
   ActionRowBuilder,
   GuildMember,
@@ -49,18 +50,13 @@ const select: SelectMenuInterface = {
       const kickAbleMembersArray = Array.from(kickAbleMembers.values());
       const kickAbleMembersPartition: GuildMember[][] = [];
       let currentPage = 0;
-      const maxPage = Math.ceil(
-        kickAbleMembersArray.length / AMOUNT_USER_IN_PAGE
-      );
+      const maxPage =
+        Math.ceil(kickAbleMembersArray.length / AMOUNT_USER_IN_PAGE) || 1;
 
-      for (let i = 0; i < maxPage; i++) {
-        kickAbleMembersPartition.push(
-          kickAbleMembersArray.slice(
-            i * AMOUNT_USER_IN_PAGE,
-            (i + 1) * AMOUNT_USER_IN_PAGE
-          )
-        );
-      }
+      // Chunk members by the desired amount per page
+      kickAbleMembersPartition.push(
+        ..._.chunk(kickAbleMembersArray, AMOUNT_USER_IN_PAGE)
+      );
 
       /**
        * Generates the content for a page displaying kickable users.

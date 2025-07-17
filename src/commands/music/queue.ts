@@ -30,16 +30,15 @@ const command: CommandInterface = {
       const AMOUNT_TRACK_IN_PAGE = 10;
       // Initialize an array to store tracks partitioned into pages
       const queuePartition: Track[][] = [];
-
-      // Get all tracks in the queue and calculate total tracks
+      // Get all tracks in the queue
       const tracksArray = queue?.tracks.toArray() || [];
       const totalTracks = tracksArray.length;
 
-      // Calculate the maximum number of pages and chunk size for partitioning
-      const maxPages = Math.floor(totalTracks / AMOUNT_TRACK_IN_PAGE) || 1;
-      const chunkSize = Math.ceil(totalTracks / maxPages);
+      // Calculate total number of pages
+      const maxPages = Math.ceil(totalTracks / AMOUNT_TRACK_IN_PAGE) || 1;
 
-      queuePartition.push(..._.chunk(tracksArray, chunkSize));
+      // Chunk tracks by the desired amount per page
+      queuePartition.push(..._.chunk(tracksArray, AMOUNT_TRACK_IN_PAGE));
 
       let currentPage = 0;
       /**

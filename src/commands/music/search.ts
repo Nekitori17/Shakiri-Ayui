@@ -51,10 +51,11 @@ const command: CommandInterface = {
       const tracksArray = searchResult.tracks || [];
       const totalTracks = tracksArray.length;
 
-      const maxPages = Math.floor(totalTracks / AMOUNT_TRACK_IN_PAGE) || 1;
-      const chunkSize = Math.ceil(totalTracks / maxPages);
+      // Calculate total number of pages
+      const maxPages = Math.ceil(totalTracks / AMOUNT_TRACK_IN_PAGE) || 1;
 
-      tracksPartition.push(..._.chunk(tracksArray, chunkSize));
+      // Chunk tracks by the desired amount per page
+      tracksPartition.push(..._.chunk(tracksArray, AMOUNT_TRACK_IN_PAGE));
 
       let currentPage = 0;
       function createReply(page: number) {

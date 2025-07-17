@@ -1,3 +1,4 @@
+import _ from "lodash";
 import {
   ActionRowBuilder,
   GuildMember,
@@ -62,16 +63,10 @@ const select: SelectMenuInterface = {
       const AMOUNT_USER_IN_PAGE = 25;
       const blockedUsersPartition: string[][] = [];
       let currentPage = 0;
-      const maxPage = Math.ceil(blockedUsers.length / AMOUNT_USER_IN_PAGE);
+      const maxPage = Math.ceil(blockedUsers.length / AMOUNT_USER_IN_PAGE) || 1;
 
-      for (let i = 0; i < maxPage; i++) {
-        blockedUsersPartition.push(
-          blockedUsers.slice(
-            i * AMOUNT_USER_IN_PAGE,
-            (i + 1) * AMOUNT_USER_IN_PAGE
-          )
-        );
-      }
+      // Chunk users by the desired amount per page
+      blockedUsersPartition.push(..._.chunk(blockedUsers, AMOUNT_USER_IN_PAGE));
 
       /**
        * Generates the content for a page displaying blocked users.
