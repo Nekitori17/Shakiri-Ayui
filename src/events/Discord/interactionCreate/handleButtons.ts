@@ -28,6 +28,8 @@ const event: DiscordEventInterface = async (
 
     if (!buttonObject) return;
 
+    if (buttonObject.disabled) return interaction.deferUpdate()
+
     if (buttonObject.devOnly) {
       const DEVELOPERS = (process.env.DEVELOPER_ACCOUNT_IDS as string).split(
         ","

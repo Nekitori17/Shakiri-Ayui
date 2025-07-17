@@ -24,6 +24,9 @@ const event: DiscordEventInterface = async (
     );
 
     if (!selectMenuOptionObject) return;
+
+    if (selectMenuOptionObject.disabled) return interaction.deferUpdate()
+
     // Edit the message components to prevent re-selection issues
     await interaction.message.edit({
       components: interaction.message.components,
