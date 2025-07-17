@@ -10,7 +10,7 @@ import { errorLogger } from "./helpers/utils/handleError";
 const client = new Client({
   intents: [
     IntentsBitField.Flags.Guilds,
-    IntentsBitField.Flags.GuildEmojisAndStickers,
+    IntentsBitField.Flags.GuildExpressions,
     IntentsBitField.Flags.GuildInvites,
     IntentsBitField.Flags.GuildMembers,
     IntentsBitField.Flags.GuildMessagePolls,
@@ -23,14 +23,6 @@ const client = new Client({
     IntentsBitField.Flags.DirectMessageReactions,
     IntentsBitField.Flags.DirectMessages,
     IntentsBitField.Flags.MessageContent,
-  ],
-  partials: [
-    Partials.Channel,
-    Partials.GuildMember,
-    Partials.Message,
-    Partials.Reaction,
-    Partials.ThreadMember,
-    Partials.User,
   ],
 });
 
