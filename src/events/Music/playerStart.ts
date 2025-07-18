@@ -1,8 +1,8 @@
 import { EmbedBuilder, TextChannel } from "discord.js";
-import { QueueRepeatMode, TrackSource } from "discord-player";
+import { TrackSource } from "discord-player";
 import { repeatModeNames } from "../../constants/musicRepeatModes";
 import { musicSourceIcons } from "../../constants/musicSourceIcons";
-import { mainMusicControllerButtonRow } from "../../components/musicControllerMenu";
+import { basicMusicControllerButtonRow } from "../../components/musicControllerMenu";
 import { MusicEventInterface } from "../../types/EventInterfaces";
 import { MusicPlayerSession } from "../../musicPlayerStoreSession";
 
@@ -48,7 +48,7 @@ const event: MusicEventInterface = (player) => {
           .setColor("#00a2ff")
           .setTimestamp(),
       ],
-      components: [mainMusicControllerButtonRow],
+      components: [basicMusicControllerButtonRow],
     });
   });
 };

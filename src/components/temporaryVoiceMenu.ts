@@ -64,6 +64,6 @@ const tempVoiceSelectMenu = [
 export default new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
   new StringSelectMenuBuilder()
     .setCustomId("$temp-voice")
-    .setPlaceholder("Select an option")
+    .setPlaceholder("Select a temporary voice channel action")
     .addOptions(tempVoiceSelectMenu)
 );

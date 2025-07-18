@@ -1,13 +1,10 @@
 import { EmbedBuilder, PermissionFlagsBits } from "discord.js";
-import { useQueue, TrackSource, QueueRepeatMode } from "discord-player";
+import { useQueue, TrackSource } from "discord-player";
 import { CustomError } from "../../helpers/utils/CustomError";
 import { handleInteractionError } from "../../helpers/utils/handleError";
 import { repeatModeNames } from "../../constants/musicRepeatModes";
 import { musicSourceIcons } from "../../constants/musicSourceIcons";
-import {
-  extendMusicControllerButtonRow,
-  mainMusicControllerButtonRow,
-} from "../../components/musicControllerMenu";
+import { advancedMusicControllerButtonRows } from "../../components/musicControllerMenu";
 import { MusicPlayerSession } from "../../musicPlayerStoreSession";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -84,10 +81,7 @@ const command: CommandInterface = {
             .setTimestamp()
             .setColor("#00a2ff"),
         ],
-        components: [
-          mainMusicControllerButtonRow,
-          extendMusicControllerButtonRow,
-        ],
+        components: [...advancedMusicControllerButtonRows],
       });
 
       return true;
