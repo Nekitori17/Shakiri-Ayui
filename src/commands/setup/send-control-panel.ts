@@ -21,6 +21,7 @@ const command: CommandInterface = {
           message: "The channel is not sendable.",
         });
 
+      // Create the control panel embed
       const controlPanelEmbed = new EmbedBuilder()
         .setAuthor({
           name: interaction.guild?.name!,
@@ -37,6 +38,7 @@ const command: CommandInterface = {
         .setImage("https://files.catbox.moe/7i6rnj.png")
         .setColor("White");
 
+      // Send the control panel message
       await interaction.channel.send({
         content: CONTROL_PANEL_TAG,
         embeds: [controlPanelEmbed],
@@ -47,6 +49,7 @@ const command: CommandInterface = {
         ],
       });
 
+      // Confirm sending the control panel
       await interaction.editReply("✅ | Control panel sent!");
 
       return true;

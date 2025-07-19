@@ -8,30 +8,34 @@ import { ButtonInterface } from "../../../types/InteractionInterfaces";
 const button: ButtonInterface = {
   async execute(interaction, client) {
     const controlPanelButtonIn = interaction.message.content.includes("\u200B");
-
+    
     try {
-
       await interaction.deferReply({
         flags: controlPanelButtonIn ? MessageFlags.Ephemeral : undefined,
       });
-
+      
+      // Get the voice connection for the current guild
       const connection = new VoiceUtils(useMainPlayer()).getConnection(
         interaction.guildId!
       );
-
+      
+      // If no connection exists, throw a custom error
       if (!connection)
         throw new CustomError({
           name: "NoConnection",
           message: "I'm not connected to any voice channel",
         });
-
+      
+      // Destroy the voice connection
       connection.destroy();
-
+      
+      // Clear the music player session data for the guild
       const musicPlayerStoreSession = new MusicPlayerSession(
         interaction.guildId!
       );
       musicPlayerStoreSession.clear();
-
+      
+      // Edit the deferred reply with an embed confirming disconnection
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
@@ -42,11 +46,11 @@ const button: ButtonInterface = {
             .setColor("#ff3131"),
         ],
       });
-
+      
       return true;
     } catch (error) {
       handleInteractionError(interaction, error, controlPanelButtonIn);
-
+      
       return false;
     }
   },
