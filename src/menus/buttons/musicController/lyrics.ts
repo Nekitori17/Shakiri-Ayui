@@ -1,4 +1,4 @@
-import { EmbedBuilder } from "discord.js";
+import { EmbedBuilder, MessageFlags } from "discord.js";
 import { useMainPlayer, useQueue } from "discord-player";
 import { CustomError } from "../../../helpers/utils/CustomError";
 import { handleInteractionError } from "../../../helpers/utils/handleError";
@@ -6,8 +6,12 @@ import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
 const button: ButtonInterface = {
   async execute(interaction, client) {
+    const controlPanelButtonIn = interaction.message.content.includes("\u200B");
+
     try {
-      await interaction.deferReply();
+      await interaction.deferReply({
+        flags: controlPanelButtonIn ? MessageFlags.Ephemeral : undefined,
+      });
 
       // Get the main player instance
       const player = useMainPlayer();
@@ -57,7 +61,7 @@ const button: ButtonInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      handleInteractionError(interaction, error, controlPanelButtonIn);
 
       return false;
     }

@@ -15,6 +15,8 @@ import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
 const button: ButtonInterface = {
   async execute(interaction, client) {
+    const controlPanelButtonIn = interaction.message.content.includes("\u200B");
+
     try {
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
@@ -60,7 +62,9 @@ const button: ButtonInterface = {
       // Handle collection of a select menu interaction
       loopModeMenuCollector.on("collect", async (loopModeSelectInteraction) => {
         try {
-          await loopModeSelectInteraction.deferReply();
+          await loopModeSelectInteraction.deferReply({
+            flags: controlPanelButtonIn ? MessageFlags.Ephemeral : undefined,
+          });
 
           // Get the selected repeat mode from the interaction
           const repeatMode = parseInt(
@@ -87,13 +91,13 @@ const button: ButtonInterface = {
             components: [],
           });
         } catch (error) {
-          handleInteractionError(loopModeSelectInteraction, error);
+          handleInteractionError(loopModeSelectInteraction, error, controlPanelButtonIn);
         }
       });
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      handleInteractionError(interaction, error, controlPanelButtonIn);
 
       return false;
     }

@@ -2,6 +2,7 @@ import _ from "lodash";
 import {
   ActionRowBuilder,
   EmbedBuilder,
+  MessageFlags,
   ModalBuilder,
   TextInputBuilder,
   TextInputStyle,
@@ -14,6 +15,8 @@ import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
 const button: ButtonInterface = {
   async execute(interaction, client) {
+    const controlPanelButtonIn = interaction.message.content.includes("\u200B");
+    
     try {
       // Get the queue for the current guild
       const queue = useQueue(interaction.guildId!);
@@ -48,7 +51,9 @@ const button: ButtonInterface = {
       });
 
       try {
-        await volumeChangeInteraction.deferReply();
+        await volumeChangeInteraction.deferReply({
+          flags: controlPanelButtonIn ? MessageFlags.Ephemeral : undefined,
+        });
 
         // Get the value of the "level" text input
         const levelStrInputValue =
@@ -91,12 +96,12 @@ const button: ButtonInterface = {
           ],
         });
       } catch (error) {
-        handleInteractionError(volumeChangeInteraction, error);
+        handleInteractionError(volumeChangeInteraction, error, controlPanelButtonIn);
       }
-      
+
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      handleInteractionError(interaction, error, controlPanelButtonIn);
 
       return false;
     }
