@@ -43,9 +43,9 @@ const command: CommandInterface = {
         content: CONTROL_PANEL_TAG,
         embeds: [controlPanelEmbed],
         components: [
+          temporaryVoiceMenu,
           ...advancedMusicControllerButtonRows,
           extendAdvancedMusicControllerButtonRow,
-          temporaryVoiceMenu,
         ],
       });
 
