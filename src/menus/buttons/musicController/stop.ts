@@ -14,7 +14,7 @@ import { ButtonInterface } from "../../../types/InteractionInterfaces";
 const button: ButtonInterface = {
   async execute(interaction, client) {
     const controlPanelButtonIn = interaction.message.content.includes("\u200B");
-    
+
     try {
       await interaction.deferReply({
         flags: controlPanelButtonIn ? MessageFlags.Ephemeral : undefined,
@@ -69,11 +69,11 @@ const button: ButtonInterface = {
           try {
             // If "No" is clicked, delete the confirmation message
             if (confirmStopButtonInteraction.customId === "stop-confirm-no")
-              confirmStopReply.delete();
+              interaction.deleteReply();
 
             // If "Yes" is clicked, stop the queue
             if (confirmStopButtonInteraction.customId === "stop-confirm-yes") {
-              confirmStopReply.edit({
+              interaction.editReply({
                 embeds: [
                   new EmbedBuilder()
                     .setAuthor({
