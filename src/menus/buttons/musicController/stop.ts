@@ -8,7 +8,7 @@ import {
 import { useQueue } from "discord-player";
 import { CustomError } from "../../../helpers/utils/CustomError";
 import { handleInteractionError } from "../../../helpers/utils/handleError";
-import { MusicPlayerSession } from "../../../musicPlayerStoreSession";
+import { VoiceStoreSession } from "../../../classes/VoiceStoreSession";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
 const button: ButtonInterface = {
@@ -89,10 +89,10 @@ const button: ButtonInterface = {
               // Delete the queue
               queue.delete();
               // Clear session data related to the queue
-              const musicPlayerStoreSession = new MusicPlayerSession(
+              const voiceStoreSession = new VoiceStoreSession(
                 interaction.guildId!
               );
-              musicPlayerStoreSession.clear();
+              voiceStoreSession.clear();
             }
           } catch (error) {
             handleInteractionError(interaction, error, controlPanelButtonIn);

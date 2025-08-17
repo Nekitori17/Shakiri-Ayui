@@ -7,11 +7,12 @@ import {
   TextInputBuilder,
   TextInputStyle,
 } from "discord.js";
-import UserSettings from "../../../models/UserSettings";
+import { FnUtils } from "../../../helpers/FnUtils";
 import { CustomError } from "../../../helpers/utils/CustomError";
 import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
 import { handleInteractionError } from "../../../helpers/utils/handleError";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
+import UserSettings from "../../../models/UserSettings";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
 const select: SelectMenuInterface = {
@@ -59,7 +60,7 @@ const select: SelectMenuInterface = {
           limitUserModalInteraction.fields.getTextInputValue("amount");
 
         // Validate if the input is a number
-        if (!_.isNumber(amountOfLimitStrInputValue))
+        if (!FnUtils.isNumber(amountOfLimitStrInputValue))
           throw new CustomError({
             name: "ThisIsNotANumber",
             message: "Please try again with correct value",

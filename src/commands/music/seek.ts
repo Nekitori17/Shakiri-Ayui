@@ -1,9 +1,9 @@
 import prettyMilliseconds from "pretty-ms";
 import { ApplicationCommandOptionType, EmbedBuilder } from "discord.js";
 import { useTimeline } from "discord-player";
+import { FnUtils } from "../../helpers/FnUtils";
 import { CustomError } from "../../helpers/utils/CustomError";
 import { handleInteractionError } from "../../helpers/utils/handleError";
-import { parseColonTimeFormat } from "../../helpers/utils/parseTimeFormat";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -23,7 +23,7 @@ const command: CommandInterface = {
         });
 
       // Parse the provided time option into milliseconds
-      const timeInMs = parseColonTimeFormat(timeOption);
+      const timeInMs = FnUtils.parseColonTimeFormat(timeOption);
 
       if (!timeInMs || timeInMs < 0) {
         // If the parsed time is invalid or negative, throw a custom error
