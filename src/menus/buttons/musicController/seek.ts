@@ -9,9 +9,9 @@ import {
   TextInputStyle,
 } from "discord.js";
 import { useTimeline } from "discord-player";
+import { FnUtils } from "../../../helpers/FnUtils";
 import { CustomError } from "../../../helpers/utils/CustomError";
 import { handleInteractionError } from "../../../helpers/utils/handleError";
-import { parseColonTimeFormat } from "../../../helpers/utils/parseTimeFormat";
 import { ButtonInterface } from "./../../../types/InteractionInterfaces";
 
 const button: ButtonInterface = {
@@ -66,7 +66,7 @@ const button: ButtonInterface = {
           seekModalInteraction.fields.getTextInputValue("time");
 
         // Parse the provided time option into milliseconds
-        const timeInMs = parseColonTimeFormat(timeStrInputValue);
+        const timeInMs = FnUtils.parseColonTimeFormat(timeStrInputValue);
 
         if (!timeInMs || timeInMs < 0) {
           // If the parsed time is invalid or negative, throw a custom error
