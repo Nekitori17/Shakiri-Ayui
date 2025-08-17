@@ -4,7 +4,7 @@ import { getButtonObject } from "../../../preloaded";
 import { CustomError } from "../../../helpers/utils/CustomError";
 import checkPermission from "../../../validator/checkPermission";
 import { handleInteractionError } from "../../../helpers/utils/handleError";
-import { CooldownData, isCooledDown, updateCooldown } from "../../../cooldown";
+import { UserInteractionCooldown } from "../../../classes/UserInteractionCooldown";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
 const event: DiscordEventInterface = async (
@@ -28,7 +28,7 @@ const event: DiscordEventInterface = async (
 
     if (!buttonObject) return;
 
-    if (buttonObject.disabled) return interaction.deferUpdate()
+    if (buttonObject.disabled) return interaction.deferUpdate();
 
     if (buttonObject.devOnly) {
       const DEVELOPERS = (process.env.DEVELOPER_ACCOUNT_IDS as string).split(
@@ -52,15 +52,14 @@ const event: DiscordEventInterface = async (
         });
     }
 
-    let cooldownData: CooldownData | undefined;
+    let userCooldown = new UserInteractionCooldown(interaction.user.id);
 
     // Check for button cooldown
     if (buttonObject.cooldown) {
-      const cooldownResponse = isCooledDown(
+      const cooldownResponse = userCooldown.isCooledDown(
         interaction.customId.slice(1),
         "button",
-        buttonObject.cooldown,
-        interaction.user.id
+        buttonObject.cooldown
       );
 
       // If the button is not cooledDown, throw an error
@@ -70,8 +69,6 @@ const event: DiscordEventInterface = async (
           message: `Please wait <t:${cooldownResponse.nextTime}:R> before using this button again.`,
           type: "warning",
         });
-
-      cooldownData = cooldownResponse;
     }
 
     // Check for permissions
@@ -86,7 +83,8 @@ const event: DiscordEventInterface = async (
 
     // Execute the button's action
     const succeed = (await buttonObject.execute(interaction, client)) ?? true;
-    if (succeed) updateCooldown(cooldownData);
+    if (succeed && buttonObject.cooldown)
+      userCooldown.updateCooldown(interaction.customId.slice(1), "button");
   } catch (error) {
     if (error instanceof Error) {
       console.log(

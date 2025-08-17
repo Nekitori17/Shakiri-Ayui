@@ -4,7 +4,7 @@ import checkPermission from "../../../validator/checkPermission";
 import { CustomError } from "../../../helpers/utils/CustomError";
 import { handleInteractionError } from "../../../helpers/utils/handleError";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
-import { CooldownData, isCooledDown, updateCooldown } from "../../../cooldown";
+import { UserInteractionCooldown } from "../../../classes/UserInteractionCooldown";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
 const event: DiscordEventInterface = async (
@@ -48,16 +48,15 @@ const event: DiscordEventInterface = async (
         });
     }
 
-    let cooldownData: CooldownData | undefined;
+    let userCooldown = new UserInteractionCooldown(interaction.user.id);
 
     // Check for command cooldown
     if (commandObject.cooldown) {
       // Check if the command is currently cooledDown for the user
-      const cooldownResponse = isCooledDown(
+      const cooldownResponse = userCooldown.isCooledDown(
         interaction.commandName,
         "command",
-        commandObject.cooldown,
-        interaction.user.id
+        commandObject.cooldown
       );
 
       // If the command is not cooledDown, throw an error
@@ -67,8 +66,6 @@ const event: DiscordEventInterface = async (
           message: `Please wait <t:${cooldownResponse.nextTime}:R> before using this command again.`,
           type: "warning",
         });
-
-      cooldownData = cooldownResponse;
     }
 
     // Check if the command requires the user to be in a voice channel
@@ -92,7 +89,8 @@ const event: DiscordEventInterface = async (
 
     // Execute the command
     const succeed = (await commandObject.execute(interaction, client)) ?? true;
-    if (succeed) updateCooldown(cooldownData);
+    if (succeed && commandObject.cooldown)
+      userCooldown.updateCooldown(interaction.commandName, "command");
   } catch (error) {
     if (error instanceof Error) {
       console.log(

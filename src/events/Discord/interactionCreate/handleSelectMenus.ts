@@ -4,7 +4,7 @@ import { getSelectObject } from "../../../preloaded";
 import { CustomError } from "../../../helpers/utils/CustomError";
 import checkPermission from "../../../validator/checkPermission";
 import { handleInteractionError } from "../../../helpers/utils/handleError";
-import { CooldownData, isCooledDown, updateCooldown } from "../../../cooldown";
+import { UserInteractionCooldown } from "../../../classes/UserInteractionCooldown";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
 const event: DiscordEventInterface = async (
@@ -25,7 +25,7 @@ const event: DiscordEventInterface = async (
 
     if (!selectMenuOptionObject) return;
 
-    if (selectMenuOptionObject.disabled) return interaction.deferUpdate()
+    if (selectMenuOptionObject.disabled) return interaction.deferUpdate();
 
     // Edit the message components to prevent re-selection issues
     await interaction.message.edit({
@@ -54,15 +54,14 @@ const event: DiscordEventInterface = async (
         });
     }
 
-    let cooldownData: CooldownData | undefined;
+    const userCooldown = new UserInteractionCooldown(interaction.user.id);
 
     // Check for select menu cooldown
     if (selectMenuOptionObject.cooldown) {
-      const cooldownResponse = isCooledDown(
+      const cooldownResponse = userCooldown.isCooledDown(
         interaction.values[0],
         "select",
-        selectMenuOptionObject.cooldown,
-        interaction.user.id
+        selectMenuOptionObject.cooldown
       );
 
       // If the select menu is not cooledDown, throw an error
@@ -72,8 +71,6 @@ const event: DiscordEventInterface = async (
           message: `Please wait <t:${cooldownResponse.nextTime}:R> before using this select menu again.`,
           type: "warning",
         });
-
-      cooldownData = cooldownResponse;
     }
 
     // Check for permissions
@@ -89,7 +86,8 @@ const event: DiscordEventInterface = async (
     // Execute the select menu's action
     const succeed =
       (await selectMenuOptionObject.execute(interaction, client)) ?? true;
-    if (succeed) updateCooldown(cooldownData);
+    if (succeed && selectMenuOptionObject.cooldown)
+      userCooldown.updateCooldown(interaction.values[0], "select");
   } catch (error) {
     if (error instanceof Error) {
       console.log(

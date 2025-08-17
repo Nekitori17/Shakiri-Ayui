@@ -4,7 +4,7 @@ import { CustomError } from "../../../helpers/utils/CustomError";
 import checkPermission from "../../../validator/checkPermission";
 import { handleInteractionError } from "../../../helpers/utils/handleError";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
-import { CooldownData, isCooledDown, updateCooldown } from "../../../cooldown";
+import { UserInteractionCooldown } from "../../../classes/UserInteractionCooldown";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
 const event: DiscordEventInterface = async (
@@ -46,15 +46,14 @@ const event: DiscordEventInterface = async (
         });
     }
 
-    let cooldownData: CooldownData | undefined;
+    const userCooldown = new UserInteractionCooldown(interaction.user.id);
 
     // Check for context menu cooldown
     if (contextObject.cooldown) {
-      const cooldownResponse = isCooledDown(
+      const cooldownResponse = userCooldown.isCooledDown(
         interaction.commandName,
         "context",
-        contextObject.cooldown,
-        interaction.user.id
+        contextObject.cooldown
       );
 
       // If the command is not cooledDown, throw an error
@@ -64,23 +63,22 @@ const event: DiscordEventInterface = async (
           message: `Please wait <t:${cooldownResponse.nextTime}:R> before using this context menu again.`,
           type: "warning",
         });
-
-      cooldownData = cooldownResponse;
     }
 
     // Check for permissions
     if (interaction.guild) {
-    checkPermission(
-      interaction.member?.permissions,
-      interaction.guild.members.me?.permissions,
-      contextObject.botPermissionsRequired,
-      contextObject.userPermissionsRequired
-    );
-  }
+      checkPermission(
+        interaction.member?.permissions,
+        interaction.guild.members.me?.permissions,
+        contextObject.botPermissionsRequired,
+        contextObject.userPermissionsRequired
+      );
+    }
 
     // Execute the context menu
     const succeed = (await contextObject.execute(interaction, client)) ?? true;
-    if (succeed) updateCooldown(cooldownData);
+    if (succeed && contextObject.cooldown)
+      userCooldown.updateCooldown(interaction.commandName, "context");
   } catch (error) {
     if (error instanceof Error) {
       console.log(
