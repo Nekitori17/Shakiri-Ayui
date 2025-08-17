@@ -16,7 +16,7 @@ import {
 import WordleGame, {
   WordleGameException,
   WordleGameStatus,
-} from "../../logic/Wordle";
+} from "../../classes/Wordle";
 import { handleInteractionError } from "../../helpers/utils/handleError";
 import MiniGameUserData from "../../models/MiniGameUserData";
 import { CommandInterface } from "../../types/InteractionInterfaces";
