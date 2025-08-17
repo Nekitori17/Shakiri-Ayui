@@ -5,8 +5,8 @@ import {
 } from "discord.js";
 import { useQueue } from "discord-player";
 import { CustomError } from "../../helpers/utils/CustomError";
+import { VoiceStoreSession } from "../../classes/VoiceStoreSession";
 import { handleInteractionError } from "../../helpers/utils/handleError";
-import { MusicPlayerSession } from "../../musicPlayerStoreSession";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -34,10 +34,10 @@ const command: CommandInterface = {
       // Set the volume of the queue's node
       queue.node.setVolume(levelOption);
       // Store the new volume level in the music player session
-      const musicPlayerStoreSession = new MusicPlayerSession(
+      const voiceStoreSession = new VoiceStoreSession(
         interaction.guildId!
       );
-      musicPlayerStoreSession.setVolume(levelOption);
+      voiceStoreSession.setVolume(levelOption);
 
       // Edit the deferred reply with an embed confirming the volume change
       interaction.editReply({

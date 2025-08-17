@@ -1,4 +1,4 @@
-import config from "./config";
+import config from "../config";
 import { QueueRepeatMode, useQueue } from "discord-player";
 
 interface SessionData {
@@ -14,11 +14,11 @@ const sessionMap = new Map<string, SessionData>();
  * This class stores and retrieves settings like volume, shuffle status, and loop mode
  * for a given guild ID.
  */
-export class MusicPlayerSession {
+export class VoiceStoreSession {
   private readonly guildId: string;
 
   /**
-   * Creates a new MusicPlayerSession instance.
+   * Creates a new VoiceStoreSession instance.
    * @param guildId The ID of the guild this session belongs to.
    */
   constructor(guildId: string) {

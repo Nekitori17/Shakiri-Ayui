@@ -8,9 +8,10 @@ import {
   TextInputStyle,
 } from "discord.js";
 import { useQueue } from "discord-player";
+import { FnUtils } from "../../../helpers/FnUtils";
 import { CustomError } from "../../../helpers/utils/CustomError";
 import { handleInteractionError } from "../../../helpers/utils/handleError";
-import { MusicPlayerSession } from "../../../musicPlayerStoreSession";
+import { VoiceStoreSession } from "../../../classes/VoiceStoreSession";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
 const button: ButtonInterface = {
@@ -61,7 +62,7 @@ const button: ButtonInterface = {
         // Check if the input value is a valid number
 
         // Error message for invalid input
-        if (!_.isNumber(levelStrInputValue))
+        if (!FnUtils.isNumber(levelStrInputValue))
           throw new CustomError({
             name: "ThisIsNotANumber",
             message: "Please try again with correct value",
@@ -79,10 +80,10 @@ const button: ButtonInterface = {
 
         queue.node.setVolume(level);
         // Set the volume in the session store
-        const musicPlayerStoreSession = new MusicPlayerSession(
+        const voiceStoreSession = new VoiceStoreSession(
           interaction.guildId!
         );
-        musicPlayerStoreSession.setVolume(level);
+        voiceStoreSession.setVolume(level);
 
         // Edit the reply with an embed confirming the volume change
         volumeChangeInteraction.editReply({

@@ -5,8 +5,8 @@ import {
 } from "discord.js";
 import { useQueue, QueueRepeatMode } from "discord-player";
 import { CustomError } from "../../helpers/utils/CustomError";
+import { VoiceStoreSession } from "../../classes/VoiceStoreSession";
 import { handleInteractionError } from "../../helpers/utils/handleError";
-import { MusicPlayerSession } from "../../musicPlayerStoreSession";
 import { repeatModeNames } from "../../constants/musicRepeatModes";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -36,10 +36,10 @@ const command: CommandInterface = {
       // Set the repeat mode for the queue
       queue.setRepeatMode(repeatModeOption);
       // Update the loop mode in the music player session
-      const musicPlayerStoreSession = new MusicPlayerSession(
+      const voiceStoreSession = new VoiceStoreSession(
         interaction.guildId!
       );
-      musicPlayerStoreSession.setRepeatMode(repeatModeOption);
+      voiceStoreSession.setRepeatMode(repeatModeOption);
       interaction.editReply({
         embeds: [
           new EmbedBuilder()

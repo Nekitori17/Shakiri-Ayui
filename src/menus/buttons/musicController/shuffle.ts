@@ -2,7 +2,7 @@ import { EmbedBuilder, MessageFlags } from "discord.js";
 import { useQueue } from "discord-player";
 import { CustomError } from "../../../helpers/utils/CustomError";
 import { handleInteractionError } from "../../../helpers/utils/handleError";
-import { MusicPlayerSession } from "../../../musicPlayerStoreSession";
+import { VoiceStoreSession } from "../../../classes/VoiceStoreSession";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
 const button: ButtonInterface = {
@@ -24,10 +24,10 @@ const button: ButtonInterface = {
         });
 
       // Increment the shuffle count for the guild in the session store
-      const musicPlayerStoreSession = new MusicPlayerSession(
+      const voiceStoreSession = new VoiceStoreSession(
         interaction.guildId!
       );
-      musicPlayerStoreSession.addShuffledTimes();
+      voiceStoreSession.addShuffledTimes();
 
       // Shuffle the tracks in the queue
       queue.tracks.shuffle();

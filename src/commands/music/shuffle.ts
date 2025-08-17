@@ -1,8 +1,8 @@
 import { EmbedBuilder, PermissionFlagsBits } from "discord.js";
 import { useQueue } from "discord-player";
 import { CustomError } from "../../helpers/utils/CustomError";
+import { VoiceStoreSession } from "../../classes/VoiceStoreSession";
 import { handleInteractionError } from "../../helpers/utils/handleError";
-import { MusicPlayerSession } from "../../musicPlayerStoreSession";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -22,10 +22,10 @@ const command: CommandInterface = {
       queue.tracks.shuffle();
 
       // Update the shuffle count in the session store
-      const musicPlayerStoreSession = new MusicPlayerSession(
+      const voiceStoreSession = new VoiceStoreSession(
         interaction.guildId!
       );
-      musicPlayerStoreSession.addShuffledTimes();
+      voiceStoreSession.addShuffledTimes();
 
       // Edit the deferred reply with an embed confirming the queue has been shuffled
       interaction.editReply({

@@ -2,7 +2,7 @@ import { EmbedBuilder, MessageFlags } from "discord.js";
 import { VoiceUtils, useMainPlayer } from "discord-player";
 import { CustomError } from "../../../helpers/utils/CustomError";
 import { handleInteractionError } from "../../../helpers/utils/handleError";
-import { MusicPlayerSession } from "../../../musicPlayerStoreSession";
+import { VoiceStoreSession } from "../../../classes/VoiceStoreSession";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
 const button: ButtonInterface = {
@@ -30,10 +30,10 @@ const button: ButtonInterface = {
       connection.destroy();
       
       // Clear the music player session data for the guild
-      const musicPlayerStoreSession = new MusicPlayerSession(
+      const voiceStoreSession = new VoiceStoreSession(
         interaction.guildId!
       );
-      musicPlayerStoreSession.clear();
+      voiceStoreSession.clear();
       
       // Edit the deferred reply with an embed confirming disconnection
       interaction.editReply({

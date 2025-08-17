@@ -7,9 +7,9 @@ import {
 } from "discord.js";
 import { QueryType, TrackSource, useMainPlayer } from "discord-player";
 import { CustomError } from "../../helpers/utils/CustomError";
+import { VoiceStoreSession } from "../../classes/VoiceStoreSession";
 import { handleInteractionError } from "../../helpers/utils/handleError";
 import { musicSourceIcons } from "../../constants/musicSourceIcons";
-import { MusicPlayerSession } from "../../musicPlayerStoreSession";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -40,7 +40,7 @@ const command: CommandInterface = {
       );
 
       // Retrieve volume, repeat mode, and shuffle count from session store or queue
-      const musicPlayerStoreSession = new MusicPlayerSession(
+      const voiceStoreSession = new VoiceStoreSession(
         interaction.guildId!
       );
 
@@ -56,7 +56,7 @@ const command: CommandInterface = {
             metadata: {
               channel: interaction.channel,
             },
-            volume: await musicPlayerStoreSession.getVolume(),
+            volume: await voiceStoreSession.getVolume(),
             leaveOnEmpty: guildSetting.music.leaveOnEmpty,
             leaveOnEmptyCooldown: guildSetting.music.leaveOnEmptyCooldown,
             leaveOnEnd: guildSetting.music.leaveOnEnd,

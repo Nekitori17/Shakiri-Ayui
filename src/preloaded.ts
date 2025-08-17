@@ -1,4 +1,4 @@
-import _, { get } from "lodash";
+import _ from "lodash";
 import path from "path";
 import { getLocal } from "./helpers/utils/getLocal";
 import getAllFiles from "./helpers/utils/getAllFiles";

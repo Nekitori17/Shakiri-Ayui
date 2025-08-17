@@ -1,20 +1,15 @@
 import config from "../../../config";
 import { Message } from "discord.js";
+import { FnUtils } from "../../../helpers/FnUtils";
+import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import CountingGame from "../../../models/CountingGame";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
-import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
-
-// Helper function to check if a string is numeric
-const isNumeric = (str: string) => {
-  const num = parseFloat(str);
-  return !isNaN(num) && isFinite(num);
-};
 
 const event: DiscordEventInterface = async (client, message: Message) => {
   // Ignore bot messages
   if (message.author.bot) return;
   // Ignore non-numeric messages
-  if (!isNumeric(message.content)) return;
+  if (!FnUtils.isNumber(message.content)) return;
 
   // Fetch guild settings for the counting game
   const guildSetting = await config.modules(message.guildId!);
@@ -70,7 +65,7 @@ const event: DiscordEventInterface = async (client, message: Message) => {
             description: error.message,
           }),
         ],
-      })
+      });
     } else {
       await message.delete();
       const reply = message.channel.isSendable()

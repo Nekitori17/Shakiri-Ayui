@@ -1,7 +1,7 @@
 import { TextBasedChannel } from "discord.js";
 import { CustomError } from "../../helpers/utils/CustomError";
 import { errorLogger } from "../../helpers/utils/handleError";
-import { MusicPlayerSession } from "../../musicPlayerStoreSession";
+import { VoiceStoreSession } from "../../classes/VoiceStoreSession";
 import { MusicEventInterface } from "../../types/EventInterfaces";
 
 const event: MusicEventInterface = (player) => {
@@ -16,8 +16,8 @@ const event: MusicEventInterface = (player) => {
         });
 
       // Clear session data related to the music player for this guild
-      const musicPlayerStoreSession = new MusicPlayerSession(queue.guild.id);
-      musicPlayerStoreSession.clear();
+      const voiceStoreSession = new VoiceStoreSession(queue.guild.id);
+      voiceStoreSession.clear();
 
       // Send a message to the channel indicating the bot is leaving
       queueChannel.send(
