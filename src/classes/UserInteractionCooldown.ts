@@ -6,7 +6,7 @@ import jsonStore from "json-store-typed";
  * Each user ID maps to a set of cooldown keys with last-used timestamps.
  */
 const cooldownInteractionOfUserLists = jsonStore(
-  path.join(__dirname, "../database/cooldowns.json")
+  path.join(__dirname, "../../database/cooldowns.json")
 );
 
 export type InteractionType = "command" | "context" | "button" | "select";
