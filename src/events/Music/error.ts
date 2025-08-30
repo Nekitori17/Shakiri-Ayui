@@ -7,8 +7,9 @@ import { MusicEventInterface } from "../../types/EventInterfaces";
 const event: MusicEventInterface = (player) => {
   player.events.on("error", (queue, error) => {
     try {
-      const queueChannel = queue.metadata.channel as TextBasedChannel;
+      if (!queue.metadata.channel) return errorLogger(error);
 
+      const queueChannel = queue.metadata.channel as TextBasedChannel;
 
       if (!queueChannel.isSendable())
         throw new CustomError({

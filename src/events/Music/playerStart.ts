@@ -11,9 +11,9 @@ import { MusicEventInterface } from "../../types/EventInterfaces";
 const event: MusicEventInterface = (player) => {
   player.events.on("playerStart", async (queue, track) => {
     try {
-      const queueChannel = queue.metadata.channel as TextBasedChannel;
+      if (!queue.metadata.channel) return;
 
-      if (!queueChannel) return;
+      const queueChannel = queue.metadata.channel as TextBasedChannel;
 
       if (!queueChannel.isSendable())
         throw new CustomError({

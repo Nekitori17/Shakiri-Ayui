@@ -7,9 +7,9 @@ import { MusicEventInterface } from "../../types/EventInterfaces";
 const event: MusicEventInterface = (player) => {
   player.events.on("disconnect", (queue) => {
     try {
+      if (!queue.metadata.channel) return;
+      
       const queueChannel = queue.metadata.channel as TextBasedChannel;
-
-      if (!queueChannel) return;
 
       if (!queueChannel.isSendable())
       throw new CustomError({
