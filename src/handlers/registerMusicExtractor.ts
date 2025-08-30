@@ -1,7 +1,12 @@
 import { Player } from "discord-player";
 import isCanUseYoutube from "../validator/isCanUseYoutube";
 import { YoutubeiExtractor } from "discord-player-youtubei";
-import { DefaultExtractors } from "@discord-player/extractor";
+import {
+  DefaultExtractors,
+  SoundCloudExtractor,
+} from "@discord-player/extractor";
+import { SoundcloudExtractor as ExSoundcloudExtractor } from "discord-player-soundcloud";
+import { TTSExtractor } from "discord-player-tts";
 import { errorLogger } from "../helpers/utils/handleError";
 
 export default async (player: Player) => {
@@ -10,6 +15,18 @@ export default async (player: Player) => {
 
     // Load default extractors
     await player.extractors.loadMulti(DefaultExtractors);
+
+    // Unregister the default SoundcloudExtractor to override it
+    await player.extractors.unregister(SoundCloudExtractor.identifier);
+
+    // Override default extractors
+    await player.extractors.register(ExSoundcloudExtractor, {});
+
+    // Register other extractors
+    await player.extractors.register(TTSExtractor, {
+      language: "vi",
+      slow: false,
+    });
 
     console.log("⌛ | Checking if youtube is available...");
 

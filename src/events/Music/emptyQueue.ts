@@ -8,6 +8,8 @@ const event: MusicEventInterface = (player) => {
     try {
       const queueChannel = queue.metadata.channel as TextBasedChannel;
 
+      if (!queueChannel) return;
+
       if (!queueChannel.isSendable())
         throw new CustomError({
           name: "SendableChannelError",
