@@ -1,4 +1,3 @@
-import config from "../../../config";
 import { GuildMember, Message } from "discord.js";
 import { useMainPlayer } from "discord-player";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
@@ -26,7 +25,7 @@ const event: DiscordEventInterface = async (client, message: Message) => {
       }
     ); // Edit the reply to confirm the track has been added to the queue
 
-    message.reply(`Successfully said: **${message}**`);
+    message.react("✅")
   } catch (error: any) {
     message.reply({
       embeds: [

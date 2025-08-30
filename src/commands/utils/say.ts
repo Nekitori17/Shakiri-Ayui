@@ -1,13 +1,12 @@
-import config from "../../config";
 import { useMainPlayer } from "discord-player";
-import { GuildMember, PermissionFlagsBits } from "discord.js";
+import { GuildMember, MessageFlags, PermissionFlagsBits } from "discord.js";
 import { handleInteractionError } from "../../helpers/utils/handleError";
 import { CommandInterface } from "./../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
     try {
-      await interaction.deferReply();
+      await interaction.deferReply({ flags: MessageFlags.Ephemeral });
       const message = interaction.options.getString("message");
 
       // Get the main player instance
