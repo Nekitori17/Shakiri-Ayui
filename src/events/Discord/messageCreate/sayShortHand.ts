@@ -18,6 +18,9 @@ const event: DiscordEventInterface = async (client, message: Message) => {
       {
         requestedBy: message.author,
         nodeOptions: {
+          metadata: {
+            channel: null,
+          },
           volume: 100,
           leaveOnEmpty: false,
           leaveOnEnd: false,
@@ -25,7 +28,7 @@ const event: DiscordEventInterface = async (client, message: Message) => {
       }
     ); // Edit the reply to confirm the track has been added to the queue
 
-    message.react("✅")
+    message.react("✅");
   } catch (error: any) {
     message.reply({
       embeds: [
