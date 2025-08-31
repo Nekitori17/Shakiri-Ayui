@@ -1,13 +1,6 @@
 import fs from "fs";
 import path from "path";
-import {
-  AttachmentBuilder,
-  WebhookClient,
-  MessageFlags,
-  MessagePayload,
-  InteractionReplyOptions,
-  InteractionEditReplyOptions,
-} from "discord.js";
+import { AttachmentBuilder, WebhookClient, MessageFlags } from "discord.js";
 import { CustomError } from "./CustomError";
 import CommonEmbedBuilder from "../embeds/commonEmbedBuilder";
 import { AnyInteraction } from "../../types/AnyInteraction";
