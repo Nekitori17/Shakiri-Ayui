@@ -83,8 +83,7 @@ const event: DiscordEventInterface = async (
 
     // Execute the button's action
     const succeed = (await buttonObject.execute(interaction, client)) ?? true;
-    if (succeed && buttonObject.cooldown)
-      userCooldown.updateCooldown(interaction.customId.slice(1), "button");
+    if (succeed && buttonObject.cooldown) userCooldown.updateCooldown();
   } catch (error) {
     if (error instanceof Error) {
       console.log(

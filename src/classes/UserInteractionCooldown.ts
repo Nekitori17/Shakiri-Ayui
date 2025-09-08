@@ -20,10 +20,20 @@ export interface Cooldown {
   nextTime?: number;
 }
 
+/**
+ * Manages user interaction cooldowns, providing methods to check and update cooldowns.
+ * This class is intended for use within a single interaction context,
+ * allowing for a "holding" state for the current interaction.
+ */
 export class UserInteractionCooldown {
   public userId: string;
   public cooldownInteractionOfUserList: Record<InteractionName, number>;
+  private holdingCooldownKey: string | null = null;
 
+  /**
+   * Constructs a new UserInteractionCooldownManager instance.
+   *  @param userId - The ID of the user.
+   */
   public constructor(userId: string) {
     this.userId = userId;
     this.cooldownInteractionOfUserList =
@@ -47,6 +57,7 @@ export class UserInteractionCooldown {
     const lastUsed = this.cooldownInteractionOfUserList[cooldownKey];
 
     if (!lastUsed || currentTime - lastUsed > time) {
+      this.holdingCooldownKey = cooldownKey;
       return {
         cooledDown: true,
       };
@@ -61,15 +72,24 @@ export class UserInteractionCooldown {
   /**
    * Updates the cooldown timestamp for a specific interaction for the user.
    */
+  public updateCooldown(): void;
+  public updateCooldown(interactionName: string, type: InteractionType): void;
   public updateCooldown(
-    interactionName: string,
-    type: InteractionType
-  ) {
-    const cooldownKey: InteractionName = `${type}.${interactionName}`;
+    interactionName?: string,
+    type?: InteractionType
+  ): void {
+    let cooldownKey: string | null;
 
-    this.cooldownInteractionOfUserList[cooldownKey] = Math.floor(
-      Date.now() / 1000
-    );
+    if (interactionName && type) {
+      cooldownKey = `${type}.${interactionName}`;
+    } else {
+      cooldownKey = this.holdingCooldownKey;
+    }
+
+    if (!cooldownKey) return;
+
+    this.cooldownInteractionOfUserList[cooldownKey as InteractionName] =
+      Math.floor(Date.now() / 1000);
 
     cooldownInteractionOfUserLists.set(
       this.userId,

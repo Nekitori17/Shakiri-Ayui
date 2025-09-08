@@ -77,8 +77,7 @@ const event: DiscordEventInterface = async (
 
     // Execute the context menu
     const succeed = (await contextObject.execute(interaction, client)) ?? true;
-    if (succeed && contextObject.cooldown)
-      userCooldown.updateCooldown(interaction.commandName, "context");
+    if (succeed && contextObject.cooldown) userCooldown.updateCooldown();
   } catch (error) {
     if (error instanceof Error) {
       console.log(

@@ -89,8 +89,7 @@ const event: DiscordEventInterface = async (
 
     // Execute the command
     const succeed = (await commandObject.execute(interaction, client)) ?? true;
-    if (succeed && commandObject.cooldown)
-      userCooldown.updateCooldown(interaction.commandName, "command");
+    if (succeed && commandObject.cooldown) userCooldown.updateCooldown();
   } catch (error) {
     if (error instanceof Error) {
       console.log(
