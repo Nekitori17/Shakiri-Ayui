@@ -19,7 +19,8 @@ const command: CommandInterface = {
           requestedBy: interaction.user,
           nodeOptions: {
             metadata: {
-              channel: null,
+              channel: interaction.channel,
+              doNotLog: true
             },
             volume: 100,
             leaveOnEmpty: false,

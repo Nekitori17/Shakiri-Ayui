@@ -19,7 +19,8 @@ const event: DiscordEventInterface = async (client, message: Message) => {
         requestedBy: message.author,
         nodeOptions: {
           metadata: {
-            channel: null,
+            channel: message.channel,
+            doNotLog: true,
           },
           volume: 100,
           leaveOnEmpty: false,

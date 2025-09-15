@@ -11,7 +11,9 @@ import { MusicEventInterface } from "../../types/EventInterfaces";
 const event: MusicEventInterface = (player) => {
   player.events.on("playerStart", async (queue, track) => {
     try {
-      if (!queue.metadata.channel) return;
+      // if (Object.keys(queue.metadata).includes("doNotLog") && queue.metadata.doNotLog) return;
+      
+      if (!Object.keys(queue.metadata).includes("channel")) return;
 
       const queueChannel = queue.metadata.channel as TextBasedChannel;
 
