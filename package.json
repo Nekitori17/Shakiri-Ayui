@@ -2,14 +2,14 @@
   "name": "shakiri-ayui",
   "version": "1.0.0",
   "description": "Discord Bot (WIP)",
-  "main": "./dist/index.js",
+  "main": "src/index.ts",
+  "private": true,
   "scripts": {
-    "start": "npx tsc && node --env-file=.env.production .",
-    "dev": "npx tsc && node --env-file=.env.development ."
+    "start": "bun --env-file=.env.production .",
+    "dev": "bun --env-file=.env.development ."
   },
   "keywords": [
     "Nekitori17",
-    "Discord",
     "Discord",
     "Bot"
   ],
@@ -21,9 +21,9 @@
   },
   "dependencies": {
     "@discord-player/extractor": "^7.1.0",
+    "@types/bun": "^1.2.22",
     "@types/lodash": "^4.17.20",
     "@types/ms": "^2.1.0",
-    "@types/node": "^24.3.0",
     "axios": "^1.11.0",
     "discord-player": "^7.1.0",
     "discord-player-soundcloud": "^1.0.7",
