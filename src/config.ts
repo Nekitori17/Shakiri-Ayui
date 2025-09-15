@@ -17,6 +17,9 @@ const config = {
   prefix: "a!",
   presenceRotateList: [] as PresenceData[],
   presenceIntervalTime: 10000,
+  geminiAI: {
+    model: "gemini-2.5-pro"
+  },
   defaultBotPermissionsRequired: [
     PermissionFlagsBits.ViewChannel,
     PermissionFlagsBits.SendMessages,

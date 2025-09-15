@@ -31,7 +31,7 @@ const event: DiscordEventInterface = async (client, msg: Message) => {
           // Send the message content as input
           input: msg.content,
           // Specify the AI model to use
-          model: "gemini-2.5-flash-preview-04-17",
+          model: config.geminiAI.model,
         },
         {
           params: {
@@ -57,7 +57,7 @@ const event: DiscordEventInterface = async (client, msg: Message) => {
             name: msg.member?.displayName!,
             iconURL: msg.member?.displayAvatarURL(),
           })
-          .setTitle("Gemini 2.5 Flash preview 04-17")
+          .setTitle("Gemini 2.5 Pro")
           .setThumbnail("https://files.catbox.moe/8xpwh3.png")
           .setDescription(apiResponse.text)
           .setFooter({
