@@ -7,6 +7,7 @@
     "target": "esnext",
     
     // === Import/Export ===
+    "noEmit": true,
     "allowImportingTsExtensions": true,
     "allowArbitraryExtensions": true,
     "allowJs": true,
@@ -51,4 +52,6 @@
     // === Library ===
     "lib": ["ESNext"]
   },
+
+  "exclude": ["/scripts/**/*"]
 }
