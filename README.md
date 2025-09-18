@@ -10,7 +10,7 @@
 
 <h2 id="technologies">💻 Technologies</h2>
 
-- Nodejs
+- Bun
 - Typescript
 - Discord.js v14
 - Mongoose
@@ -23,7 +23,7 @@ Here you describe how to run your project locally
 
 Here you list all prerequisites necessary for running your project.
 
-- [NodeJS](https://nodejs.org/en)
+- [Bun](https://bun.sh)
 - [Git](https://git-scm.com/)
 
 <h3>Cloning</h3>
@@ -69,19 +69,19 @@ How to start your project
 
 ```bash
 cd Shakiri-Ayui
-npm i
+bun i
 ```
 
 - For Development with .env.development:
 
 ```bash
-npm run dev
+bun run dev
 ```
 
 - For Deployment with .env.production:
 
 ```bash
-npm start
+bun run start
 ```
 
 <h2 id="contribute">📫 Contribute</h2>
