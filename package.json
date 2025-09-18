@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "description": "Discord Bot (WIP)",
   "main": "src/index.ts",
+  "type": "module",
   "private": true,
   "scripts": {
     "start": "bun --env-file=.env.production .",
-    "dev": "bun --env-file=.env.development ."
+    "dev": "bun --watch --env-file=.env.development ."
   },
   "keywords": [
     "Nekitori17",
