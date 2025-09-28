@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Client, IntentsBitField, Partials } from "discord.js";
+import { Client, IntentsBitField } from "discord.js";
 import { Player } from "discord-player";
 import { preload } from "./preloaded";
 import musicEventHandler from "./handlers/musicEventHandler";

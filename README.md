@@ -36,7 +36,7 @@ git clone https://github.com/Nekitori17/Shakiri-Ayui
 
 <h3>Config .env variables</h2>
 
-Use the `.env.example` as reference to create your configuration file `.env.development` for development and `.env.production` for production with your Discord Bot Token And MongoDB Connection String
+Use the `.env.example` as reference to create your configuration file `.env.dev` for development and `.env.prod` for production with your Discord Bot Token And MongoDB Connection String
 
 ```yaml
 # Bot token from discord application

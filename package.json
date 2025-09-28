@@ -4,9 +4,10 @@
   "description": "Discord Bot (WIP)",
   "main": "src/index.ts",
   "private": true,
+  "type": "module",
   "scripts": {
-    "start": "bun --env-file=.env.production .",
-    "dev": "bun --env-file=.env.development ."
+    "start": "bun --env-file=.env.prod .",
+    "dev": "bun --env-file=.env.dev ."
   },
   "keywords": [
     "Nekitori17",
@@ -33,7 +34,7 @@
     "ffmpeg-static": "^5.2.0",
     "json-store-typed": "^1.1.0",
     "lodash": "^4.17.21",
-    "mongoose": "^8.18.1",
+    "mongoose": "^8.18.2",
     "ms": "^2.1.3",
     "node-vibrant": "^4.0.3",
     "pretty-ms": "^9.3.0",
