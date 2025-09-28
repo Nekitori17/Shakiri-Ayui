@@ -1,8 +1,17 @@
 import config from "../../../config";
+import fs from "fs";
+import path from "path";
 import axios from "axios";
 import { EmbedBuilder, Message } from "discord.js";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
+
+const systemInstructionFile = fs.readFileSync(
+  path.join(__dirname, "../../../../assets/gemini-system-instruction.txt"),
+  {
+    encoding: "utf-8",
+  }
+);
 
 const event: DiscordEventInterface = async (client, msg: Message) => {
   // Ignore bot messages
@@ -32,6 +41,8 @@ const event: DiscordEventInterface = async (client, msg: Message) => {
           input: msg.content,
           // Specify the AI model to use
           model: config.geminiAI.model,
+          // Set character
+          instruction: systemInstructionFile.toString(),
         },
         {
           params: {
