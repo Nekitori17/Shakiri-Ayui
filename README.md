@@ -72,13 +72,13 @@ cd Shakiri-Ayui
 bun i
 ```
 
-- For Development with .env.development:
+- For Development with .env.dev:
 
 ```bash
 bun run dev
 ```
 
-- For Deployment with .env.production:
+- For Deployment with .env.prod:
 
 ```bash
 bun run start
