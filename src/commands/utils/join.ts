@@ -1,9 +1,5 @@
+import { useMainPlayer, VoiceUtils } from "discord-player";
 import { GuildMember } from "discord.js";
-import {
-  joinVoiceChannel,
-  VoiceConnectionStatus,
-  entersState,
-} from "discord-voip";
 import { CustomError } from "../../helpers/utils/CustomError";
 import { handleInteractionError } from "../../helpers/utils/handleError";
 import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
@@ -19,14 +15,6 @@ const command: CommandInterface = {
       // Get the voice channel the user is in
       const userVoiceChannel = interactionUserMember.voice.channel!;
 
-      // Check if the command is used in a guild and if the guild has a voice adapter
-      if (!interaction.guild || !interaction.guild.voiceAdapterCreator)
-        throw new CustomError({
-          name: "NoGuildOrVoiceAdapter",
-          message:
-            "This command can only be used in a server with a voice adapter.",
-        });
-
       // Check if the bot has permission to join the user's voice channel
       if (!userVoiceChannel.joinable)
         throw new CustomError({
@@ -35,15 +23,9 @@ const command: CommandInterface = {
         });
 
       // Join the voice channel
-      const connection = joinVoiceChannel({
-        channelId: userVoiceChannel.id,
-        guildId: interaction.guildId!,
-        adapterCreator: interaction.guild.voiceAdapterCreator,
-        selfDeaf: true,
-        selfMute: false,
-      });
+      await new VoiceUtils(useMainPlayer()).join(userVoiceChannel);
+
       // Wait for the connection to be ready
-      await entersState(connection, VoiceConnectionStatus.Ready, 30_000);
       await interaction.editReply({
         embeds: [
           CommonEmbedBuilder.info({

@@ -1,4 +1,4 @@
-import { getVoiceConnection } from "discord-voip";
+import { useMainPlayer, VoiceUtils } from "discord-player";
 import { CustomError } from "../../helpers/utils/CustomError";
 import { handleInteractionError } from "../../helpers/utils/handleError";
 import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
@@ -11,7 +11,9 @@ const command: CommandInterface = {
       await interaction.deferReply();
 
       // Attempt to get the voice connection for the current guild
-      const connection = getVoiceConnection(interaction.guildId!);
+      const connection = await (new VoiceUtils(
+        useMainPlayer()
+      ).getConnection(interaction.guildId!));
 
       // If no voice connection is found, throw an error
       if (!connection)
