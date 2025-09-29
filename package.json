@@ -2,12 +2,14 @@
   "name": "shakiri-ayui",
   "version": "1.0.0",
   "description": "Discord Bot (WIP)",
-  "main": "src/index.ts",
+  "main": "./dist/index.js",
   "private": true,
-  "type": "module",
   "scripts": {
-    "start": "bun --env-file=.env.prod .",
-    "dev": "bun --env-file=.env.dev ."
+    "build": "npx tsc",
+    "start": "npm run build && node --env-file=.env.production .",
+    "deploy": "node --env-file=.env.production .",
+    "dev": "tsx --env-file=.env.development src/index.ts",
+    "clean": "rimraf dist"
   },
   "keywords": [
     "Nekitori17",
@@ -18,9 +20,11 @@
   "repository": "git://github.com/Nekitori17/shakiri-ayui.git",
   "license": "MIT",
   "devDependencies": {
-    "@types/bun": "^1.2.22",
     "@types/lodash": "^4.17.20",
     "@types/ms": "^2.1.0",
+    "@types/node": "^24.5.2",
+    "rimraf": "^6.0.1",
+    "tsx": "^4.20.6",
     "typescript": "^5.9.2"
   },
   "dependencies": {

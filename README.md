@@ -10,7 +10,7 @@
 
 <h2 id="technologies">💻 Technologies</h2>
 
-- Bun
+- Node
 - Typescript
 - Discord.js v14
 - Mongoose
@@ -23,7 +23,7 @@ Here you describe how to run your project locally
 
 Here you list all prerequisites necessary for running your project.
 
-- [Bun](https://bun.sh)
+- [Node](https://nodejs.org)
 - [Git](https://git-scm.com/)
 
 <h3>Cloning</h3>
@@ -36,7 +36,7 @@ git clone https://github.com/Nekitori17/Shakiri-Ayui
 
 <h3>Config .env variables</h2>
 
-Use the `.env.example` as reference to create your configuration file `.env.dev` for development and `.env.prod` for production with your Discord Bot Token And MongoDB Connection String
+Use the `.env.example` as reference to create your configuration file `.env.development` for development and `.env.production` for production with your Discord Bot Token And MongoDB Connection String
 
 ```yaml
 # Bot token from discord application
@@ -69,19 +69,19 @@ How to start your project
 
 ```bash
 cd Shakiri-Ayui
-bun i
+npm i
 ```
 
-- For Development with .env.dev:
+- For Development with .env.development:
 
 ```bash
-bun run dev
+npm run dev
 ```
 
-- For Deployment with .env.prod:
+- For Deployment with .env.production:
 
 ```bash
-bun run start
+npm start
 ```
 
 <h2 id="contribute">📫 Contribute</h2>
