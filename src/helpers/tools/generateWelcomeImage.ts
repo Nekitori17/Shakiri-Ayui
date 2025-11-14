@@ -1,6 +1,5 @@
 import fs from "fs";
 import path from "path";
-import axios from "axios";
 import { Vibrant } from "node-vibrant/node";
 import { Client, Guild, GuildMember, User } from "discord.js";
 import mediaConverter from "./mediaConverter";
@@ -33,17 +32,16 @@ export default async (
   );
 
   // Download user's avatar image as array buffer
-  const userAvatarArrayBuffer = await axios
-    .get(
-      user.displayAvatarURL({
-        extension: "png",
-        size: 256,
-      }),
-      {
-        responseType: "arraybuffer",
-      }
-    )
-    .then((res) => res.data);
+  const userAvatarArrayBuffer = await fetch(
+    user.displayAvatarURL({
+      extension: "png",
+      size: 256,
+    })
+  ).then((res) => {
+    if (!res.ok)
+      throw new Error(`Failed to fetch user avatar: ${res.statusText}`);
+    return res.arrayBuffer();
+  });
 
   const userAvatarBuffer = Buffer.from(userAvatarArrayBuffer);
 

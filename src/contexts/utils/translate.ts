@@ -1,5 +1,5 @@
-import axios from "axios";
 import { ApplicationCommandType, MessageFlags } from "discord.js";
+import { CustomError } from "../../helpers/utils/CustomError";
 import { handleInteractionError } from "../../helpers/utils/handleError";
 import UserSettings from "../../models/UserSettings";
 import { ContextInterface } from "../../types/InteractionInterfaces";
@@ -28,21 +28,28 @@ const context: ContextInterface<ApplicationCommandType.Message> = {
         }
       );
 
-      // Make a POST request to the translation API endpoint.
-      const messageTranslated = await axios
-        .post(
-          `${process.env.CUSTOM_URL_API_BASE}/endpoint`,
-          {
+      // Make a POST request to the translation API endpoint using built-in fetch.
+      const messageTranslated = await fetch(
+        `${process.env.CUSTOM_URL_API_BASE}/endpoint?q=google-translate`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
             input: targetMessage.content,
             lang: userSetting?.messageTranslateLang || "en",
-          },
-          {
-            params: {
-              q: "google-translate",
-            },
-          }
-        )
-        .then((res) => res.data);
+          }),
+        }
+      ).then((res) => {
+        if (!res.ok)
+          throw new CustomError({
+            name: "Fetch Error",
+            message: `Fetch error: ${res.status} ${res.statusText}`,
+          });
+
+        return res.json();
+      });
 
       // Edit the deferred reply with the translated message.
       interaction.editReply(messageTranslated.result);

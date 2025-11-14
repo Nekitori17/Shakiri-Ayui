@@ -1,7 +1,6 @@
 import config from "../../../config";
 import fs from "fs";
 import path from "path";
-import axios from "axios";
 import { EmbedBuilder, Message } from "discord.js";
 import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
@@ -32,29 +31,21 @@ const event: DiscordEventInterface = async (client, msg: Message) => {
   );
 
   try {
-    // Make an API call to the Gemini AI endpoint
-    const apiResponse = await axios
-      .post(
-        `${process.env.CUSTOM_URL_API_BASE}/endpoint`,
-        {
-          // Send the message content as input
-          input: msg.content,
-          // Specify the AI model to use
-          model: config.geminiAI.model,
-          // Set character
-          instruction: systemInstructionFile.toString(),
+    const apiResponse = await fetch(
+      `${process.env.CUSTOM_URL_API_BASE}/endpoint?q=gemini-api`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.GEMINI_AI_TOKEN}`,
         },
-        {
-          params: {
-            q: "gemini-api",
-          },
-          headers: {
-            // Include authorization token
-            Authorization: process.env.GEMINI_AI_TOKEN,
-          },
-        }
-      )
-      .then((res) => res.data);
+        body: JSON.stringify({
+          input: msg.content,
+          model: config.geminiAI.model,
+          instruction: systemInstructionFile.toString(),
+        }),
+      }
+    ).then((res) => res.json());
 
     // React with a success emoji
     msg.react("✅");
