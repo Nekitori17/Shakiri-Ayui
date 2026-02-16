@@ -1,7 +1,7 @@
 import { TextBasedChannel } from "discord.js";
-import { errorLogger } from "../../helpers/utils/handleError";
-import { CustomError } from "../../helpers/utils/CustomError";
-import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
+import { errorLogger } from "../../helpers/errors/handleError";
+import { CustomError } from "../../helpers/errors/CustomError";
+import CommonEmbedBuilder from "../../helpers/discord/embeds/commonEmbedBuilder";
 import { MusicEventInterface } from "../../types/EventInterfaces";
 
 const event: MusicEventInterface = (player) => {

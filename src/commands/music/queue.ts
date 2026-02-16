@@ -1,15 +1,11 @@
 import _ from "lodash";
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
   ComponentType,
   EmbedBuilder,
-  PermissionFlagsBits,
+  PermissionFlagsBits
 } from "discord.js";
 import { Track, useQueue } from "discord-player";
-import { CustomError } from "../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../helpers/utils/handleError";
+import { createPageNavigationMenu } from "../../components/pageNavigationMenu";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -17,56 +13,32 @@ const command: CommandInterface = {
     try {
       await interaction.deferReply();
 
-      // Get the music queue for the current guild
       const queue = useQueue(interaction.guildId!);
-      // If no queue exists or it's empty, throw an error
       if (queue?.tracks.size == 0)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoQueue",
           message: "There is no queue to show",
         });
 
-      // Define the number of tracks to display per page
-      const AMOUNT_TRACK_IN_PAGE = 10;
-      // Initialize an array to store tracks partitioned into pages
+      const AMOUNT_TRACK_PER_PAGE = 10;
       const queuePartition: Track[][] = [];
-      // Get all tracks in the queue
       const tracksArray = queue?.tracks.toArray() || [];
       const totalTracks = tracksArray.length;
 
       // Calculate total number of pages
-      const maxPages = Math.ceil(totalTracks / AMOUNT_TRACK_IN_PAGE) || 1;
+      const maxPages = Math.ceil(totalTracks / AMOUNT_TRACK_PER_PAGE) || 1;
 
       // Chunk tracks by the desired amount per page
-      queuePartition.push(..._.chunk(tracksArray, AMOUNT_TRACK_IN_PAGE));
+      queuePartition.push(..._.chunk(tracksArray, AMOUNT_TRACK_PER_PAGE));
 
       let currentPage = 0;
-      /**
-       * Creates a reply object containing an EmbedBuilder and ActionRowBuilder for displaying the music queue.
-       * @param page The current page number to display.
-       * @returns An object with `embeds` and `components` properties.
-       */
       function createReply(page: number) {
-        // Create navigation buttons for the queue pages
-        const buttonsPageRow = new ActionRowBuilder<ButtonBuilder>({
-          components: [
-            new ButtonBuilder()
-              .setCustomId("music-queue-page-prev")
-              .setEmoji("1387296301867073576")
-              .setStyle(ButtonStyle.Secondary)
-              .setDisabled(page === 0),
-            new ButtonBuilder()
-              .setCustomId("music-queue-page-current")
-              .setLabel(`${page + 1}/${maxPages}`)
-              .setStyle(ButtonStyle.Primary),
-            new ButtonBuilder()
-              .setCustomId("music-queue-page-next")
-              .setEmoji("1387296195256254564")
-              .setStyle(ButtonStyle.Secondary)
-              .setDisabled(page >= maxPages - 1),
-          ],
-        });
-        // Return the embed and components for the current page
+        const buttonsPageRow = createPageNavigationMenu(
+          page,
+          maxPages,
+          "music-queue",
+        );
+
         return {
           embeds: [
             new EmbedBuilder()
@@ -81,12 +53,12 @@ const command: CommandInterface = {
                     (track, index) =>
                       `**${page * 10 + index + 1}.** ${track.title.substring(
                         0,
-                        70
+                        70,
                       )}${track.title.length > 70 ? "..." : ""} - \`${
                         track.duration
-                      }\`\n*by ${track.author}*`
+                      }\`\n*by ${track.author}*`,
                   )
-                  .join("\n\n")
+                  .join("\n\n"),
               )
               .setFooter({
                 text: interaction.guild?.name!,
@@ -98,12 +70,10 @@ const command: CommandInterface = {
         };
       }
 
-      // Send the initial reply with the first page of the queue
       const queueEmbedReply = await interaction.editReply(
-        createReply(currentPage)
+        createReply(currentPage),
       );
 
-      // Create a message component collector for button interactions
       const queueEmbedCollector =
         queueEmbedReply.createMessageComponentCollector({
           componentType: ComponentType.Button,
@@ -111,17 +81,14 @@ const command: CommandInterface = {
           time: 60_000,
         });
 
-      // Handle interactions from the queue navigation buttons
       queueEmbedCollector.on(
         "collect",
         async (queuePageNavButtonInteraction) => {
-          // If 'current' button is clicked, just defer update (no change)
           if (
             queuePageNavButtonInteraction.customId == "music-queue-page-current"
           )
             return queuePageNavButtonInteraction.deferUpdate();
 
-          // If 'previous' button is clicked, decrement page and update reply
           if (
             queuePageNavButtonInteraction.customId === "music-queue-page-prev"
           ) {
@@ -130,7 +97,6 @@ const command: CommandInterface = {
             queuePageNavButtonInteraction.deferUpdate();
           }
 
-          // If 'next' button is clicked, increment page and update reply
           if (
             queuePageNavButtonInteraction.customId === "music-queue-page-next"
           ) {
@@ -138,21 +104,22 @@ const command: CommandInterface = {
             queueEmbedReply.edit(createReply(currentPage));
             queuePageNavButtonInteraction.deferUpdate();
           }
-        }
+        },
       );
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
-  alias: "qe",
+  alias: ["qe"],
   name: "queue",
   description: "List tracks in queue",
   deleted: false,
   devOnly: false,
+  disabled: false,
   useInDm: false,
   requiredVoiceChannel: false,
   userPermissionsRequired: [PermissionFlagsBits.Connect],

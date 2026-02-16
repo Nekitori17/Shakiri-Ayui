@@ -1,10 +1,8 @@
 import { EmbedBuilder, PermissionFlagsBits } from "discord.js";
 import { useQueue, TrackSource } from "discord-player";
-import { CustomError } from "../../helpers/utils/CustomError";
-import { VoiceStoreSession } from "../../classes/VoiceStoreSession";
-import { handleInteractionError } from "../../helpers/utils/handleError";
 import { repeatModeNames } from "../../constants/musicRepeatModes";
 import { musicSourceIcons } from "../../constants/musicSourceIcons";
+import { VoiceStoreSession } from "../../classes/VoiceStoreSession";
 import { advancedMusicControllerButtonRows } from "../../components/musicControllerMenu";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -13,12 +11,10 @@ const command: CommandInterface = {
     try {
       await interaction.deferReply();
 
-      // Retrieve the queue for the guild
       const queue = useQueue(interaction.guildId!);
 
-      // Throw error if no song is playing
       if (!queue || !queue.isPlaying())
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoSongPlaying",
           message: "There is no song playing",
         });
@@ -33,15 +29,11 @@ const command: CommandInterface = {
         length: 11,
       });
 
-      // Retrieve volume, repeat mode, and shuffle count from session store or queue
-      const voiceStoreSession = new VoiceStoreSession(
-        interaction.guildId!
-      );
+      const voiceStoreSession = new VoiceStoreSession(interaction.guildId!);
       const volume = await voiceStoreSession.getVolume();
       const repeatMode = voiceStoreSession.getRepeatMode();
       const shuffledTimes = voiceStoreSession.getShuffledTimes();
 
-      // Edit the reply with the now playing embed and music controller buttons
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
@@ -50,7 +42,7 @@ const command: CommandInterface = {
               iconURL: track.requestedBy?.displayAvatarURL(),
             })
             .setTitle(
-              "> <:coloraigeneratedmusic:1387292099963125821> Now playing"
+              "> <:coloraigeneratedmusic:1387292099963125821> Now playing",
             )
             .setDescription(
               `* <:colordocumentheader:1387282793037303834> **Title**: ${track.title}` +
@@ -71,7 +63,7 @@ const command: CommandInterface = {
                     : `${shuffledTimes} time`
                 }` +
                 "\n" +
-                progressBar
+                progressBar,
             )
             .setThumbnail(track.thumbnail)
             .setFooter({
@@ -86,16 +78,17 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
-  alias: "np",
+  alias: ["np"],
   name: "nowplaying",
   description: "Get info about the current song",
   deleted: false,
   devOnly: false,
+  disabled: false,
   useInDm: false,
   requiredVoiceChannel: false,
   userPermissionsRequired: [PermissionFlagsBits.Connect],

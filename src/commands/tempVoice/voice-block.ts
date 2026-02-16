@@ -3,10 +3,7 @@ import {
   GuildMember,
   MessageFlags,
 } from "discord.js";
-import { CustomError } from "../../helpers/utils/CustomError";
-import checkOwnTempVoice from "../../validator/checkOwnTempVoice";
-import { handleInteractionError } from "../../helpers/utils/handleError";
-import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
+import checkOwnTempVoice from "../../helpers/discord/validators/checkOwnTempVoice";
 import UserSettings from "../../models/UserSettings";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -16,7 +13,6 @@ const command: CommandInterface = {
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });
       const targetUserOption = interaction.options.getUser("target", true);
 
-      // Find the user's settings, or create new ones if they don't exist
       const userSetting = await UserSettings.findOneAndUpdate(
         {
           userId: interaction.user.id,
@@ -28,17 +24,16 @@ const command: CommandInterface = {
         },
         {
           upsert: true,
-          new: true,
-        }
+          returnDocument: "after",
+        },
       );
 
-      // Check if the user is already blocked
       if (
         userSetting.temporaryVoiceChannel.blockedUsers.includes(
-          targetUserOption.id
+          targetUserOption.id,
         )
       )
-        throw new CustomError({
+        throw new client.CustomError({
           name: "UserAlreadyBlocked",
           message: "This user is already blocked",
           type: "info",
@@ -57,7 +52,7 @@ const command: CommandInterface = {
         if (checkOwnTempVoice(userVoiceChannel.id, interaction.user.id)) {
           // Fetch the blocked user's guild member object
           const blockedUser = await interaction.guild?.members.fetch(
-            targetUserOption.id
+            targetUserOption.id,
           );
 
           // If the blocked user exists and is in a voice channel
@@ -68,9 +63,8 @@ const command: CommandInterface = {
         }
 
       interaction.editReply({
-        // Send a success embed indicating the user has been blocked
         embeds: [
-          CommonEmbedBuilder.success({
+          client.CommonEmbedBuilder.success({
             title: "> <:colorroadblock:1387286123868586054> Blocked User",
             description: `Blocked user: ${targetUserOption}`,
           }),
@@ -79,13 +73,14 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
   name: "voice-block",
   description: "Block a user from your temporary voice channel",
+  disabled: false,
   deleted: false,
   devOnly: false,
   options: [

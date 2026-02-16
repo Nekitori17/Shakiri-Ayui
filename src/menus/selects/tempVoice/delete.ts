@@ -1,9 +1,7 @@
 import path from "path";
 import { GuildMember } from "discord.js";
 import jsonStore from "json-store-typed";
-import { CustomError } from "../../../helpers/utils/CustomError";
-import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
-import { handleInteractionError } from "../../../helpers/utils/handleError";
+import checkOwnTempVoice from "../../../helpers/discord/validators/checkOwnTempVoice";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
 const select: SelectMenuInterface = {
@@ -19,7 +17,7 @@ const select: SelectMenuInterface = {
 
       // Check if the temporary voice channel belongs to the interacting user
       if (!checkOwnTempVoice(userVoiceChannel?.id!, interaction.user.id))
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NotOwnTempVoiceError",
           message: "This temporary voice channel does not belong to you.",
           type: "warning",
@@ -34,7 +32,7 @@ const select: SelectMenuInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error, true);
+      client.interactionErrorHandler(interaction, error, true);
 
       return false;
     }

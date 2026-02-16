@@ -1,6 +1,6 @@
+import _ from "lodash";
 import fs from "fs";
 import path from "path";
-import _ from "lodash";
 
 /**
  * Reads directory and returns an array of file or folder paths,
@@ -16,7 +16,6 @@ export default (
   folderOnly: boolean = false,
   exception: string[] = []
 )=> {
-  // Read all entries (files and folders) in the directory
   const files = fs.readdirSync(directory, { withFileTypes: true });
 
   return _(files)

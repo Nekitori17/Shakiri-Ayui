@@ -1,6 +1,18 @@
 import sharp from "sharp";
 import { AttachmentBuilder } from "discord.js";
 
+type ConverterOptions =
+  | {
+      url: string;
+      buffer?: Buffer;
+      format: keyof sharp.FormatEnum | sharp.AvailableFormatInfo;
+    }
+  | {
+      url?: string;
+      buffer: Buffer;
+      format: keyof sharp.FormatEnum | sharp.AvailableFormatInfo;
+    };
+
 /**
  * Converts an image (from URL or Buffer) to a specified format
  * and returns it as a Discord AttachmentBuilder instance.
@@ -10,51 +22,33 @@ import { AttachmentBuilder } from "discord.js";
  * @param format - Output image format (e.g., png, jpeg, webp).
  * @returns An AttachmentBuilder with the converted image, or undefined if error occurs.
  */
-export default async ({
-  url,
-  buffer,
-  format,
-}: {
-  url?: string;
-  buffer?: Buffer;
-  format: keyof sharp.FormatEnum | sharp.AvailableFormatInfo;
-}) => {
+export default async ({ url, buffer, format }: ConverterOptions) => {
   let fileInputBuffer: Buffer;
 
-  // Load file from URL if provided
   if (url) {
     const fileResponseArrayBuffer = await fetch(url).then((res) => {
       if (!res.ok) {
         throw new Error(
-          `Failed to fetch image from URL: ${res.status} ${res.statusText}`
+          `Failed to fetch image from URL: ${res.status} ${res.statusText}`,
         );
       }
       return res.arrayBuffer();
     });
 
     fileInputBuffer = Buffer.from(fileResponseArrayBuffer);
-  }
-  // Or use directly provided buffer
-  else if (buffer) {
-    fileInputBuffer = Buffer.from(buffer);
-  }
-  // If neither is provided, throw error
-  else {
+  } else if (buffer) {
+    fileInputBuffer = Buffer.isBuffer(buffer) ? buffer : Buffer.from(buffer);
+  } else {
     throw new Error("No url or buffer provided");
   }
 
-  // Convert the image buffer to specified format
-  const fileConverted = await sharp(fileInputBuffer)
+  const fileConvertedBuffer = await sharp(fileInputBuffer)
     .toFormat(format)
     .toBuffer();
 
-  // Generate unique file name based on timestamp + high-res time
-  const fileName: string = `${Date.now()}_${(
-    process.hrtime.bigint() / 1000000n
-  ).toString()}.${format}`;
-
-  // Return the image as a Discord attachment
-  return new AttachmentBuilder(fileConverted, {
-    name: fileName,
-  });
+  return {
+    buffer: fileConvertedBuffer,
+    toDiscordAttachment: () =>
+      new AttachmentBuilder(fileConvertedBuffer, { name: `image.${format}` }),
+  };
 };

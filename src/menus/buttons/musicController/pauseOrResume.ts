@@ -1,7 +1,5 @@
 import { useQueue } from "discord-player";
-import { CustomError } from "../../../helpers/utils/CustomError";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
-import { handleInteractionError } from "../../../helpers/utils/handleError";
 
 const button: ButtonInterface = {
   async execute(interaction, client) {
@@ -10,7 +8,7 @@ const button: ButtonInterface = {
       const queue = useQueue(interaction.guildId!);
       // Check if a queue exists
       if (!queue)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoQueue",
           message: "There is no queue to resume",
         });
@@ -28,7 +26,7 @@ const button: ButtonInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error, true);
+      client.interactionErrorHandler(interaction, error, true);
 
       return false;
     }

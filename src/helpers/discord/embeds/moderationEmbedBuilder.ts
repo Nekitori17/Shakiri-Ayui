@@ -33,8 +33,8 @@ export class ModerationEmbedBuilder {
       .setTitle("Warn")
       .setDescription(
         `**Target**: ${target}\n` +
-        `**Reason**: ${reason}` +
-        (duration ? `\n**Duration**: ${duration}` : "")
+          `**Reason**: ${reason}` +
+          (duration ? `\n**Duration**: ${duration}` : ""),
       )
       .setThumbnail(target.displayAvatarURL())
       .setColor("#fffb00")
@@ -62,10 +62,7 @@ export class ModerationEmbedBuilder {
         iconURL: moderator.displayAvatarURL(),
       })
       .setTitle("Kick")
-      .setDescription(
-        `**Target**: ${target}\n` +
-        `**Reason**: ${reason}`
-      )
+      .setDescription(`**Target**: ${target}\n` + `**Reason**: ${reason}`)
       .setThumbnail(target.displayAvatarURL())
       .setColor("#ff9741")
       .setTimestamp();
@@ -92,10 +89,7 @@ export class ModerationEmbedBuilder {
         iconURL: moderator.displayAvatarURL(),
       })
       .setTitle("Ban")
-      .setDescription(
-        `**Target**: ${target}\n` +
-        `**Reason**: ${reason}`
-      )
+      .setDescription(`**Target**: ${target}\n` + `**Reason**: ${reason}`)
       .setThumbnail(target.displayAvatarURL())
       .setColor("#ff0000")
       .setTimestamp();
@@ -114,7 +108,7 @@ export class ModerationEmbedBuilder {
     moderator,
     reason,
     duration,
-    update
+    update,
   }: {
     target: GuildMember;
     moderator: User;
@@ -130,8 +124,8 @@ export class ModerationEmbedBuilder {
       .setTitle(update ? "Update Mute" : "Mute")
       .setDescription(
         `**Target**: ${target}\n` +
-        `**Reason**: ${reason}\n` +
-        `**Duration**: ${duration}`
+          `**Reason**: ${reason}\n` +
+          `**Duration**: ${duration}`,
       )
       .setThumbnail(target.displayAvatarURL())
       .setColor("#e1ff00")
@@ -162,10 +156,7 @@ export class ModerationEmbedBuilder {
         iconURL: moderator.displayAvatarURL(),
       })
       .setTitle(action)
-      .setDescription(
-        `**Target**: ${target}\n` +
-        `**Reason**: ${reason}`
-      )
+      .setDescription(`**Target**: ${target}\n` + `**Reason**: ${reason}`)
       .setThumbnail(target.displayAvatarURL())
       .setColor("#01ff5e")
       .setTimestamp();

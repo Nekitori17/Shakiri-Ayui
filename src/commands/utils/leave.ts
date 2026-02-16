@@ -1,7 +1,4 @@
 import { useMainPlayer, VoiceUtils } from "discord-player";
-import { CustomError } from "../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../helpers/utils/handleError";
-import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -10,25 +7,21 @@ const command: CommandInterface = {
     try {
       await interaction.deferReply();
 
-      // Attempt to get the voice connection for the current guild
-      const connection = await (new VoiceUtils(
-        useMainPlayer()
-      ).getConnection(interaction.guildId!));
+      const connection = await new VoiceUtils(useMainPlayer()).getConnection(
+        interaction.guildId!,
+      );
 
-      // If no voice connection is found, throw an error
       if (!connection)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoVoiceConnection",
           message: "I'm not in a voice channel.",
         });
 
-      // Destroy the voice connection, effectively leaving the channel
       connection.destroy();
 
-      // Edit the deferred reply with a success embed
       await interaction.editReply({
         embeds: [
-          CommonEmbedBuilder.info({
+          client.CommonEmbedBuilder.info({
             title: "<:colorexit:1387287405488504882> Left Voice Channel",
             description: "Left the voice channel.",
           }),
@@ -37,16 +30,17 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
-  alias: "lv",
+  alias: ["lv"],
   name: "leave",
   description: "Leaves the voice channel",
   deleted: false,
   devOnly: false,
+  disabled: false,
   useInDm: false,
   requiredVoiceChannel: false,
 };

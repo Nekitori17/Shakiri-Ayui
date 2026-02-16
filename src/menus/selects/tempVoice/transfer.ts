@@ -10,10 +10,7 @@ import {
   StringSelectMenuOptionBuilder,
 } from "discord.js";
 import jsonStore from "json-store-typed";
-import { CustomError } from "../../../helpers/utils/CustomError";
-import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
-import { handleInteractionError } from "../../../helpers/utils/handleError";
-import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
+import checkOwnTempVoice from "../../../helpers/discord/validators/checkOwnTempVoice";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
 const select: SelectMenuInterface = {
@@ -31,7 +28,7 @@ const select: SelectMenuInterface = {
 
       // Check if the temporary voice channel belongs to the interacting user
       if (!checkOwnTempVoice(userVoiceChannel.id, interaction.user.id))
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NotOwnTempVoiceError",
           message: "This temporary voice channel does not belong to you.",
         });
@@ -43,7 +40,7 @@ const select: SelectMenuInterface = {
 
       // If no transferable members are found, throw an error
       if (!transferableMembers || transferableMembers.size === 0)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoUserCanTransfer",
           message: "There are no users to transfer in this channel.",
           type: "info",
@@ -169,14 +166,14 @@ const select: SelectMenuInterface = {
               // Edit the reply to confirm the transfer
               transferUserMenuInteraction.editReply({
                 embeds: [
-                  CommonEmbedBuilder.success({
+                  client.CommonEmbedBuilder.success({
                     title: "> Transferred Temporary Channel",
                     description: `Transferred to user: <@${userId}>`,
                   }),
                 ],
               });
             } catch (error) {
-              handleInteractionError(transferUserMenuInteraction, error, true);
+              client.interactionErrorHandler(transferUserMenuInteraction, error, true);
             }
           }
         }
@@ -184,7 +181,7 @@ const select: SelectMenuInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error, true);
+      client.interactionErrorHandler(interaction, error, true);
 
       return false;
     }

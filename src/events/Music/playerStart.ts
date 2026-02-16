@@ -1,7 +1,7 @@
 import { EmbedBuilder, TextBasedChannel } from "discord.js";
 import { TrackSource } from "discord-player";
-import { errorLogger } from "../../helpers/utils/handleError";
-import { CustomError } from "../../helpers/utils/CustomError";
+import { errorLogger } from "../../helpers/errors/handleError";
+import { CustomError } from "../../helpers/errors/CustomError";
 import { VoiceStoreSession } from "../../classes/VoiceStoreSession";
 import { repeatModeNames } from "../../constants/musicRepeatModes";
 import { musicSourceIcons } from "../../constants/musicSourceIcons";

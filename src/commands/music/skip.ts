@@ -1,7 +1,5 @@
 import { EmbedBuilder, PermissionFlagsBits } from "discord.js";
 import { useQueue } from "discord-player";
-import { CustomError } from "../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../helpers/utils/handleError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -9,18 +7,14 @@ const command: CommandInterface = {
     try {
       await interaction.deferReply();
 
-      // Get the music queue for the current guild
       const queue = useQueue(interaction.guildId!);
       if (!queue)
-        // If no queue exists, throw a custom error
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoQueue",
           message: "There is no queue to skip",
         });
 
-      // Skip the current track in the queue
       queue.node.skip();
-      // Edit the deferred reply with an embed confirming the track has been skipped
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
@@ -34,16 +28,17 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
-  alias: "sk",
+  alias: ["sk"],
   name: "skip",
   description: "Skip the current song",
   deleted: false,
   devOnly: false,
+  disabled: false,
   useInDm: false,
   requiredVoiceChannel: true,
   userPermissionsRequired: [PermissionFlagsBits.Connect],

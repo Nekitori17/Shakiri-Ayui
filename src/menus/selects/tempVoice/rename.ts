@@ -6,12 +6,9 @@ import {
   TextInputBuilder,
   TextInputStyle,
 } from "discord.js";
+import checkOwnTempVoice from "../../../helpers/discord/validators/checkOwnTempVoice";
+import { genericVariableFormatter } from "../../../helpers/formatters/variableFormatter";
 import UserSettings from "../../../models/UserSettings";
-import { CustomError } from "../../../helpers/utils/CustomError";
-import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
-import { handleInteractionError } from "../../../helpers/utils/handleError";
-import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
-import { genericVariableReplacer } from "../../../helpers/utils/variableReplacer";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
 const select: SelectMenuInterface = {
@@ -22,7 +19,7 @@ const select: SelectMenuInterface = {
     try {
       // Check if the temporary voice channel belongs to the interacting user
       if (!checkOwnTempVoice(userVoiceChannel.id, interaction.user.id))
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NotOwnTempVoiceError",
           message: "This temporary voice channel does not belong to you.",
         });
@@ -39,9 +36,9 @@ const select: SelectMenuInterface = {
               .setRequired(true)
               .setStyle(TextInputStyle.Short)
               .setPlaceholder(
-                "Variable: {user.displayName}, {user.username}, {guild.name}, {guild.count},..."
-              )
-          )
+                "Variable: {user.displayName}, {user.username}, {guild.name}, {guild.count},...",
+              ),
+          ),
         );
       // Show the modal to the user
       await interaction.showModal(renameModal);
@@ -69,8 +66,8 @@ const select: SelectMenuInterface = {
           },
           {
             upsert: true,
-            new: true,
-          }
+            returnDocument: "after",
+          },
         );
 
         // Update the channel name in user settings
@@ -79,30 +76,30 @@ const select: SelectMenuInterface = {
 
         // Set the new name for the voice channel, replacing variables
         await userVoiceChannel.setName(
-          genericVariableReplacer(
+          genericVariableFormatter(
             newNameInputValue,
             interaction.user,
             interaction.guild!,
-            client
-          )
+            client,
+          ),
         );
 
         // Edit the reply to confirm the name change
         renameModalInteraction.editReply({
           embeds: [
-            CommonEmbedBuilder.success({
+            client.CommonEmbedBuilder.success({
               title: "> Changed Temporary Channel Name",
               description: `Changed to name: \`${newNameInputValue}\``,
             }),
           ],
         });
       } catch (error) {
-        handleInteractionError(renameModalInteraction, error, true);
+        client.interactionErrorHandler(renameModalInteraction, error, true);
       }
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error, true);
+      client.interactionErrorHandler(interaction, error, true);
 
       return false;
     }

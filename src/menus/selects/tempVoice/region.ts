@@ -6,10 +6,7 @@ import {
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from "discord.js";
-import { CustomError } from "../../../helpers/utils/CustomError";
-import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
-import { handleInteractionError } from "../../../helpers/utils/handleError";
-import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
+import checkOwnTempVoice from "../../../helpers/discord/validators/checkOwnTempVoice";
 import { rtcRegionList } from "../../../constants/rtcRegionList";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
@@ -23,7 +20,7 @@ const select: SelectMenuInterface = {
 
       // Check if the temporary voice channel belongs to the interacting user
       if (!checkOwnTempVoice(userVoiceChannel.id, interaction.user.id))
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NotOwnTempVoiceError",
           message: "This temporary voice channel does not belong to you.",
         });
@@ -31,7 +28,7 @@ const select: SelectMenuInterface = {
       // Create options for the region select menu from rtcRegionList
       const regionSelectMenuOption = Object.entries(rtcRegionList).map(
         ([name, value]) =>
-          new StringSelectMenuOptionBuilder().setLabel(value).setValue(name)
+          new StringSelectMenuOptionBuilder().setLabel(value).setValue(name),
       );
       // Create an ActionRow with a StringSelectMenu for region selection
       const regionSelectMenuRow =
@@ -39,7 +36,7 @@ const select: SelectMenuInterface = {
           new StringSelectMenuBuilder()
             .setCustomId("temp-voice-region")
             .setPlaceholder("Select a region")
-            .addOptions(regionSelectMenuOption)
+            .addOptions(regionSelectMenuOption),
         );
 
       // Edit the deferred reply to display the region selection menu
@@ -69,7 +66,7 @@ const select: SelectMenuInterface = {
           // Edit the reply to confirm the region change
           regionSelectInteraction.editReply({
             embeds: [
-              CommonEmbedBuilder.success({
+              client.CommonEmbedBuilder.success({
                 title: "> Changed Temporary Channel Region",
                 description: `Changed to region: \`${
                   rtcRegionList[regionName as keyof typeof rtcRegionList]
@@ -78,13 +75,13 @@ const select: SelectMenuInterface = {
             ],
           });
         } catch (error) {
-          handleInteractionError(regionSelectInteraction, error, true);
+          client.interactionErrorHandler(regionSelectInteraction, error, true);
         }
       });
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error, true);
+      client.interactionErrorHandler(interaction, error, true);
 
       return false;
     }

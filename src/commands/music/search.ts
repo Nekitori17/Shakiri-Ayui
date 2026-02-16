@@ -1,10 +1,7 @@
 import _ from "lodash";
-import config from "../../config";
 import {
   ActionRowBuilder,
   ApplicationCommandOptionType,
-  ButtonBuilder,
-  ButtonStyle,
   EmbedBuilder,
   GuildMember,
   PermissionFlagsBits,
@@ -12,10 +9,9 @@ import {
   StringSelectMenuOptionBuilder,
 } from "discord.js";
 import { QueryType, Track, TrackSource, useMainPlayer } from "discord-player";
-import { CustomError } from "../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../helpers/utils/handleError";
 import { musicSourceIcons } from "../../constants/musicSourceIcons";
 import { VoiceStoreSession } from "../../classes/VoiceStoreSession";
+import { createPageNavigationMenu } from "../../components/pageNavigationMenu";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -24,10 +20,8 @@ const command: CommandInterface = {
       await interaction.deferReply();
       const queryOption = interaction.options.getString("query", true);
 
-      // Get guild settings for music playback
-      const guildSetting = await config.modules(interaction.guildId!);
+      const guildSetting = await client.getGuildSetting(interaction.guildId!);
 
-      // Get the main player instance
       const player = useMainPlayer();
 
       const searchResult = await player.search(queryOption, {
@@ -35,52 +29,33 @@ const command: CommandInterface = {
         searchEngine: QueryType.AUTO,
       });
 
-      // If no tracks are found, throw an error
       if (!searchResult || searchResult.tracks.length === 0)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoResults",
           message:
             "Please try again or try a different queryOption or platform",
         });
 
-      // Define the number of tracks to display per page
-      const AMOUNT_TRACK_IN_PAGE = 5;
-      // Initialize an array to store tracks partitioned into pages
+      const AMOUNT_TRACK_PER_PAGE = 5;
       const tracksPartition: Track[][] = [];
 
       const tracksArray = searchResult.tracks || [];
       const totalTracks = tracksArray.length;
 
       // Calculate total number of pages
-      const maxPages = Math.ceil(totalTracks / AMOUNT_TRACK_IN_PAGE) || 1;
+      const maxPages = Math.ceil(totalTracks / AMOUNT_TRACK_PER_PAGE) || 1;
 
       // Chunk tracks by the desired amount per page
-      tracksPartition.push(..._.chunk(tracksArray, AMOUNT_TRACK_IN_PAGE));
+      tracksPartition.push(..._.chunk(tracksArray, AMOUNT_TRACK_PER_PAGE));
 
       let currentPage = 0;
       function createReply(page: number) {
-        // Create navigation buttons for the search results pages
-        const buttonsPageRow = new ActionRowBuilder<ButtonBuilder>({
-          components: [
-            new ButtonBuilder()
-              .setCustomId("search-searchResult-page-prev")
-              .setEmoji("1387296301867073576")
-              .setStyle(ButtonStyle.Primary)
-              .setDisabled(page === 0),
-            new ButtonBuilder()
-              .setCustomId("search-searchResult-page-current")
-              .setLabel(`${page + 1}/${maxPages}`)
-              .setStyle(ButtonStyle.Secondary)
-              .setDisabled(false),
-            new ButtonBuilder()
-              .setCustomId("search-searchResult-page-next")
-              .setEmoji("1387296195256254564")
-              .setStyle(ButtonStyle.Primary)
-              .setDisabled(page >= maxPages - 1),
-          ],
-        });
+        const buttonsPageRow = createPageNavigationMenu(
+          page,
+          maxPages,
+          "search-searchResult",
+        );
 
-        // Create options for the select menu based on tracks in the current page
         const trackSelectMenuOption = tracksPartition[page].map(
           (track, index) => {
             const label = `${page * 10 + index + 1}. ${track.title}`;
@@ -95,20 +70,18 @@ const command: CommandInterface = {
               .setLabel(truncatedLabel)
               .setValue(track.id)
               .setDescription(truncatedAuthor);
-          }
+          },
         );
 
-        // Create a select menu for choosing a track
         const trackSelectMenuRow =
           new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
             new StringSelectMenuBuilder()
               .setCustomId("search-searchResult-select")
               .setPlaceholder("Select a track to play")
-              .addOptions(trackSelectMenuOption)
+              .addOptions(trackSelectMenuOption),
           );
 
         return {
-          // Create an embed for displaying search results
           embeds: [
             new EmbedBuilder()
               .setAuthor({
@@ -122,7 +95,7 @@ const command: CommandInterface = {
               .setTitle(
                 `> <:colormusic:1387285617599184977> Search Results (Page ${
                   page + 1
-                }/${maxPages})`
+                }/${maxPages})`,
               )
               .setDescription(
                 tracksPartition[page]
@@ -130,12 +103,12 @@ const command: CommandInterface = {
                     (track, index) =>
                       `**${page * 10 + index + 1}.** ${track.title.substring(
                         0,
-                        70
+                        70,
                       )}${track.title.length > 70 ? "..." : ""} - \`${
                         track.duration
-                      }\`\n*by ${track.author}*`
+                      }\`\n*by ${track.author}*`,
                   )
-                  .join("\n\n")
+                  .join("\n\n"),
               )
               .setFooter({
                 text: `Requested by ${interaction.user.username} | ${tracksArray.length} tracks found`,
@@ -149,11 +122,9 @@ const command: CommandInterface = {
         };
       }
 
-      // Send the initial reply with the first page of search results
       const searchResultEmbedRely = await interaction.editReply(
-        createReply(currentPage)
+        createReply(currentPage),
       );
-      // Create a message component collector for button and select menu interactions
       const searchResultEmbedCollector =
         searchResultEmbedRely.createMessageComponentCollector({
           filter: (i) => i.user.id === interaction.user.id,
@@ -203,35 +174,30 @@ const command: CommandInterface = {
             if (searchResultSelectInteraction.isStringSelectMenu()) {
               await searchResultSelectInteraction.deferReply();
               const trackId = searchResultSelectInteraction.values[0];
-              // Find the selected track from the search results
               const track = searchResult.tracks.find((t) => t.id === trackId);
 
               if (!track)
-                throw new CustomError({
+                throw new client.CustomError({
                   name: "NoTrack",
                   message: "Track not found",
                 });
 
-              // Get the user's voice channel
               const userVoiceChannel = (
                 searchResultSelectInteraction.member as GuildMember
               ).voice.channel;
 
-              // If user is not in a voice channel, throw an error
               if (!userVoiceChannel)
-                throw new CustomError({
+                throw new client.CustomError({
                   name: "NoVoiceChannel",
                   message:
                     "You need to be in a voice channel to use this command",
                   type: "warning",
                 });
 
-              // Retrieve volume, repeat mode, and shuffle count from session store or queue
               const voiceStoreSession = new VoiceStoreSession(
-                interaction.guildId!
+                interaction.guildId!,
               );
 
-              // Play the selected track in the user's voice channel
               await track.play(userVoiceChannel, {
                 requestedBy: searchResultSelectInteraction.user,
                 nodeOptions: {
@@ -246,7 +212,6 @@ const command: CommandInterface = {
                 },
               });
 
-              // Edit the reply to confirm the track has been added to the queue
               searchResultSelectInteraction.editReply({
                 content: null,
                 embeds: [
@@ -265,23 +230,27 @@ const command: CommandInterface = {
               });
             }
           } catch (error) {
-            handleInteractionError(searchResultSelectInteraction, error);
+            client.interactionErrorHandler(
+              searchResultSelectInteraction,
+              error,
+            );
           }
-        }
+        },
       );
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
-  alias: "sr",
+  alias: ["sr"],
   name: "search",
   description: "Search for a song/URL and select to play from results",
   deleted: false,
   devOnly: false,
+  disabled: false,
   options: [
     {
       name: "query",

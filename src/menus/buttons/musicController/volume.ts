@@ -8,23 +8,22 @@ import {
   TextInputStyle,
 } from "discord.js";
 import { useQueue } from "discord-player";
-import { FnUtils } from "../../../helpers/FnUtils";
-import { CustomError } from "../../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../../helpers/utils/handleError";
 import { VoiceStoreSession } from "../../../classes/VoiceStoreSession";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
 const button: ButtonInterface = {
   async execute(interaction, client) {
-    const controlPanelButtonIn = interaction.message.content.includes("\u200B");
-    
+    const controlPanelButtonIn = interaction.message.content.includes(
+      client.constants.CONTROL_PANEL_TAG,
+    );
+
     try {
       // Get the queue for the current guild
       const queue = useQueue(interaction.guildId!);
 
       // Check if a queue exists
       if (!queue)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoQueue",
           message: "There is no queue to set volume",
         });
@@ -40,8 +39,8 @@ const button: ButtonInterface = {
               .setLabel("Level")
               .setRequired(true)
               .setStyle(TextInputStyle.Short)
-              .setPlaceholder("0 - 100")
-          )
+              .setPlaceholder("0 - 100"),
+          ),
         );
 
       // Show the modal to the user
@@ -62,8 +61,8 @@ const button: ButtonInterface = {
         // Check if the input value is a valid number
 
         // Error message for invalid input
-        if (!FnUtils.isNumber(levelStrInputValue))
-          throw new CustomError({
+        if (!client.FnUtils.isNumber(levelStrInputValue))
+          throw new client.CustomError({
             name: "ThisIsNotANumber",
             message: "Please try again with correct value",
             type: "warning",
@@ -72,7 +71,7 @@ const button: ButtonInterface = {
         const level = parseInt(levelStrInputValue);
         // Check if the volume level is out of range
         if (level < 0)
-          throw new CustomError({
+          throw new client.CustomError({
             name: "InvalidVolume",
             message: "Volume cannot be less than 0",
             type: "warning",
@@ -80,9 +79,7 @@ const button: ButtonInterface = {
 
         queue.node.setVolume(level);
         // Set the volume in the session store
-        const voiceStoreSession = new VoiceStoreSession(
-          interaction.guildId!
-        );
+        const voiceStoreSession = new VoiceStoreSession(interaction.guildId!);
         voiceStoreSession.setVolume(level);
 
         // Edit the reply with an embed confirming the volume change
@@ -97,12 +94,16 @@ const button: ButtonInterface = {
           ],
         });
       } catch (error) {
-        handleInteractionError(volumeChangeInteraction, error, controlPanelButtonIn);
+        client.interactionErrorHandler(
+          volumeChangeInteraction,
+          error,
+          controlPanelButtonIn,
+        );
       }
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error, controlPanelButtonIn);
+      client.interactionErrorHandler(interaction, error, controlPanelButtonIn);
 
       return false;
     }

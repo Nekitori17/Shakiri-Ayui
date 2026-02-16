@@ -1,4 +1,3 @@
-import { handleInteractionError } from "../../helpers/utils/handleError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -8,12 +7,13 @@ const command: CommandInterface = {
 
       interaction.deleteReply();
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
       return false;
     }
   },
   name: "test",
   description: "Test command",
+  disabled: false,
   deleted: false,
   devOnly: true,
   useInDm: true,

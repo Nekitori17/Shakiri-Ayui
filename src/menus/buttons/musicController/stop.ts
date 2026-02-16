@@ -6,14 +6,14 @@ import {
   MessageFlags,
 } from "discord.js";
 import { useQueue } from "discord-player";
-import { CustomError } from "../../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../../helpers/utils/handleError";
 import { VoiceStoreSession } from "../../../classes/VoiceStoreSession";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
 const button: ButtonInterface = {
   async execute(interaction, client) {
-    const controlPanelButtonIn = interaction.message.content.includes("\u200B");
+    const controlPanelButtonIn = interaction.message.content.includes(
+      client.constants.CONTROL_PANEL_TAG,
+    );
 
     try {
       await interaction.deferReply({
@@ -25,7 +25,7 @@ const button: ButtonInterface = {
       // Check if a queue exists
       if (!queue)
         // If no queue, throw an error
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoQueue",
           message: "There is no queue to stop",
         });
@@ -95,14 +95,14 @@ const button: ButtonInterface = {
               voiceStoreSession.clear();
             }
           } catch (error) {
-            handleInteractionError(interaction, error, controlPanelButtonIn);
+            client.interactionErrorHandler(interaction, error, controlPanelButtonIn);
           }
         }
       );
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error, controlPanelButtonIn);
+      client.interactionErrorHandler(interaction, error, controlPanelButtonIn);
 
       return false;
     }

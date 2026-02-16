@@ -4,9 +4,7 @@ import {
   PermissionFlagsBits,
 } from "discord.js";
 import { useQueue } from "discord-player";
-import { CustomError } from "../../helpers/utils/CustomError";
 import { VoiceStoreSession } from "../../classes/VoiceStoreSession";
-import { handleInteractionError } from "../../helpers/utils/handleError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -16,30 +14,23 @@ const command: CommandInterface = {
       const levelOption = interaction.options.getInteger("level", true);
 
       if (levelOption < 0)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "InvalidVolume",
           message: "Volume cannot be less than 0",
           type: "warning",
         });
 
-      // Get the music queue for the current guild
       const queue = useQueue(interaction.guildId!);
-      // If no queue exists, throw an error
       if (!queue)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoQueue",
           message: "There is no queue to set volume",
         });
 
-      // Set the volume of the queue's node
       queue.node.setVolume(levelOption);
-      // Store the new volume level in the music player session
-      const voiceStoreSession = new VoiceStoreSession(
-        interaction.guildId!
-      );
+      const voiceStoreSession = new VoiceStoreSession(interaction.guildId!);
       voiceStoreSession.setVolume(levelOption);
 
-      // Edit the deferred reply with an embed confirming the volume change
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
@@ -53,16 +44,17 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
-  alias: "v",
+  alias: ["v"],
   name: "volume",
   description: "Change volume of bot",
   deleted: false,
   devOnly: false,
+  disabled: false,
   options: [
     {
       name: "level",

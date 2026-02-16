@@ -5,14 +5,10 @@ import {
   MessageFlags,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
-  ButtonBuilder,
-  ButtonStyle,
 } from "discord.js";
-import { CustomError } from "../../../helpers/utils/CustomError";
-import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
-import { handleInteractionError } from "../../../helpers/utils/handleError";
-import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
+import checkOwnTempVoice from "../../../helpers/discord/validators/checkOwnTempVoice";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
+import { createPageNavigationMenu } from "../../../components/pageNavigationMenu";
 
 const select: SelectMenuInterface = {
   async execute(interaction, client) {
@@ -24,7 +20,7 @@ const select: SelectMenuInterface = {
 
       if (!checkOwnTempVoice(userVoiceChannel.id, interaction.user.id))
         // Check if the temporary voice channel belongs to the interacting user
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NotOwnTempVoiceError",
           message: "This temporary voice channel does not belong to you.",
         });
@@ -34,12 +30,12 @@ const select: SelectMenuInterface = {
         (member) =>
           member.id !== interaction.user.id &&
           !member.permissions.has("MoveMembers") &&
-          !member.permissions.has("DeafenMembers")
+          !member.permissions.has("DeafenMembers"),
       );
 
       if (!kickAbleMembers || kickAbleMembers.size === 0)
         // If no kickable members are found, throw an error
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoUserCanKick",
           message: "There are no users to kick in this channel.",
           type: "info",
@@ -55,7 +51,7 @@ const select: SelectMenuInterface = {
 
       // Chunk members by the desired amount per page
       kickAbleMembersPartition.push(
-        ..._.chunk(kickAbleMembersArray, AMOUNT_USER_IN_PAGE)
+        ..._.chunk(kickAbleMembersArray, AMOUNT_USER_IN_PAGE),
       );
 
       /**
@@ -69,7 +65,7 @@ const select: SelectMenuInterface = {
             new StringSelectMenuOptionBuilder()
               .setLabel(member.displayName)
               .setDescription(member.user.tag)
-              .setValue(member.id)
+              .setValue(member.id),
         );
 
         const userSelectMenuRow =
@@ -81,28 +77,15 @@ const select: SelectMenuInterface = {
               .addOptions(kickUserSelectMenuOption)
               .setMinValues(1)
               .setMaxValues(10)
-              .setMaxValues(kickUserSelectMenuOption.length)
+              .setMaxValues(kickUserSelectMenuOption.length),
           );
 
         // Create pagination buttons
-        const buttonsPageRow =
-          new ActionRowBuilder<ButtonBuilder>().addComponents(
-            new ButtonBuilder()
-              .setCustomId("temp-voice-kick-previous")
-              .setEmoji("1387296301867073576")
-              .setStyle(ButtonStyle.Primary)
-              .setDisabled(page === 0),
-            new ButtonBuilder()
-              .setCustomId("temp-voice-kick-current")
-              .setLabel(`${page + 1}/${maxPage}`)
-              .setStyle(ButtonStyle.Secondary)
-              .setDisabled(true),
-            new ButtonBuilder()
-              .setCustomId("temp-voice-kick-next")
-              .setEmoji("1387296195256254564")
-              .setStyle(ButtonStyle.Primary)
-              .setDisabled(page >= maxPage - 1)
-          );
+        const buttonsPageRow = createPageNavigationMenu(
+          page,
+          maxPage,
+          "temp-voice-kick",
+        );
 
         return {
           content: "> Select a user to kick from your temporary voice channel",
@@ -112,7 +95,7 @@ const select: SelectMenuInterface = {
 
       // Send the initial reply with the first page of kickable users
       const userKickMenuReply = await interaction.editReply(
-        createUserSelectReply(currentPage)
+        createUserSelectReply(currentPage),
       );
 
       // Create a message component collector for interactions with the menu and buttons
@@ -125,21 +108,27 @@ const select: SelectMenuInterface = {
       userKickMenuCollector.on("collect", async (userKickMenuInteraction) => {
         // Handle button interactions for pagination
         if (userKickMenuInteraction.isButton()) {
-          if (userKickMenuInteraction.customId === "temp-voice-kick-previous") {
+          if (
+            userKickMenuInteraction.customId === "temp-voice-kick-page-prev"
+          ) {
             currentPage--;
             await interaction.editReply(createUserSelectReply(currentPage));
             return userKickMenuInteraction.deferUpdate();
           }
 
-          if (userKickMenuInteraction.customId === "temp-voice-kick-next") {
+          if (
+            userKickMenuInteraction.customId === "temp-voice-kick-page-next"
+          ) {
             currentPage++;
             await userKickMenuInteraction.update(
-              createUserSelectReply(currentPage)
+              createUserSelectReply(currentPage),
             );
             return userKickMenuInteraction.deferUpdate();
           }
 
-          if (userKickMenuInteraction.customId === "temp-voice-kick-current")
+          if (
+            userKickMenuInteraction.customId === "temp-voice-kick-page-current"
+          )
             return userKickMenuInteraction.deferUpdate();
         }
 
@@ -153,9 +142,8 @@ const select: SelectMenuInterface = {
 
             // Iterate over selected user IDs and disconnect them from the voice channel
             for (const userId of userIds) {
-              const member = await userKickMenuInteraction.guild?.members.fetch(
-                userId
-              );
+              const member =
+                await userKickMenuInteraction.guild?.members.fetch(userId);
               if (member) {
                 await member.voice.disconnect();
                 kickedUsers.push(member);
@@ -166,21 +154,25 @@ const select: SelectMenuInterface = {
             await userKickMenuInteraction.editReply({
               content: null,
               embeds: [
-                CommonEmbedBuilder.success({
+                client.CommonEmbedBuilder.success({
                   title: "> Kicked Users",
                   description: `Kicked users: ${kickedUsers.join(", ")}`,
                 }),
               ],
             });
           } catch (error) {
-            handleInteractionError(userKickMenuInteraction, error, true);
+            client.interactionErrorHandler(
+              userKickMenuInteraction,
+              error,
+              true,
+            );
           }
         }
       });
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error, true);
+      client.interactionErrorHandler(interaction, error, true);
 
       return false;
     }

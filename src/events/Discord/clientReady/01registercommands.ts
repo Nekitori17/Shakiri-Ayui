@@ -6,10 +6,10 @@ import {
   Client,
   Collection,
 } from "discord.js";
-import { getLocal } from "../../../helpers/utils/getLocal";
-import areDifferent from "../../../helpers/utils/areDifferent";
-import { errorLogger } from "../../../helpers/utils/handleError";
-import getApplicationCommands from "../../../helpers/utils/getApplicationCommands";
+import { getLocal } from "../../../helpers/loaders/getLocal";
+import areDifferent from "../../../helpers/common/areDifferent";
+import { errorLogger } from "../../../helpers/errors/handleError";
+import getApplicationCommands from "../../../helpers/loaders/getApplicationCommands";
 import {
   CommandInterface,
   ContextInterface,
@@ -41,6 +41,8 @@ export default async (client: Client) => {
     const localCommands = getLocal<CommandInterface>(
       path.join(__dirname, "../../../commands")
     );
+
+    // Register or update ChatInput commands
     await registerChatInputCommands(
       client,
       applicationChatInputCommands,
@@ -55,6 +57,8 @@ export default async (client: Client) => {
     const localContexts = getLocal<ContextInterface>(
       path.join(__dirname, "../../../contexts")
     );
+
+    // Register or update Context Menu commands
     await registerContexts(
       client,
       applicationContextMenuCommands,
@@ -104,14 +108,15 @@ async function registerChatInputCommands(
     if (existingCommand) {
       localChatInputCommandExist.push(existingCommand);
 
+      // If the local command is marked as deleted, remove it from Discord
       if (localCommand.deleted) {
         await client.application?.commands.delete(existingCommand);
-
         console.log(`* 🗑 Deleted /${existingCommand.name} command`);
         registeringStat.deleted++;
         continue;
       }
 
+      // Compare existing command with local definition and edit if different
       if (areDifferent(existingCommand, localCommand)) {
         await client.application?.commands.edit(existingCommand.id, {
           description: description,
@@ -121,9 +126,11 @@ async function registerChatInputCommands(
         registeringStat.edited++;
         console.log(`* 🔁 Edited /${existingCommand.name} command`);
       } else {
+        // No change needed
         registeringStat.skippedNoChange++;
       }
     } else {
+      // If the command doesn't exist and is marked deleted, skip registration
       if (localCommand.deleted) {
         registeringStat.skipped++;
         console.log(
@@ -132,6 +139,7 @@ async function registerChatInputCommands(
         continue;
       }
 
+      // Create new command on Discord
       const newChatInputCommand = await client.application?.commands.create({
         name: name,
         description: description,
@@ -141,11 +149,13 @@ async function registerChatInputCommands(
 
       if (newChatInputCommand)
         localChatInputCommandExist.push(newChatInputCommand);
+
       registeringStat.registered++;
       console.log(`* ➕ Registered /${name} command`);
     }
   }
 
+  // Delete commands that exist on Discord but not in local commands
   const nonExistentCommands = applicationChatInputCommands.filter(
     (cmd) => !localChatInputCommandExist.includes(cmd)
   );
@@ -153,7 +163,6 @@ async function registerChatInputCommands(
   for (const command of nonExistentCommands.values()) {
     await client.application?.commands.delete(command);
     registeringStat.deleted++;
-
     console.log(`* 🗑 Deleted /${command.name} command`);
   }
 }
@@ -176,14 +185,16 @@ async function registerContexts(
 
     if (existingContext) {
       localContextExist.push(existingContext);
+
+      // If local context is marked deleted, remove it
       if (localContext.deleted) {
         await client.application?.commands.delete(existingContext);
-
         registeringStat.deleted++;
         console.log(`* 🗑 Deleted |${name}| context menu`);
         continue;
       }
 
+      // Compare existing context with local and update if necessary
       if (areDifferent(existingContext, localContext)) {
         await client.application?.commands.edit(existingContext.id, {
           name: name,
@@ -193,9 +204,11 @@ async function registerContexts(
         registeringStat.edited++;
         console.log(`* 🔁 Edited |${name}| context menu`);
       } else {
+        // No changes needed
         registeringStat.skippedNoChange++;
       }
     } else {
+      // Skip registration if context is marked deleted locally
       if (localContext.deleted) {
         registeringStat.skipped++;
         console.log(
@@ -204,6 +217,7 @@ async function registerContexts(
         continue;
       }
 
+      // Create new context menu command
       const newContext = await client.application?.commands.create({
         name: name,
         description: "",
@@ -216,6 +230,7 @@ async function registerContexts(
     }
   }
 
+  // Delete any context menu commands that are not present locally
   const nonExistentCommands = applicationContexts.filter(
     (cmd) => !localContextExist.includes(cmd)
   );
@@ -223,7 +238,6 @@ async function registerContexts(
   for (const command of nonExistentCommands.values()) {
     await client.application?.commands.delete(command);
     registeringStat.deleted++;
-
     console.log(`* 🗑 Deleted |${command.name}| context menu`);
   }
 }

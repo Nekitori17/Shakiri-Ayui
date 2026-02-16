@@ -1,9 +1,6 @@
 import path from "path";
 import { GuildMember, MessageFlags } from "discord.js";
 import jsonStore from "json-store-typed";
-import { CustomError } from "../../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../../helpers/utils/handleError";
-import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
 const select: SelectMenuInterface = {
@@ -25,7 +22,7 @@ const select: SelectMenuInterface = {
 
       // Check if the interacting user is already the owner
       if (interaction.user.id == ownerOfVoiceChannel)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "AlreadyOwner",
           message: "You are already the owner of this channel.",
           type: "info",
@@ -37,7 +34,7 @@ const select: SelectMenuInterface = {
           (member) => member.id === ownerOfVoiceChannel
         )
       )
-        throw new CustomError({
+        throw new client.CustomError({
           name: "OwnerInChannel",
           message: "The owner of this channel is still in the channel.",
           type: "warning",
@@ -47,7 +44,7 @@ const select: SelectMenuInterface = {
       temporaryChannels.set(userVoiceChannel?.id, interaction.user.id);
       interaction.editReply({
         embeds: [
-          CommonEmbedBuilder.success({
+          client.CommonEmbedBuilder.success({
             title: "> Claimed Temporary Channel",
             description: "You have claimed this temporary channel.",
           }),
@@ -56,7 +53,7 @@ const select: SelectMenuInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error, true);
+      client.interactionErrorHandler(interaction, error, true);
 
       return false;
     }

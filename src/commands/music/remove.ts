@@ -4,8 +4,6 @@ import {
   PermissionFlagsBits,
 } from "discord.js";
 import { useQueue } from "discord-player";
-import { CustomError } from "../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../helpers/utils/handleError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -14,27 +12,22 @@ const command: CommandInterface = {
       await interaction.deferReply();
       const indexOption = interaction.options.getInteger("index", true);
 
-      // Get the music queue for the current guild
       const queue = useQueue(interaction.guildId!);
-      // If no queue exists, throw an error
       if (!queue)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoQueue",
           message: "There is no queue to remove",
         });
 
-      // Validate the provided index
       if (indexOption < 0 || indexOption > queue.tracks.size)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "InvalidIndex",
           message: "Invalid index provided",
           type: "warning",
         });
 
-      // Remove the track at the specified index from the queue
       const track = queue.removeTrack(indexOption - 1);
 
-      // Edit the deferred reply with an embed confirming the track removal
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
@@ -48,13 +41,14 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
   name: "remove",
   description: "Remove the track in queue",
+  disabled: false,
   deleted: false,
   devOnly: false,
   options: [

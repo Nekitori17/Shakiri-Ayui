@@ -1,6 +1,4 @@
 import { ApplicationCommandType, MessageFlags } from "discord.js";
-import { CustomError } from "../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../helpers/utils/handleError";
 import UserSettings from "../../models/UserSettings";
 import { ContextInterface } from "../../types/InteractionInterfaces";
 
@@ -9,10 +7,8 @@ const context: ContextInterface<ApplicationCommandType.Message> = {
     try {
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-      // Get the target message from the interaction.
       const targetMessage = interaction.targetMessage;
 
-      // Find the user's settings in the database.
       const userSetting = await UserSettings.findOneAndUpdate(
         {
           userId: interaction.user.id,
@@ -24,11 +20,10 @@ const context: ContextInterface<ApplicationCommandType.Message> = {
         },
         {
           upsert: true,
-          new: true,
-        }
+          returnDocument: "after",
+        },
       );
 
-      // Make a POST request to the translation API endpoint using built-in fetch.
       const messageTranslated = await fetch(
         `${process.env.CUSTOM_URL_API_BASE}/endpoint?q=google-translate`,
         {
@@ -40,10 +35,10 @@ const context: ContextInterface<ApplicationCommandType.Message> = {
             input: targetMessage.content,
             lang: userSetting?.messageTranslateLang || "en",
           }),
-        }
+        },
       ).then((res) => {
         if (!res.ok)
-          throw new CustomError({
+          throw new client.CustomError({
             name: "Fetch Error",
             message: `Fetch error: ${res.status} ${res.statusText}`,
           });
@@ -51,12 +46,11 @@ const context: ContextInterface<ApplicationCommandType.Message> = {
         return res.json();
       });
 
-      // Edit the deferred reply with the translated message.
       interaction.editReply(messageTranslated.result);
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
@@ -67,6 +61,7 @@ const context: ContextInterface<ApplicationCommandType.Message> = {
   devOnly: false,
   useInDm: true,
   requiredVoiceChannel: false,
+  disabled: false,
 };
 
 export default context;

@@ -1,13 +1,14 @@
 import mongoose from "mongoose";
-import { Client, IntentsBitField } from "discord.js";
+import { IntentsBitField } from "discord.js";
+import ExtendedClient from "./classes/ExtendedClient";
 import { Player } from "discord-player";
 import { preload } from "./preloaded";
 import musicEventHandler from "./handlers/musicEventHandler";
 import discordEventHandler from "./handlers/discordEventHandler";
 import registerMusicExtractor from "./handlers/registerMusicExtractor";
-import { errorLogger } from "./helpers/utils/handleError";
+import { errorLogger } from "./helpers/errors/handleError";
 
-const client = new Client({
+const client = new ExtendedClient({
   intents: [
     IntentsBitField.Flags.Guilds,
     IntentsBitField.Flags.GuildExpressions,
@@ -28,7 +29,7 @@ const client = new Client({
 
 const player = new Player(client);
 
-async function run(client: Client) {
+async function run(client: ExtendedClient) {
   try {
     console.log("⭐============Shakiri Ayui============⭐");
 

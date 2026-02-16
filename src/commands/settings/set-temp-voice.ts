@@ -1,12 +1,8 @@
-import config from "../../config";
 import {
   ApplicationCommandOptionType,
   ChannelType,
   PermissionFlagsBits,
 } from "discord.js";
-import { CustomError } from "../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../helpers/utils/handleError";
-import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -17,9 +13,8 @@ const command: CommandInterface = {
       const channelSetOption = interaction.options.getChannel("channel");
       const categorySetOption = interaction.options.getChannel("category");
 
-      // Validate channel and category types if provided
       if (channelSetOption && channelSetOption?.type != ChannelType.GuildVoice)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "InvalidChannelType",
           message: "Channel must be a voice channel!",
         });
@@ -28,15 +23,13 @@ const command: CommandInterface = {
         categorySetOption &&
         categorySetOption?.type != ChannelType.GuildCategory
       )
-        throw new CustomError({
+        throw new client.CustomError({
           name: "InvalidChannelType",
           message: "Category must be a category channel!",
         });
 
-      // Fetch the current guild settings from the configuration
-      const guildSetting = await config.modules(interaction.guildId!);
+      const guildSetting = await client.getGuildSetting(interaction.guildId!);
 
-      // Update the temporary voice channel settings
       guildSetting.temporaryVoiceChannel = {
         enabled: enabledOption,
         channelSet:
@@ -48,13 +41,11 @@ const command: CommandInterface = {
           guildSetting.temporaryVoiceChannel.categorySet,
       };
 
-      // Save the updated settings to the database
       await guildSetting.save();
 
-      // Send a success message to the user
       interaction.editReply({
         embeds: [
-          CommonEmbedBuilder.success({
+          client.CommonEmbedBuilder.success({
             title: `Updated **Temporary Voice Channel** settings`,
             description: `**Enabled**: \`${
               guildSetting.temporaryVoiceChannel.enabled
@@ -73,13 +64,14 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
   name: "set-temp-voice",
   description: "Set temporary voice channel",
+  disabled: false,
   deleted: false,
   devOnly: false,
   options: [

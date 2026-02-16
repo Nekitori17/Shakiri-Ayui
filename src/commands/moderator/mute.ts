@@ -1,15 +1,12 @@
 import ms from "ms";
-import config from "../../config";
 import prettyMs from "pretty-ms";
 import {
   ApplicationCommandOptionType,
   EmbedBuilder,
   PermissionFlagsBits,
 } from "discord.js";
-import { CustomError } from "../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../helpers/utils/handleError";
-import { checkUserRolePosition } from "../../validator/checkRolePosition";
-import { ModerationEmbedBuilder } from "../../helpers/embeds/moderationEmbedBuilder";
+import { checkUserRolePosition } from "../../helpers/discord/validators/checkRolePosition";
+import { ModerationEmbedBuilder } from "../../helpers/discord/embeds/moderationEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -20,59 +17,49 @@ const command: CommandInterface = {
       const durationOption = interaction.options.getString("duration") || "1h";
       const reasonOption = interaction.options.getString("reason");
 
-      // Fetch the target user as a guild member
-      const targetUser = await interaction.guild?.members.fetch(
-        targetUserOption
-      );
+      const targetUser =
+        await interaction.guild?.members.fetch(targetUserOption);
 
-      // Check if the target user exists in the server
       if (!targetUser)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "UserNotFound",
           message: "That user does not exist in this server",
           type: "warning",
         });
 
-      // Check if the target is the server owner
       if (targetUser.id === interaction.guild?.ownerId)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "Can'tMuteOwner",
           message: "Why you would want to mute the owner of this server 🤨",
           type: "warning",
         });
 
-      // Check if the target is the bot itself
       if (targetUser.id === interaction.guild?.members.me?.id)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "Can'tMuteMe",
           message: "Why you would want to mute me 😭",
           type: "warning",
         });
 
-      // Get role positions for hierarchy check
       await checkUserRolePosition(
         interaction.member!,
         interaction.guild!.members.me!,
-        targetUser
+        targetUser,
       );
 
-      // Parse and validate the duration string
       const msDuration = ms(durationOption as ms.StringValue);
       if (!msDuration)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "InvalidDuration",
           message: "Please provide a valid duration",
         });
 
       const strDuration = prettyMs(msDuration);
 
-      // Check if the user is already muted (for logging purposes)
       const userIsMuted = targetUser.isCommunicationDisabled();
 
-      // Apply the timeout (mute) to the user
       await targetUser.timeout(msDuration, reasonOption || undefined);
 
-      // Send a confirmation message
       await interaction.editReply({
         embeds: [
           new EmbedBuilder()
@@ -81,30 +68,27 @@ const command: CommandInterface = {
               name: `|🤫| ${targetUser.user.displayName} has been muted about ${strDuration}`,
             })
             .setDescription(
-              `**Reason**: ${reasonOption || "No reason provided"}`
+              `**Reason**: ${reasonOption || "No reason provided"}`,
             )
             .setColor("Yellow"),
         ],
       });
 
       // Logging section
-      const guildSetting = await config.modules(interaction.guildId!);
-      if (guildSetting.moderator.logging) {
+      const guildSetting = await client.getGuildSetting(interaction.guildId!);
+      if (guildSetting.moderator.loggingEnabled) {
         if (!guildSetting.moderator.loggingChannel) return;
 
-        // Fetch the logging channel
         const logChannel = interaction.guild?.channels.cache.get(
-          guildSetting.moderator.loggingChannel
+          guildSetting.moderator.loggingChannel,
         );
 
-        // Check if the logging channel exists
         if (!logChannel)
-          throw new CustomError({
+          throw new client.CustomError({
             name: "ChannelNotFound",
             message: "The logging channel was not found",
           });
 
-        // Send log message to the designated channel if sendable
         if (!logChannel.isSendable()) return;
         await logChannel.send({
           embeds: [
@@ -121,13 +105,14 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
   name: "mute",
   description: "Mute a user",
+  disabled: false,
   deleted: false,
   devOnly: false,
   options: [

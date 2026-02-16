@@ -17,25 +17,19 @@ import WordleGame, {
   WordleGameException,
   WordleGameStatus,
 } from "../../classes/Wordle";
-import { handleInteractionError } from "../../helpers/utils/handleError";
-import MiniGameUserData from "../../models/MiniGameUserData";
+import UserMiniGameData from "../../models/UserMiniGameData";
+import UserWordleGameData from "../../models/miniGames/WordleGame";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 // Defines the accent color for the embed based on the game status.
 const accentColorStatus: {
   [K in WordleGameStatus]: RGBTuple;
 } = {
-  playing: [255, 191, 0], // Amber for playing
-  won: [0, 255, 195], // Green for won
-  lost: [255, 0, 0], // Red for lost
+  playing: [255, 191, 0], // Amber
+  won: [0, 255, 195], // Green
+  lost: [255, 0, 0], // Red
 };
 
-/**
- * Calculates the reward for winning the Wordle game.
- * The reward decreases with each additional guess.
- * @param guessCount The number of guesses it took to win.
- * @returns The calculated reward amount.
- */
 function calculateReward(guessCount: number) {
   const baseReward = 500;
   const penaltyPerGuess = 80;
@@ -52,8 +46,7 @@ const command: CommandInterface = {
 
       let wordleGame: WordleGame;
 
-      // Find the user's mini-game data
-      const miniGameUserData = await MiniGameUserData.findOneAndUpdate(
+      const userWordleGameData = await UserWordleGameData.findOneAndUpdate(
         {
           userId: interaction.user.id,
         },
@@ -64,40 +57,48 @@ const command: CommandInterface = {
         },
         {
           upsert: true,
-          new: true,
-        }
+          returnDocument: "after",
+        },
+      );
+      const userMiniGameData = await UserMiniGameData.findOneAndUpdate(
+        {
+          userId: interaction.user.id,
+        },
+        {
+          $setOnInsert: {
+            userId: interaction.user.id,
+          },
+        },
+        {
+          upsert: true,
+          returnDocument: "after",
+        },
       );
 
-      // Check if the user has an ongoing Wordle game.
-      if (miniGameUserData.wordleGame) {
-        // If a game exists, load its state from the database.
+      if (userWordleGameData.status === "playing") {
         wordleGame = new WordleGame();
-        wordleGame.date = miniGameUserData.wordleGame.date as Date;
-        wordleGame.word = miniGameUserData.wordleGame.word!;
-        wordleGame.status = miniGameUserData.wordleGame.status;
-        wordleGame.guessed = miniGameUserData.wordleGame.guessedWords;
-        wordleGame.board = miniGameUserData.wordleGame.board as any;
-        wordleGame.wrongChars = miniGameUserData.wordleGame.wrongChars;
+        wordleGame.date = userWordleGameData.date as Date;
+        wordleGame.word = userWordleGameData.word!;
+        wordleGame.status = userWordleGameData.status;
+        wordleGame.guessed = userWordleGameData.guessedWords;
+        wordleGame.board = userWordleGameData.board as any;
+        wordleGame.wrongChars = userWordleGameData.wrongChars;
       } else {
-        // If no game exists, create a new Wordle game instance.
         wordleGame = new WordleGame();
-        miniGameUserData.wordleGame = {
-          date: wordleGame.date,
-          word: wordleGame.getWord(),
-          status: wordleGame.status,
-          board: wordleGame.getBoard() as any,
-          wrongChars: wordleGame.getWrongChars(),
-          guessedWords: wordleGame.getGuesses(),
-        };
-        await miniGameUserData.save();
+        userWordleGameData.date = wordleGame.date;
+        userWordleGameData.word = wordleGame.getWord();
+        userWordleGameData.status = wordleGame.status;
+        userWordleGameData.board = wordleGame.getBoard() as any;
+        userWordleGameData.wrongChars = wordleGame.getWrongChars();
+        userWordleGameData.guessedWords = wordleGame.getGuesses();
+        await userWordleGameData.save();
       }
 
       function generateWordleBoardDisplay(game: WordleGame) {
         const separatorComponent = new SeparatorBuilder();
 
-        // Header components
         const gameTitleComponent = new TextDisplayBuilder().setContent(
-          "## Wordle"
+          "## Wordle",
         );
         const dateComponent = new TextDisplayBuilder().setContent(
           `<:colorcalendar:1387276860735492237> **Date: ${game.date.toLocaleDateString(
@@ -106,31 +107,29 @@ const command: CommandInterface = {
               year: "numeric",
               month: "long",
               day: "numeric",
-            }
-          )}**`
+            },
+          )}**`,
         );
         const statusComponent = new TextDisplayBuilder().setContent(
           `<:colorok:1387277169817817209> **Status:** ${_.capitalize(
-            game.status
-          )}`
+            game.status,
+          )}`,
         );
 
         const wordleLogoComponent = new ThumbnailBuilder()
           .setURL("https://files.catbox.moe/vtppxo.png")
           .setDescription("Wordle Logo");
 
-        // Assemble header section
         const headerSection = new SectionBuilder()
           .addTextDisplayComponents(
             gameTitleComponent,
             dateComponent,
-            statusComponent
+            statusComponent,
           )
           .setThumbnailAccessory(wordleLogoComponent);
 
-        // Guessed words section
         const guessedLabelComponent = new TextDisplayBuilder().setContent(
-          "<:colorrubikscube:1387280984592089179> **Guessed Words:** "
+          "<:colorrubikscube:1387280984592089179> **Guessed Words:** ",
         );
 
         const guesses = game.getGuesses();
@@ -149,20 +148,19 @@ const command: CommandInterface = {
           guessedWordComponents.push(
             new SectionBuilder()
               .addTextDisplayComponents(
-                new TextDisplayBuilder().setContent(displayWord)
+                new TextDisplayBuilder().setContent(displayWord),
               )
               .setButtonAccessory(
                 new ButtonBuilder()
                   .setLabel(displayBoard || "⬛⬛⬛⬛⬛")
                   .setStyle(ButtonStyle.Secondary)
-                  .setCustomId(`wordle-word-checkbox-${i}`)
-              )
+                  .setCustomId(`wordle-word-checkbox-${i}`),
+              ),
           );
         }
 
-        // Wrong letters section
         const wrongCharsLabelComponent = new TextDisplayBuilder().setContent(
-          "❌ **Wrong Letters:** "
+          "❌ **Wrong Letters:** ",
         );
 
         const wrongChars = game.getWrongChars();
@@ -172,24 +170,22 @@ const command: CommandInterface = {
             : "None";
 
         const wrongCharsComponent = new TextDisplayBuilder().setContent(
-          wrongCharsDisplay
+          wrongCharsDisplay,
         );
 
-        // Reward information section
         let rewardComponent = null;
         if (game.status === "playing") {
           const potentialReward = calculateReward(game.getGuesses().length + 1);
           rewardComponent = new TextDisplayBuilder().setContent(
-            `<:colorprize:1387281192096759828>**Potential Reward:** ${potentialReward} <:nyen:1373967798790783016> (Next guess)`
+            `<:colorprize:1387281192096759828>**Potential Reward:** ${potentialReward} <:nyen:1373967798790783016> (Next guess)`,
           );
         } else if (game.status === "won") {
           const earnedReward = calculateReward(game.getGuesses().length);
           rewardComponent = new TextDisplayBuilder().setContent(
-            `🎉 **Earned Reward:** ${earnedReward} <:nyen:1373967798790783016>`
+            `🎉 **Earned Reward:** ${earnedReward} <:nyen:1373967798790783016>`,
           );
         }
 
-        // Action buttons
         const guessButton = new ButtonBuilder()
           .setCustomId("wordle-guess-button")
           .setEmoji("1387281520594653204")
@@ -206,10 +202,9 @@ const command: CommandInterface = {
         const actionButtonRow =
           new ActionRowBuilder<ButtonBuilder>().addComponents(
             guessButton,
-            showAnswerButton
+            showAnswerButton,
           );
 
-        // Assemble the final container
         const container = new ContainerBuilder()
           .addSectionComponents(headerSection)
           .addSeparatorComponents(separatorComponent)
@@ -232,13 +227,11 @@ const command: CommandInterface = {
         return container;
       }
 
-      // Send the initial game board to the user.
       const wordleGameReply = await interaction.editReply({
         flags: MessageFlags.IsComponentsV2,
         components: [generateWordleBoardDisplay(wordleGame)],
       });
 
-      // Create a collector to listen for button clicks on the game message.
       const wordleGameCollector =
         wordleGameReply.createMessageComponentCollector({
           componentType: ComponentType.Button,
@@ -252,13 +245,12 @@ const command: CommandInterface = {
           // Ignore clicks on the decorative board buttons
           if (
             wordleActionButtonInteraction.customId.startsWith(
-              "wordle-word-checkbox-"
+              "wordle-word-checkbox-",
             )
           )
             wordleActionButtonInteraction.deferUpdate();
 
           try {
-            // Guess Button Logic
             if (
               wordleActionButtonInteraction.customId == "wordle-guess-button"
             ) {
@@ -272,7 +264,7 @@ const command: CommandInterface = {
 
               const cancelButtonRow =
                 new ActionRowBuilder<ButtonBuilder>().addComponents(
-                  cancelGuessButton
+                  cancelGuessButton,
                 );
 
               const guessMessageReply =
@@ -282,7 +274,6 @@ const command: CommandInterface = {
                   components: [cancelButtonRow],
                 });
 
-              // Set up a listener for the user's next message in the channel.
               let messageListenerActive = true;
               async function guessMessageListener(message: Message) {
                 if (!messageListenerActive) return;
@@ -294,52 +285,42 @@ const command: CommandInterface = {
                   return;
 
                 try {
-                  // Deactivate listener to prevent multiple triggers
                   messageListenerActive = false;
                   client.off("messageCreate", guessMessageListener);
 
-                  // Clean up messages
                   if (message.deletable) await message.delete();
                   try {
                     await guessMessageReply.delete();
                   } catch {}
 
-                  // Process the guess
                   const guess = message.content;
                   const previousStatus = wordleGame.status;
                   wordleGame.guess(guess);
 
-                  // Check if the game has ended (won or lost)
                   const gameEnded =
                     previousStatus === "playing" &&
                     wordleGame.status !== "playing";
                   let reward = 0;
 
-                  // If the game was won, calculate and grant the reward.
                   if (gameEnded) {
                     if (wordleGame.status === "won") {
                       reward = calculateReward(wordleGame.getGuesses().length);
-                      miniGameUserData.balance += reward;
+                      userMiniGameData.balance += reward;
                     }
                   }
 
-                  // Update the game state in the database
-                  miniGameUserData.wordleGame = {
-                    date: wordleGame.date,
-                    word: wordleGame.getWord(),
-                    status: wordleGame.status,
-                    board: wordleGame.getBoard() as any,
-                    wrongChars: wordleGame.getWrongChars(),
-                    guessedWords: wordleGame.getGuesses(),
-                  };
-                  await miniGameUserData.save();
+                  userWordleGameData.date = wordleGame.date;
+                  userWordleGameData.word = wordleGame.getWord();
+                  userWordleGameData.status = wordleGame.status;
+                  userWordleGameData.board = wordleGame.getBoard() as any;
+                  userWordleGameData.wrongChars = wordleGame.getWrongChars();
+                  userWordleGameData.guessedWords = wordleGame.getGuesses();
+                  await userWordleGameData.save();
 
-                  // Update the main game board display
                   await wordleGameReply.edit({
                     components: [generateWordleBoardDisplay(wordleGame)],
                   });
 
-                  // Send a follow-up message if the user won
                   if (gameEnded && wordleGame.status === "won") {
                     await wordleActionButtonInteraction.followUp({
                       content: `🎉 Congratulations! You earned **${reward} nyen** for solving it in ${
@@ -349,16 +330,15 @@ const command: CommandInterface = {
                     });
                   }
                 } catch (error) {
-                  // Handle specific Wordle game errors (e.g., invalid word)
                   if (error instanceof WordleGameException) {
                     await wordleActionButtonInteraction.followUp({
                       content: error.message,
                       flags: MessageFlags.Ephemeral,
                     });
                   } else {
-                    handleInteractionError(
+                    client.interactionErrorHandler(
                       wordleActionButtonInteraction,
-                      error
+                      error,
                     );
                   }
                 }
@@ -366,7 +346,6 @@ const command: CommandInterface = {
 
               client.on("messageCreate", guessMessageListener);
 
-              // Set up a collector for the "Cancel" button on the guess prompt.
               const guessMessageCollector =
                 guessMessageReply.createMessageComponentCollector({
                   componentType: ComponentType.Button,
@@ -381,7 +360,6 @@ const command: CommandInterface = {
                   if (
                     cancelButtonInteraction.customId == "wordle-cancel-button"
                   ) {
-                    // Deactivate the message listener and remove the prompt.
                     messageListenerActive = false;
                     client.off("messageCreate", guessMessageListener);
                     try {
@@ -389,10 +367,9 @@ const command: CommandInterface = {
                     } catch {}
                     cancelButtonInteraction.deferUpdate();
                   }
-                }
+                },
               );
 
-              // Timeout to automatically clean up the guess prompt and listener.
               setTimeout(async () => {
                 if (!messageListenerActive) return; // Already handled
                 messageListenerActive = false;
@@ -403,34 +380,37 @@ const command: CommandInterface = {
               }, 10000);
             }
 
-            // Show Answer Button Logic
             if (
               wordleActionButtonInteraction.customId ==
               "wordle-show-answer-button"
             ) {
               await wordleActionButtonInteraction.user.send(
-                `🥁 The answer today is ||**${wordleGame.getWord()}**||`
+                `🥁 The answer today is ||**${wordleGame.getWord()}**||`,
               );
               wordleActionButtonInteraction.deferUpdate();
             }
           } catch (error) {
-            handleInteractionError(wordleActionButtonInteraction, error);
+            client.interactionErrorHandler(
+              wordleActionButtonInteraction,
+              error,
+            );
           }
-        }
+        },
       );
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
-  alias: "wl",
+  alias: ["wl"],
   name: "wordle",
   description: "Get 6 chances to guess a 5-letter word.",
   deleted: false,
   devOnly: false,
+  disabled: false,
   useInDm: true,
   requiredVoiceChannel: false,
 };

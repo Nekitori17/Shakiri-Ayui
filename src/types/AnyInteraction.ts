@@ -1,12 +1,24 @@
 import {
   AnySelectMenuInteraction,
+  AutocompleteInteraction,
   ButtonInteraction,
+  ChannelSelectMenuInteraction,
   ChatInputCommandInteraction,
+  CollectedInteraction,
+  CollectedMessageInteraction,
   CommandInteraction,
   ContextMenuCommandInteraction,
+  Interaction,
+  MentionableSelectMenuInteraction,
+  MessageComponentInteraction,
   MessageContextMenuCommandInteraction,
   ModalSubmitInteraction,
+  PrimaryEntryPointCommandInteraction,
+  RepliableInteraction,
+  RoleSelectMenuInteraction,
+  StringSelectMenuInteraction,
   UserContextMenuCommandInteraction,
+  UserSelectMenuInteraction,
 } from "discord.js";
 
 /**
@@ -16,10 +28,22 @@ import {
  */
 export type AnyInteraction =
   | AnySelectMenuInteraction
+  | AutocompleteInteraction
   | ButtonInteraction
+  | ChannelSelectMenuInteraction
   | ChatInputCommandInteraction
+  | CollectedInteraction
+  | CollectedMessageInteraction
   | CommandInteraction
   | ContextMenuCommandInteraction
+  | Interaction
+  | MentionableSelectMenuInteraction
+  | MessageComponentInteraction
   | MessageContextMenuCommandInteraction
   | ModalSubmitInteraction
-  | UserContextMenuCommandInteraction;
+  | PrimaryEntryPointCommandInteraction
+  | RepliableInteraction
+  | RoleSelectMenuInteraction
+  | StringSelectMenuInteraction
+  | UserContextMenuCommandInteraction
+  | UserSelectMenuInteraction;

@@ -21,7 +21,7 @@ import {
  */
 function areChoicesDifferent(
   existingChoices: readonly ApplicationCommandOptionChoiceData[] | undefined,
-  localChoices: CommandOptionChoiceInterface[]
+  localChoices: CommandOptionChoiceInterface[],
 ) {
   // Check if the lengths of the choice arrays are different
   if ((existingChoices?.length || 0) !== localChoices.length) return true;
@@ -29,7 +29,7 @@ function areChoicesDifferent(
   // Iterate through each local choice and attempt to find a matching existing choice by name
   for (const localChoice of localChoices) {
     const existingChoice = existingChoices?.find(
-      (choice) => choice.name === localChoice.name
+      (choice) => choice.name === localChoice.name,
     );
 
     // If a matching existing choice is not found, or the values differ, the choices are considered different
@@ -48,7 +48,7 @@ function areChoicesDifferent(
  */
 const areOptionsDifferent = (
   existingOptions: ApplicationCommandOption[],
-  localOptions: CommandOptionInterface[]
+  localOptions: CommandOptionInterface[],
 ): boolean => {
   // If the lengths of the options arrays are different, they are considered different
   if (existingOptions.length !== localOptions.length) return true;
@@ -57,7 +57,7 @@ const areOptionsDifferent = (
   for (const localOption of localOptions) {
     // Find the existing option that matches the local option by name
     const existingOption = existingOptions?.find(
-      (option) => option.name === localOption.name
+      (option) => option.name === localOption.name,
     );
 
     // If no matching existing option is found, the options are considered different
@@ -99,7 +99,7 @@ const areOptionsDifferent = (
       if (!existingOption.autocomplete)
         return areChoicesDifferent(
           existingOption.choices,
-          localOption.choices || []
+          localOption.choices || [],
         );
     }
   }
@@ -117,7 +117,7 @@ const areOptionsDifferent = (
  */
 export default (
   existingCommand: ApplicationCommand,
-  localCommand: CommandInterface | ContextInterface
+  localCommand: CommandInterface | ContextInterface,
 ) => {
   // If the existing command is a chat input command, compare its properties with the local chat input command
   if (existingCommand.type === ApplicationCommandType.ChatInput) {
@@ -126,7 +126,7 @@ export default (
       existingCommand.description !== chatInputCommand.description ||
       areOptionsDifferent(
         existingCommand.options,
-        chatInputCommand.options || []
+        chatInputCommand.options || [],
       )
     );
   }

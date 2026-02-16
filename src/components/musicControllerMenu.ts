@@ -2,8 +2,8 @@
  * This file contains the music controller menu components.
  */
 
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
 import _ from "lodash";
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
 
 const basicMusicControllerButtons = [
   new ButtonBuilder()

@@ -4,9 +4,7 @@ import {
   PermissionFlagsBits,
 } from "discord.js";
 import { useQueue, QueueRepeatMode } from "discord-player";
-import { CustomError } from "../../helpers/utils/CustomError";
 import { VoiceStoreSession } from "../../classes/VoiceStoreSession";
-import { handleInteractionError } from "../../helpers/utils/handleError";
 import { repeatModeNames } from "../../constants/musicRepeatModes";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
@@ -15,30 +13,22 @@ const command: CommandInterface = {
     try {
       await interaction.deferReply();
 
-      // Get the repeat mode option from the interaction
       const repeatModeOption = interaction.options.getInteger(
         "mode",
-        true
+        true,
       ) as QueueRepeatMode;
-      // Get the human-readable name for the repeat mode
       const repeatModeName =
         repeatModeNames[repeatModeOption as keyof typeof repeatModeNames];
 
-      // Get the music queue for the current guild
       const queue = useQueue(interaction.guildId!);
-      // If no queue exists, throw an error
       if (!queue)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoQueue",
           message: "There is no queue to loop",
         });
 
-      // Set the repeat mode for the queue
       queue.setRepeatMode(repeatModeOption);
-      // Update the loop mode in the music player session
-      const voiceStoreSession = new VoiceStoreSession(
-        interaction.guildId!
-      );
+      const voiceStoreSession = new VoiceStoreSession(interaction.guildId!);
       voiceStoreSession.setRepeatMode(repeatModeOption);
       interaction.editReply({
         embeds: [
@@ -53,13 +43,14 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
   name: "loop",
   description: "Set the loop mode",
+  disabled: false,
   deleted: false,
   devOnly: false,
   options: [

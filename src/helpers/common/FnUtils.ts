@@ -32,7 +32,6 @@ export namespace FnUtils {
     const parts = input.split(":").map(Number);
 
     if (parts.some(isNaN)) return null;
-    // Convert time parts to milliseconds
 
     if (parts.length === 1) {
       return parts[0] * 1000;
@@ -56,10 +55,6 @@ export namespace FnUtils {
    *
    * @param seed The initial seed for the random number generator.
    * @returns A function that, when called, returns a pseudo-random number between 0 (inclusive) and 1 (exclusive).
-   * @example
-   * const seededRandom = randomSeed(123);
-   * console.log(seededRandom()); // Will always output the same sequence for seed 123
-   * console.log(seededRandom());
    */
   export function randomSeed(seed: number) {
     return function () {
@@ -68,5 +63,12 @@ export namespace FnUtils {
       t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
       return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
+  }
+
+  export function generateUniqueTimestamp() {
+    const now = Date.now();
+    const hrTime = (process.hrtime.bigint() / 1_000_000n).toString();
+    
+    return `${now}_${hrTime}`;
   }
 }

@@ -1,7 +1,7 @@
-import getAllFiles from "./getAllFiles";
+import _ from "lodash";
 import fs from "fs";
 import path from "path";
-import _ from "lodash";
+import getAllFiles from "./getAllFiles";
 
 /**
  * Dynamically imports and returns all default exports from files
@@ -14,14 +14,11 @@ import _ from "lodash";
  * @returns An array of imported default exports as type T.
  */
 export function getLocal<T>(folderPath: string, exception: string[] = []) {
-  // Retrieve all subdirectories (categories) from the root folder
   const categories = getAllFiles(folderPath, true);
 
-  // For each category folder, get all files,
-  // then require and cast each module's default export to type T
   const local = _(categories)
     .flatMap((category) => getAllFiles(category)) // flatten all files from all categories into one array
-    .map((file) => require(file).default as T)    // import the module using require
+    .map((file) => require(file).default as T)
     .value();
 
   return local;
@@ -42,13 +39,10 @@ export function getLocalById<T>(
   category: string,
   actionId: string
 ) {
-  // Construct full path to the category folder
   const categoryPath = path.join(filePath, _.camelCase(category));
 
-  // Return undefined if the category folder doesn't exist
   if (!fs.existsSync(categoryPath)) return;
 
-  // Read the list of files inside the category folder
   const actionList = fs.readdirSync(categoryPath);
 
   // Find a file whose name (without extension) matches the camelCase actionId
@@ -58,9 +52,7 @@ export function getLocalById<T>(
     );
   });
 
-  // Return undefined if no matching file found
   if (!found) return;
 
-  // Import and return the module's default export with proper typing
   return require(path.join(categoryPath, _.camelCase(actionId))).default as T;
 }

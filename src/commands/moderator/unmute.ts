@@ -1,13 +1,10 @@
-import config from "../../config";
 import {
   ApplicationCommandOptionType,
   EmbedBuilder,
   PermissionFlagsBits,
 } from "discord.js";
-import { CustomError } from "../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../helpers/utils/handleError";
-import { checkUserRolePosition } from "../../validator/checkRolePosition";
-import { ModerationEmbedBuilder } from "../../helpers/embeds/moderationEmbedBuilder";
+import { checkUserRolePosition } from "../../helpers/discord/validators/checkRolePosition";
+import { ModerationEmbedBuilder } from "../../helpers/discord/embeds/moderationEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -17,50 +14,42 @@ const command: CommandInterface = {
       const targetUserOption = interaction.options.getUser("target", true);
       const reasonOption = interaction.options.getString("reason");
 
-      // Fetch the target user as a guild member
-      const targetUser = await interaction.guild?.members.fetch(
-        targetUserOption
-      );
+      const targetUser =
+        await interaction.guild?.members.fetch(targetUserOption);
 
-      // Check if the target user exists in the server
       if (!targetUser)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "UserNotFound",
           message: "That user does not exist in this server",
         });
 
-      // Check if the target is the server owner
       if (targetUser.id === interaction.guild?.ownerId)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "OwnerIsMuted?",
           message: "Nahhh. I don't think owner can be muted",
           type: "warning",
         });
 
-      // Check if the target is the bot itself
       if (targetUser.id === interaction.guild?.members.me?.id)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "OhhhMyGod...",
           message: "I even can't do that",
           type: "warning",
         });
 
-      // Get role positions for hierarchy check
       await checkUserRolePosition(
         interaction.member!,
         interaction.guild!.members.me!,
-        targetUser
+        targetUser,
       );
 
-      // Check if the target user is not muted
       if (!targetUser?.isCommunicationDisabled())
-        throw new CustomError({
+        throw new client.CustomError({
           name: "UserIsNotMuted",
           message: "This user is not muted",
           type: "warning",
         });
 
-      // Remove the timeout (unmute) from the user
       await targetUser.timeout(null, reasonOption || undefined);
 
       await interaction.editReply({
@@ -71,30 +60,27 @@ const command: CommandInterface = {
               name: `|🥶| ${targetUser.user.displayName} has been unmuted`,
             })
             .setDescription(
-              `**Reason**: ${reasonOption || "No reason provided"}`
+              `**Reason**: ${reasonOption || "No reason provided"}`,
             )
             .setColor("Green"),
         ],
       });
 
       // Logging section
-      const settings = await config.modules(interaction.guildId!);
-      if (settings.moderator.logging) {
+      const settings = await client.getGuildSetting(interaction.guildId!);
+      if (settings.moderator.loggingEnabled) {
         if (!settings.moderator.loggingChannel) return;
 
-        // Fetch the logging channel
         const logChannel = interaction.guild?.channels.cache.get(
-          settings.moderator.loggingChannel
+          settings.moderator.loggingChannel,
         );
 
-        // Check if the logging channel exists
         if (!logChannel)
-          throw new CustomError({
+          throw new client.CustomError({
             name: "ChannelNotFound",
             message: "The logging channel was not found",
           });
 
-        // Send log message to the designated channel if sendable
         if (!logChannel.isSendable()) return;
         await logChannel.send({
           embeds: [
@@ -110,13 +96,14 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
   name: "unmute",
   description: "Unmute a user",
+  disabled: false,
   deleted: false,
   devOnly: false,
   options: [

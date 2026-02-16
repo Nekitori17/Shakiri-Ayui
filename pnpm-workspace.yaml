@@ -1,0 +1,5 @@
+onlyBuiltDependencies:
+  - esbuild
+  - ffmpeg-static
+  - sharp
+  - youtube-dl-exec

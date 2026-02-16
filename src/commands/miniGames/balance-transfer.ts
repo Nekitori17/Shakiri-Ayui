@@ -1,8 +1,5 @@
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
-import { CustomError } from "../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../helpers/utils/handleError";
-import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
-import MiniGameUserData from "../../models/MiniGameUserData";
+import MiniGameUserData from "../../models/UserMiniGameData";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -13,31 +10,27 @@ const command: CommandInterface = {
       const receiverUserOption = interaction.options.getUser("receiver", true);
       const amountOption = interaction.options.getInteger("amount", true);
 
-      // Check if the user is a bot
       if (senderUserOption.bot || receiverUserOption.bot)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "BotUser",
           message: "Bro think they can play mini game 💀🙏",
           type: "warning",
         });
 
-      // Check if sender and receiver are the same
       if (senderUserOption === receiverUserOption)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "InvalidUser",
           message: "You cannot transfer balance to same user.",
           type: "warning",
         });
 
-      // Check if the amount is valid
       if (amountOption <= 0)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "InvalidAmount",
           message: "Amount must be greater than 0.",
           type: "warning",
         });
 
-      // Get sender and receiver data
       const senderUserMiniGameData = await MiniGameUserData.findOne({
         userId: senderUserOption.id,
       });
@@ -45,36 +38,32 @@ const command: CommandInterface = {
         userId: receiverUserOption.id,
       });
 
-      // Check if sender or receiver has an account.
       if (!senderUserMiniGameData)
-        throw new CustomError({
-          name: "NoAccoun",
+        throw new client.CustomError({
+          name: "NoAccount",
           message: `${senderUserOption} does not have a balance yet.`,
         });
       if (!receiverUserMiniGameData)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoAccount",
           message: `${receiverUserOption.id} does not have a balance yet.`,
         });
 
       if (senderUserMiniGameData.balance < amountOption)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "InsufficientBalance",
           message: `${senderUserOption} does not have enough balance to transfer.`,
         });
 
-      // Update balance
       senderUserMiniGameData.balance -= amountOption;
       receiverUserMiniGameData.balance += amountOption;
 
-      // Save updated data
       await senderUserMiniGameData.save();
       await receiverUserMiniGameData.save();
 
-      // Send success message
       await interaction.editReply({
         embeds: [
-          CommonEmbedBuilder.success({
+          client.CommonEmbedBuilder.success({
             title: "Balance Transfer Successful",
             description:
               `> Successfully transferred **${amountOption}** <:nyen:1373967798790783016> from **${senderUserOption.username}** to **${receiverUserOption.username}**.` +
@@ -88,13 +77,14 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
   name: "balance-transfer",
   description: "Transfer balance from a user to another user",
+  disabled: false,
   deleted: false,
   devOnly: false,
   options: [

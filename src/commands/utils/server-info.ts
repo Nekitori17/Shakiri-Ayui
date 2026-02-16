@@ -1,6 +1,5 @@
-import _ from "lodash";
 import { EmbedBuilder } from "discord.js";
-import { handleInteractionError } from "../../helpers/utils/handleError";
+import { toSentenceCase } from "../../helpers/common/transformCase";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -45,7 +44,7 @@ const command: CommandInterface = {
                 "\n" +
                 `* **Vanity URL**: ${
                   interaction.guild?.vanityURLCode || "None"
-                }`
+                }`,
             )
             .setThumbnail(interaction.guild?.iconURL() || null)
             .setFields([
@@ -60,7 +59,7 @@ const command: CommandInterface = {
                 name: "Futures",
                 value: `${interaction.guild?.features
                   .slice(0, 10)
-                  .map((f) => `\`${_.capitalize(_.startCase(_.toLower(f)))}\``)
+                  .map((f) => `\`${toSentenceCase(f)}\``)
                   .join(", ")}${
                   interaction.guild && interaction.guild?.features.length > 10
                     ? `... +${interaction.guild?.features.length - 10}`
@@ -105,13 +104,14 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
-      false
+      return false;
     }
   },
   name: "server-info",
   description: "Get info about the server",
+  disabled: false,
   deleted: false,
   devOnly: false,
   useInDm: false,

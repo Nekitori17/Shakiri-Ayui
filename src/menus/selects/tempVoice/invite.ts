@@ -14,10 +14,10 @@ import {
   Guild,
 } from "discord.js";
 import UserSettings from "../../../models/UserSettings";
-import { CustomError } from "../../../helpers/utils/CustomError";
-import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
-import { handleInteractionError } from "../../../helpers/utils/handleError";
-import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
+import { CustomError } from "../../../helpers/errors/CustomError";
+import checkOwnTempVoice from "../../../helpers/discord/validators/checkOwnTempVoice";
+import { handleInteractionError } from "../../../helpers/errors/handleError";
+import CommonEmbedBuilder from "../../../helpers/discord/embeds/commonEmbedBuilder";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
 // Helper function to create a button for joining a channel via a link
@@ -26,7 +26,7 @@ function createJoinChannelLinkButton(link: string) {
     new ButtonBuilder()
       .setLabel("Join")
       .setStyle(ButtonStyle.Link)
-      .setURL(link)
+      .setURL(link),
   );
 }
 
@@ -44,7 +44,7 @@ function createInviteButtons() {
     new ButtonBuilder()
       .setCustomId("invite-temp-voice-confirm-block")
       .setLabel("Block")
-      .setStyle(ButtonStyle.Secondary)
+      .setStyle(ButtonStyle.Secondary),
   );
 }
 
@@ -65,7 +65,7 @@ async function handleJoinButton(
   inviteMessage: Message,
   originalVoiceChannel: VoiceBasedChannel,
   inviter: User,
-  inviterGuild: Guild
+  inviterGuild: Guild,
 ) {
   const invitedMember = await inviterGuild.members.fetch(interaction.user.id);
 
@@ -185,12 +185,12 @@ async function handleJoinButton(
 async function handleBlockButton(
   interaction: ButtonInteraction,
   inviteMessage: Message,
-  inviter: User
+  inviter: User,
 ) {
   const userSettings = await UserSettings.findOneAndUpdate(
     { userId: interaction.user.id },
     { $setOnInsert: { userId: interaction.user.id } },
-    { upsert: true, new: true }
+    { upsert: true, returnDocument: "after" },
   );
 
   userSettings.temporaryVoiceChannel.blockedUsers.push(inviter.id);
@@ -216,7 +216,7 @@ async function handleButtonInteraction(
   inviteMessage: Message,
   originalVoiceChannel: VoiceBasedChannel,
   inviter: User,
-  inviterGuild: Guild
+  inviterGuild: Guild,
 ) {
   const { customId } = inviteButtonInteraction;
 
@@ -226,7 +226,7 @@ async function handleButtonInteraction(
       inviteMessage,
       originalVoiceChannel,
       inviter,
-      inviterGuild
+      inviterGuild,
     );
   }
 
@@ -246,7 +246,7 @@ async function sendInviteToUser(
   originalVoiceChannel: VoiceBasedChannel,
   inviterGuild: Guild,
   sentUsers: User[],
-  cantSendUsers: User[]
+  cantSendUsers: User[],
 ) {
   // Skip if user is inviter or bot
   if (invitedUser.id === inviterUser.id || invitedUser.bot) {
@@ -288,7 +288,7 @@ async function sendInviteToUser(
           inviteMessage,
           originalVoiceChannel,
           inviterUser,
-          inviterGuild
+          inviterGuild,
         );
       } catch (error) {
         handleInteractionError(inviteButtonInteraction, error);
@@ -302,7 +302,7 @@ async function sendInviteToUser(
 // Helper function to handle user selection
 async function handleUserSelection(
   selectInteraction: UserSelectMenuInteraction,
-  originalVoiceChannel: VoiceBasedChannel
+  originalVoiceChannel: VoiceBasedChannel,
 ) {
   const sentUsers: User[] = [];
   const cantSendUsers: User[] = [];
@@ -318,16 +318,16 @@ async function handleUserSelection(
         originalVoiceChannel,
         selectInteraction.guild!,
         sentUsers,
-        cantSendUsers
-      )
-    )
+        cantSendUsers,
+      ),
+    ),
   );
 
   // Build result message
   let description = `Invited users: ${sentUsers.join(", ") || "None"}`;
   if (cantSendUsers.length > 0) {
     description += `\nCan't send invite message to: ${cantSendUsers.join(
-      ", "
+      ", ",
     )}`;
   }
 
@@ -366,7 +366,7 @@ const select: SelectMenuInterface = {
             .setCustomId("temp-voice-invite")
             .setPlaceholder("Select a user to invite")
             .setMinValues(1)
-            .setMaxValues(10)
+            .setMaxValues(10),
         );
 
       const inviteSelectReply = await interaction.editReply({
@@ -392,7 +392,7 @@ const select: SelectMenuInterface = {
       return true;
     } catch (error) {
       handleInteractionError(interaction, error, true);
-      
+
       return false;
     }
   },

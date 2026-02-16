@@ -1,8 +1,7 @@
 import path from "path";
 import { VoiceState } from "discord.js";
 import jsonStore from "json-store-typed";
-import { errorLogger } from "../../../helpers/utils/handleError";
-import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
+import { errorLogger } from "../../../helpers/errors/handleError";
 import UserSettings from "../../../models/UserSettings";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
@@ -34,10 +33,10 @@ const event: DiscordEventInterface = async (
       )
     ) {
       await newState.member.voice.disconnect();
-      
+
       newState.member.send({
         embeds: [
-          CommonEmbedBuilder.warning({
+          client.CommonEmbedBuilder.warning({
             title: "You are blocked",
             description: `You are blocked from joining the channel`,
           }),

@@ -1,8 +1,5 @@
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
-import { CustomError } from "../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../helpers/utils/handleError";
-import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
-import MiniGameUserData from "../../models/MiniGameUserData";
+import MiniGameUserData from "../../models/UserMiniGameData";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -12,24 +9,20 @@ const command: CommandInterface = {
       const targetUserOption = interaction.options.getUser("user", true);
       const amountOption = interaction.options.getInteger("amount", true);
 
-      // Check if the user is a bot
       if (targetUserOption.bot)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "BotUser",
           message: "Bro think they can play mini game 💀🙏",
           type: "warning",
         });
 
-      // Check is invalid value
-      if (amountOption <= 0) 
-        throw new CustomError({
+      if (amountOption <= 0)
+        throw new client.CustomError({
           name: "InvalidAmount",
           message: "You cannot add a negative or zero amount.",
           type: "warning",
         });
-      
 
-      // Get mini game data of user
       const miniGameUserData = await MiniGameUserData.findOneAndUpdate(
         {
           userId: targetUserOption.id,
@@ -41,18 +34,16 @@ const command: CommandInterface = {
         },
         {
           upsert: true,
-          new: true,
-        }
+          returnDocument: "after",
+        },
       );
 
-      // Update balance
       miniGameUserData.balance += amountOption;
       await miniGameUserData.save();
 
-      // Send success message
       interaction.editReply({
         embeds: [
-          CommonEmbedBuilder.success({
+          client.CommonEmbedBuilder.success({
             title: "Balance Added!",
             description:
               `Successfully added **${amountOption}** <:nyen:1373967798790783016> to ${targetUserOption}'s balance.` +
@@ -61,16 +52,17 @@ const command: CommandInterface = {
           }),
         ],
       });
-      
+
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
-      
+      client.interactionErrorHandler(interaction, error);
+
       return false;
     }
   },
   name: "balance-add",
   description: "Adds balance to a user",
+  disabled: false,
   deleted: false,
   devOnly: false,
   options: [

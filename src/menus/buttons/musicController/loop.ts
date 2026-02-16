@@ -7,15 +7,15 @@ import {
   StringSelectMenuOptionBuilder,
 } from "discord.js";
 import { QueueRepeatMode, useQueue } from "discord-player";
-import { CustomError } from "../../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../../helpers/utils/handleError";
 import { repeatModeNames } from "../../../constants/musicRepeatModes";
 import { VoiceStoreSession } from "../../../classes/VoiceStoreSession";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
 const button: ButtonInterface = {
   async execute(interaction, client) {
-    const controlPanelButtonIn = interaction.message.content.includes("\u200B");
+    const controlPanelButtonIn = interaction.message.content.includes(
+      client.constants.CONTROL_PANEL_TAG,
+    );
 
     try {
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });
@@ -23,7 +23,7 @@ const button: ButtonInterface = {
       // Get the queue for the current guild
       const queue = useQueue(interaction.guildId!);
       if (!queue)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoQueue",
           message: "There is no queue to resume",
         });
@@ -91,13 +91,13 @@ const button: ButtonInterface = {
             components: [],
           });
         } catch (error) {
-          handleInteractionError(loopModeSelectInteraction, error, controlPanelButtonIn);
+          client.interactionErrorHandler(loopModeSelectInteraction, error, controlPanelButtonIn);
         }
       });
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error, controlPanelButtonIn);
+      client.interactionErrorHandler(interaction, error, controlPanelButtonIn);
 
       return false;
     }

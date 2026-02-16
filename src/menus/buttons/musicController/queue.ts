@@ -1,15 +1,11 @@
 import _ from "lodash";
 import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
   ComponentType,
-  EmbedBuilder,
+  EmbedBuilder
 } from "discord.js";
-import { Track, useQueue } from "discord-player";
-import { CustomError } from "../../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../../helpers/utils/handleError";
+import { useQueue } from "discord-player";
 import { ButtonInterface } from "./../../../types/InteractionInterfaces";
+import { createPageNavigationMenu } from "../../../components/pageNavigationMenu";
 
 const button: ButtonInterface = {
   async execute(interaction, client) {
@@ -20,12 +16,12 @@ const button: ButtonInterface = {
       const queue = useQueue(interaction.guildId!);
       // If no queue exists or it's empty, throw a custom error
       if (!queue || queue.tracks.size === 0) {
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoQueue",
           message: "There is no queue to show",
         });
       }
-      
+
       // Define the number of tracks per page and chunk the tracks array
       // Calculate the maximum number of pages
       const AMOUNT_TRACK_IN_PAGE = 10;
@@ -53,33 +49,22 @@ const button: ButtonInterface = {
                 (track, index) =>
                   `**${page * 10 + index + 1}.** ${track.title.substring(
                     0,
-                    70
+                    70,
                   )}${track.title.length > 70 ? "..." : ""} - \`${
                     track.duration
-                  }\`\n*by ${track.author}*`
+                  }\`\n*by ${track.author}*`,
               )
-              .join("\n\n")
+              .join("\n\n"),
           )
           .setFooter({ text: interaction.guild?.name! })
           .setTimestamp()
           .setColor("#00ffc8");
 
         // Create action row with pagination buttons
-        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-          new ButtonBuilder()
-            .setCustomId("music-queue-page-prev")
-            .setEmoji("1387296301867073576")
-            .setStyle(ButtonStyle.Secondary)
-            .setDisabled(page === 0),
-          new ButtonBuilder()
-            .setCustomId("music-queue-page-current")
-            .setLabel(`${page + 1}/${maxPages}`)
-            .setStyle(ButtonStyle.Primary),
-          new ButtonBuilder()
-            .setCustomId("music-queue-page-next")
-            .setEmoji("1387296195256254564")
-            .setStyle(ButtonStyle.Secondary)
-            .setDisabled(page >= maxPages - 1)
+        const row = createPageNavigationMenu(
+          page,
+          maxPages,
+          "music-queue-page",
         );
 
         return {
@@ -87,10 +72,12 @@ const button: ButtonInterface = {
           components: [row],
         };
       };
-      
+
       // Send the initial reply with the first page of the queue
-      const queueEmbedReply = await interaction.editReply(createReply(currentPage));
-      
+      const queueEmbedReply = await interaction.editReply(
+        createReply(currentPage),
+      );
+
       // Create a collector for button interactions on the queue embed
       const queueEmbedCollector =
         queueEmbedReply.createMessageComponentCollector({
@@ -102,7 +89,7 @@ const button: ButtonInterface = {
       queueEmbedCollector.on("collect", async (queueButtonInteraction) => {
         // Defer the update to the button interaction
         await queueButtonInteraction.deferUpdate();
-        
+
         // Handle pagination logic based on button customId
         if (
           queueButtonInteraction.customId === "music-queue-page-prev" &&
@@ -117,15 +104,15 @@ const button: ButtonInterface = {
         } else {
           return;
         }
-        
+
         // Edit the original reply with the updated page
         await interaction.editReply(createReply(currentPage));
       });
-      
+
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error, true);
-      
+      client.interactionErrorHandler(interaction, error, true);
+
       return false;
     }
   },

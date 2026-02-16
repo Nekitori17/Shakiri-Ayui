@@ -1,27 +1,22 @@
-import config from "../../../config";
 import path from "path";
 import { ChannelType, VoiceState } from "discord.js";
 import jsonStore from "json-store-typed";
-import { errorLogger } from "../../../helpers/utils/handleError";
-import { genericVariableReplacer } from "../../../helpers/utils/variableReplacer";
+import { errorLogger } from "../../../helpers/errors/handleError";
+import { genericVariableFormatter } from "../../../helpers/formatters/variableFormatter";
 import UserSettings from "../../../models/UserSettings";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
 const event: DiscordEventInterface = async (
   client,
   oldState: VoiceState,
-  newState: VoiceState
+  newState: VoiceState,
 ) => {
   try {
-    // Fetch guild settings for the current guild
-    const guildSetting = await config.modules(newState.guild.id!);
+    const guildSetting = await client.getGuildSetting(newState.guild.id!);
 
-    // If temporary voice channels are not enabled for this guild, return
     if (!guildSetting.temporaryVoiceChannel.enabled) return;
-
-    // Initialize a JSON store for temporary voice channels
     const temporaryChannels = jsonStore(
-      path.join(__dirname, "../../../../database/temporaryVoiceChannels.json")
+      path.join(__dirname, "../../../../database/temporaryVoiceChannels.json"),
     );
 
     // Check if the user is leaving a temporary channel and if it's now empty
@@ -43,7 +38,6 @@ const event: DiscordEventInterface = async (
     if (newState.channelId !== guildSetting.temporaryVoiceChannel.channelSet)
       return;
 
-    // Fetch user settings for the member who joined
     const userSetting = await UserSettings.findOne({
       userId: newState.member?.id,
     });
@@ -56,11 +50,11 @@ const event: DiscordEventInterface = async (
     // Create a new voice channel
     newState.guild.channels
       .create({
-        name: genericVariableReplacer(
+        name: genericVariableFormatter(
           channelName,
           newState.member!,
           newState.guild!,
-          client
+          client,
         ),
         type: ChannelType.GuildVoice,
         parent:
@@ -70,7 +64,6 @@ const event: DiscordEventInterface = async (
         bitrate: 96000,
       })
       .then((channel) => {
-        // Once the channel is created
         newState.member?.voice.setChannel(channel); // Move the user to the newly created channel
         temporaryChannels.set(channel.id, newState.member?.id); // Store the new channel ID and its owner's ID
       });

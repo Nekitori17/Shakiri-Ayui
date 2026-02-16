@@ -1,12 +1,8 @@
-import config from "../../config";
 import {
   ApplicationCommandOptionType,
   ChannelType,
   PermissionFlagsBits,
 } from "discord.js";
-import { CustomError } from "../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../helpers/utils/handleError";
-import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -16,33 +12,31 @@ const command: CommandInterface = {
       const enabledOption = interaction.options.getBoolean("enabled", true);
       const loggingChannelOption = interaction.options.getChannel("channel");
 
-      // Validate channel type if a channel is provided
-      if (loggingChannelOption && loggingChannelOption.type != ChannelType.GuildText)
-        throw new CustomError({
+      if (
+        loggingChannelOption &&
+        loggingChannelOption.type != ChannelType.GuildText
+      )
+        throw new client.CustomError({
           name: "InvalidChannelType",
           message: "Channel must be a text channel!",
         });
 
-      // Fetch the current guild settings
-      const guildSetting = await config.modules(interaction.guildId!);
+      const guildSetting = await client.getGuildSetting(interaction.guildId!);
 
-      // Update moderator settings
       guildSetting.moderator = {
-        logging: enabledOption,
+        loggingEnabled: enabledOption,
         loggingChannel:
           loggingChannelOption?.id || guildSetting.moderator.loggingChannel,
       };
 
-      // Save the updated settings
       await guildSetting.save();
 
-      // Send a success message
       interaction.editReply({
         embeds: [
-          CommonEmbedBuilder.success({
+          client.CommonEmbedBuilder.success({
             title: `Updated **Moderator Logging** module settings`,
             description: `**Logging**: \`${
-              guildSetting.moderator.logging
+              guildSetting.moderator.loggingEnabled
             }\`, **Channel Logging**: ${
               guildSetting.moderator.loggingChannel
                 ? `<#${guildSetting.moderator.loggingChannel}>`
@@ -54,13 +48,14 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
   name: "set-moderator-log",
   description: "Settings for moderator log module",
+  disabled: false,
   deleted: false,
   devOnly: false,
   options: [

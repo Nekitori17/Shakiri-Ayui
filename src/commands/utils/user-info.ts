@@ -1,5 +1,4 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from "discord.js";
-import { handleInteractionError } from "../../helpers/utils/handleError";
 import { CommandInterface } from "./../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -8,7 +7,7 @@ const command: CommandInterface = {
       await interaction.deferReply();
       const targetUserOption = interaction.options.getUser("user");
       const targetUser = await interaction.guild?.members.fetch(
-        targetUserOption?.id || interaction.user.id
+        targetUserOption?.id || interaction.user.id,
       );
 
       interaction.editReply({
@@ -45,7 +44,7 @@ const command: CommandInterface = {
                     : "None"
                 }` +
                 "\n" +
-                `* **Hightest Role**: ${targetUser?.roles.highest}`
+                `* **Hightest Role**: ${targetUser?.roles.highest}`,
             )
             .setThumbnail(targetUser?.displayAvatarURL() || null)
             .setFields([
@@ -73,13 +72,14 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
   name: "user-info",
   description: "Get info about a user in the server",
+  disabled: false,
   deleted: false,
   devOnly: false,
   options: [

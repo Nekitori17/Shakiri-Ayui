@@ -1,7 +1,7 @@
 import { Client, Guild, GuildMember, User } from "discord.js";
 
 /**
- * Replaces variable placeholders in a string with actual Discord values.
+ * Format variable placeholders in a string with actual Discord values.
  *
  * Supported variables:
  * - `{user}`: Mention format of the user.
@@ -21,7 +21,7 @@ import { Client, Guild, GuildMember, User } from "discord.js";
  *
  * @example
  * const str = "Welcome {user} to {guild.name}!";
- * const replacedStr = await genericVariableReplacer(str, user, guild, client);
+ * const formattedStr = await genericVariableFormatter(str, user, guild, client);
  *
  * @param str - Input string containing variables like `{user}`, `{guild.name}` etc.
  * @param user - The Discord user or guild member to pull user info from.
@@ -29,7 +29,7 @@ import { Client, Guild, GuildMember, User } from "discord.js";
  * @param client - The Discord bot client instance.
  * @returns A string with all supported variables replaced by actual values.
  */
-export function genericVariableReplacer(
+export function genericVariableFormatter(
   str: string,
   user: User | GuildMember,
   guild: Guild,
@@ -57,12 +57,11 @@ export function genericVariableReplacer(
     "client.avatar": client.user?.displayAvatarURL() ?? "",
   };
 
-  // Replace all placeholders with their corresponding values
-  let replacedStr = str;
+  let formattedStr = str;
   for (const key in variables) {
     const regex = new RegExp(`{${key}}`, "g");
-    replacedStr = replacedStr.replace(regex, variables[key]);
+    formattedStr = formattedStr.replace(regex, variables[key]);
   }
 
-  return replacedStr;
+  return formattedStr;
 }

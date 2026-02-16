@@ -4,8 +4,6 @@ import {
   PermissionFlagsBits,
 } from "discord.js";
 import { LrcSearchResult, useMainPlayer, useQueue } from "discord-player";
-import { CustomError } from "../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../helpers/utils/handleError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -18,15 +16,13 @@ const command: CommandInterface = {
       let trimmedLyrics: string;
       let lyrics: LrcSearchResult[];
 
-      // Check if a query option is provided
       if (queryOption) {
-        // Search for lyrics using the provided query
         lyrics = await player.lyrics.search({
           q: queryOption,
         });
 
         if (!lyrics.length)
-          throw new CustomError({
+          throw new client.CustomError({
             name: "NoLyrics",
             message: "There is no lyrics to show",
           });
@@ -34,22 +30,20 @@ const command: CommandInterface = {
         // Trim lyrics to fit embed description limit
         trimmedLyrics = lyrics[0].plainLyrics.substring(0, 1997);
       } else {
-        // If no query, try to get lyrics for the current playing track
         const queue = useQueue(interaction.guildId!);
 
         if (!queue)
-          throw new CustomError({
+          throw new client.CustomError({
             name: "NoQueue",
             message: "There is no queue to get lyrics",
           });
 
-        // Search for lyrics of the current track
         lyrics = await player.lyrics.search({
           q: queue.currentTrack?.title,
         });
 
         if (!lyrics.length)
-          throw new CustomError({
+          throw new client.CustomError({
             name: "NoLyrics",
             message: "There is no lyrics to show",
           });
@@ -58,7 +52,6 @@ const command: CommandInterface = {
         trimmedLyrics = lyrics[0].plainLyrics.substring(0, 1997);
       }
 
-      // Edit the deferred reply with the lyrics embed
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
@@ -69,7 +62,7 @@ const command: CommandInterface = {
             .setDescription(
               trimmedLyrics.length === 1997
                 ? `${trimmedLyrics}...`
-                : trimmedLyrics
+                : trimmedLyrics,
             )
             .setColor("Yellow")
             .setFooter({
@@ -80,13 +73,14 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
   name: "lyrics",
   description: "Get lyrics of the song in query or current song",
+  disabled: false,
   deleted: false,
   devOnly: false,
   options: [

@@ -1,8 +1,6 @@
 import { EmbedBuilder, PermissionFlagsBits } from "discord.js";
 import { useQueue } from "discord-player";
-import { CustomError } from "../../helpers/utils/CustomError";
 import { VoiceStoreSession } from "../../classes/VoiceStoreSession";
-import { handleInteractionError } from "../../helpers/utils/handleError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -10,23 +8,17 @@ const command: CommandInterface = {
     try {
       await interaction.deferReply();
 
-      // Get the music queue for the current guild
       const queue = useQueue(interaction.guildId!);
-      // If no queue exists, throw an error
       if (!queue)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoQueue",
           message: "There is no queue to stop",
         });
-      // Delete the queue, stopping playback and clearing all tracks
+
       queue.delete();
-      // Clear session data related to the music player for this guild
-      const voiceStoreSession = new VoiceStoreSession(
-        interaction.guildId!
-      );
+      const voiceStoreSession = new VoiceStoreSession(interaction.guildId!);
       voiceStoreSession.clear();
 
-      // Edit the deferred reply with an embed confirming the queue has been stopped
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
@@ -40,16 +32,17 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
-  alias: "st",
+  alias: ["st"],
   name: "stop",
   description: "Stop queue now",
   deleted: false,
   devOnly: false,
+  disabled: false,
   useInDm: false,
   requiredVoiceChannel: true,
   userPermissionsRequired: [PermissionFlagsBits.Connect],

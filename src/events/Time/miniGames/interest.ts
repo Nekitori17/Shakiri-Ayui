@@ -1,4 +1,4 @@
-import MiniGameUserData from "../../../models/MiniGameUserData";
+import MiniGameUserData from "../../../models/UserMiniGameData";
 import { TimeEventInterface } from "../../../types/EventInterfaces";
 
 const schedule: TimeEventInterface = {

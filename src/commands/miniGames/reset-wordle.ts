@@ -1,8 +1,6 @@
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
-import { handleInteractionError } from "../../helpers/utils/handleError";
-import MiniGameUserData from "../../models/MiniGameUserData";
+import WordleGame from "../../models/miniGames/WordleGame";
 import { CommandInterface } from "../../types/InteractionInterfaces";
-import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 
 const command: CommandInterface = {
   async execute(interaction, client) {
@@ -10,32 +8,13 @@ const command: CommandInterface = {
       await interaction.deferReply();
       const userTargetOption = interaction.options.getUser("user", true);
 
-      // Find the user's MiniGameUserData document. If it doesn't exist, create a new one
-      const miniGameUserData = await MiniGameUserData.findOneAndUpdate(
-        {
-          userId: userTargetOption.id,
-        },
-        {
-          $setOnInsert: {
-            userId: userTargetOption,
-          },
-        },
-        {
-          upsert: true,
-          new: true,
-        }
-      );
+      await WordleGame.findOneAndDelete({
+        userId: userTargetOption.id,
+      });
 
-      // Set the wordleGame field to null to reset it
-      miniGameUserData.wordleGame = null;
-
-      // Save the updated document
-      await miniGameUserData.save();
-
-      // Edit the deferred reply with a success message
       await interaction.editReply({
         embeds: [
-          CommonEmbedBuilder.success({
+          client.CommonEmbedBuilder.success({
             title: "Wordle Reset",
             description: `Successfully reset Wordle for ${userTargetOption}`,
           }),
@@ -44,13 +23,14 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
   name: "reset-wordle",
   description: "Resets a user's Wordle",
+  disabled: false,
   deleted: false,
   devOnly: false,
   options: [

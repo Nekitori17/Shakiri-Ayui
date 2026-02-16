@@ -1,13 +1,9 @@
-import config from "../../config";
 import {
   ApplicationCommandOptionType,
   ChannelType,
   PermissionFlagsBits,
 } from "discord.js";
-import { CustomError } from "../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../helpers/utils/handleError";
-import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
-import CountingGame from "../../models/CountingGame";
+import CountingGame from "../../models/miniGames/CountingGame";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -20,15 +16,13 @@ const command: CommandInterface = {
 
       //
       if (channelSetOption && channelSetOption.type != ChannelType.GuildText)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "InvalidChannelType",
           message: "Channel must be a text channel!",
         });
 
-      // Fetch the current guild settings
-      const guildSetting = await config.modules(interaction.guildId!);
+      const guildSetting = await client.getGuildSetting(interaction.guildId!);
 
-      // Update counting game settings
       guildSetting.countingGame = {
         enabled: enabledOption,
         channelSet:
@@ -36,20 +30,17 @@ const command: CommandInterface = {
         startNumber: startNumberOption || guildSetting.countingGame.startNumber,
       };
 
-      // If disable this module reset counting game data
       if (!enabledOption) {
         await CountingGame.deleteOne({
           guildId: interaction.guildId,
         });
       }
 
-      // Save the updated settings
       await guildSetting.save();
 
-      // Send a success message
       interaction.editReply({
         embeds: [
-          CommonEmbedBuilder.success({
+          client.CommonEmbedBuilder.success({
             title: `Updated **Counting Game** module setting`,
             description: `**Enabled**: \`${
               guildSetting.countingGame.enabled
@@ -64,7 +55,7 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return true;
     }
@@ -72,6 +63,7 @@ const command: CommandInterface = {
 
   name: "set-counting-game",
   description: "Settings for counting game module",
+  disabled: false,
   deleted: false,
   devOnly: false,
   options: [

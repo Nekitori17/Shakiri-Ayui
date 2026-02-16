@@ -1,7 +1,5 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from "discord.js";
-import { CustomError } from "../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../helpers/utils/handleError";
-import MiniGameUserData from "../../models/MiniGameUserData";
+import MiniGameUserData from "../../models/UserMiniGameData";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -10,54 +8,46 @@ const command: CommandInterface = {
       await interaction.deferReply();
       const amountOption = interaction.options.getInteger("amount", true);
 
-      // Check the value is valid
       if (amountOption <= 0)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "InvalidAmount",
           message: "You cannot withdraw a negative or zero amount.",
           type: "warning",
         });
 
-      // Get mini game data of user
-      const miniGameUserData = await MiniGameUserData.findOne(
-        {
-          userId: interaction.user.id,
-        }
-      );
+      const miniGameUserData = await MiniGameUserData.findOne({
+        userId: interaction.user.id,
+      });
 
-      // Check if sender or receiver has an account.
       if (!miniGameUserData)
-        throw new CustomError({
-          name: "NoAccoun",
-          message: `You do not have a balance yet.`,
+        throw new client.CustomError({
+          name: "NoAccount",
+          message: `You do not have a balance yet. Please use the daily command to create one.`,
         });
 
-      // Check if the user has enough balance in the bank
       if (miniGameUserData.bank.balance < amountOption)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "InsufficientBankBalance",
           message: "You don't have enough coins in your bank to withdraw.",
           type: "warning",
         });
 
-      // Update balance and bank balance
       miniGameUserData.balance += amountOption;
       miniGameUserData.bank.balance -= amountOption;
       await miniGameUserData.save();
 
-      // Send success message
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
             .setTitle(
-              `> <:colorwithdraw:1387340003373223977> ${interaction.user.displayName}'s Withdrawal`
+              `> <:colorwithdraw:1387340003373223977> ${interaction.user.displayName}'s Withdrawal`,
             )
             .setDescription(
               `* <:colorcoin:1387339346889281596> **Amount**: ${amountOption} <:nyen:1373967798790783016>` +
                 "\n" +
                 `* <:colorwallet:1387275109844389928> **New Balance**: ${miniGameUserData.balance} <:nyen:1373967798790783016>` +
                 "\n" +
-                `* <:colorbank:1387275317076562000> **New Bank Balance**: ${miniGameUserData.bank.balance}/${miniGameUserData.bank.capacity} <:nyen:1373967798790783016>`
+                `* <:colorbank:1387275317076562000> **New Bank Balance**: ${miniGameUserData.bank.balance}/${miniGameUserData.bank.capacity} <:nyen:1373967798790783016>`,
             )
             .setColor("Aqua")
             .setThumbnail(interaction.user.displayAvatarURL())
@@ -71,16 +61,17 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
-  alias: "wd",
+  alias: ["wd"],
   name: "withdraw",
   description: "Withdraw coins from your bank.",
   deleted: false,
   devOnly: false,
+  disabled: false,
   options: [
     {
       name: "amount",

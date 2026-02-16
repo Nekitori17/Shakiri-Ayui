@@ -1,12 +1,8 @@
-import config from "../../config";
 import {
   ApplicationCommandOptionType,
   ChannelType,
   PermissionFlagsBits,
 } from "discord.js";
-import { CustomError } from "../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../helpers/utils/handleError";
-import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -17,29 +13,24 @@ const command: CommandInterface = {
       const ignorePrefixOption = interaction.options.getString("ignore-prefix");
       const channelSetOption = interaction.options.getChannel("channel");
 
-      // Validate channel type if a channel is provided
       if (channelSetOption && channelSetOption.type != ChannelType.GuildText)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "InvalidChannelType",
           message: "Channel must be a text channel!",
         });
 
-      // Fetch the current guild settings
-      const guildSetting = await config.modules(interaction.guildId!);
+      const guildSetting = await client.getGuildSetting(interaction.guildId!);
 
-      // Update Gemini AI settings
       guildSetting.geminiAI = {
         enabled: enabledOption,
         ignorePrefix: ignorePrefixOption || guildSetting.geminiAI.ignorePrefix,
         channelSet: channelSetOption?.id || guildSetting.geminiAI.channelSet,
       };
-      // Save the updated settings
       await guildSetting.save();
 
-      // Send a success message
       interaction.editReply({
         embeds: [
-          CommonEmbedBuilder.success({
+          client.CommonEmbedBuilder.success({
             title: `Updated **Gemini Ai** module settings`,
             description: `**Enabled**: \`${
               guildSetting.geminiAI.enabled
@@ -56,13 +47,14 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
   name: "set-gemini-ai",
   description: "Settings for GeminiAi module",
+  disabled: false,
   deleted: false,
   devOnly: false,
   options: [

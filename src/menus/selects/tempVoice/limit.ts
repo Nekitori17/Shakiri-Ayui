@@ -7,11 +7,7 @@ import {
   TextInputBuilder,
   TextInputStyle,
 } from "discord.js";
-import { FnUtils } from "../../../helpers/FnUtils";
-import { CustomError } from "../../../helpers/utils/CustomError";
-import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
-import { handleInteractionError } from "../../../helpers/utils/handleError";
-import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
+import checkOwnTempVoice from "../../../helpers/discord/validators/checkOwnTempVoice";
 import UserSettings from "../../../models/UserSettings";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
@@ -23,7 +19,7 @@ const select: SelectMenuInterface = {
     try {
       // Check if the temporary voice channel belongs to the interacting user
       if (!checkOwnTempVoice(userVoiceChannel.id, interaction.user.id))
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NotOwnTempVoiceError",
           message: "This temporary voice channel does not belong to you.",
         });
@@ -39,8 +35,8 @@ const select: SelectMenuInterface = {
               .setLabel("Limit amount of users")
               .setRequired(true)
               .setStyle(TextInputStyle.Short)
-              .setPlaceholder("Set 0 to unlimited")
-          )
+              .setPlaceholder("Set 0 to unlimited"),
+          ),
         );
 
       // Show the modal to the user
@@ -60,8 +56,8 @@ const select: SelectMenuInterface = {
           limitUserModalInteraction.fields.getTextInputValue("amount");
 
         // Validate if the input is a number
-        if (!FnUtils.isNumber(amountOfLimitStrInputValue))
-          throw new CustomError({
+        if (!client.FnUtils.isNumber(amountOfLimitStrInputValue))
+          throw new client.CustomError({
             name: "ThisIsNotANumber",
             message: "Please try again with correct value",
           });
@@ -71,7 +67,7 @@ const select: SelectMenuInterface = {
 
         // Validate if the amount is within the valid range (0-99)
         if (amountOfLimit < 0 || amountOfLimit > 99)
-          throw new CustomError({
+          throw new client.CustomError({
             name: "InvalidNumber",
             message: "Please enter a number between 0 and 99.",
             type: "warning",
@@ -89,8 +85,8 @@ const select: SelectMenuInterface = {
           },
           {
             upsert: true,
-            new: true,
-          }
+            returnDocument: "after",
+          },
         );
 
         // Update the user limit in user settings
@@ -103,19 +99,19 @@ const select: SelectMenuInterface = {
         // Edit the reply to confirm the limit change
         limitUserModalInteraction.editReply({
           embeds: [
-            CommonEmbedBuilder.success({
+            client.CommonEmbedBuilder.success({
               title: "> Changed Temporary Channel Limit User",
               description: `Changed to amount: \`${amountOfLimit}\``,
             }),
           ],
         });
       } catch (error) {
-        handleInteractionError(limitUserModalInteraction, error, true);
+        client.interactionErrorHandler(limitUserModalInteraction, error, true);
       }
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error, true);
+      client.interactionErrorHandler(interaction, error, true);
 
       return false;
     }

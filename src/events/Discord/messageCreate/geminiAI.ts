@@ -2,7 +2,6 @@ import config from "../../../config";
 import fs from "fs";
 import path from "path";
 import { EmbedBuilder, Message } from "discord.js";
-import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
 const systemInstructionFile = fs.readFileSync(
@@ -13,19 +12,14 @@ const systemInstructionFile = fs.readFileSync(
 );
 
 const event: DiscordEventInterface = async (client, msg: Message) => {
-  // Ignore bot messages
   if (msg.author.bot) return;
 
-  // Fetch guild settings for Gemini AI
-  const guildSetting = await config.modules(msg.guildId!);
+  const guildSetting = await client.getGuildSetting(msg.guildId!);
 
-  // Check if Gemini AI is enabled and if the message is in the designated channel
   if (!guildSetting.geminiAI.enabled) return;
   if (msg.channelId !== guildSetting.geminiAI.channelSet) return;
-  // Ignore messages starting with the ignore prefix
   if (msg.content.startsWith(guildSetting.geminiAI.ignorePrefix)) return;
 
-  // Send a thinking message while waiting for the AI response
   const messageReply = await msg.reply(
     "> <a:aithinking:1373927153313513512> Ayui is thinking..."
   );
@@ -47,10 +41,8 @@ const event: DiscordEventInterface = async (client, msg: Message) => {
       }
     ).then((res) => res.json());
 
-    // React with a success emoji
     msg.react("✅");
 
-    // Edit the thinking message with the AI's response
     messageReply.edit({
       content: null,
       embeds: [
@@ -59,7 +51,7 @@ const event: DiscordEventInterface = async (client, msg: Message) => {
             name: msg.member?.displayName!,
             iconURL: msg.member?.displayAvatarURL(),
           })
-          .setTitle("Gemini 2.5 Pro")
+          .setTitle("Gemini 3 Pro Preview")
           .setThumbnail("https://files.catbox.moe/8xpwh3.png")
           .setDescription(apiResponse.text)
           .setFooter({
@@ -75,7 +67,7 @@ const event: DiscordEventInterface = async (client, msg: Message) => {
     messageReply.edit({
       content: null,
       embeds: [
-        CommonEmbedBuilder.error({
+        client.CommonEmbedBuilder.error({
           title: error.name,
           description: error.message,
         }),

@@ -1,13 +1,9 @@
-import config from "../../config";
 import {
   ApplicationCommandOptionType,
   AttachmentBuilder,
   ChannelType,
   PermissionFlagsBits,
 } from "discord.js";
-import { CustomError } from "../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../helpers/utils/handleError";
-import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -18,17 +14,14 @@ const command: CommandInterface = {
       const channelSendOption = interaction.options.getChannel("channel");
       const resetOption = interaction.options.getBoolean("reset");
 
-      // Validate the channel type if provided
       if (channelSendOption && channelSendOption.type != ChannelType.GuildText)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "InvalidChannelType",
           message: "Channel must be a text channel!",
         });
 
-      // Fetch the current guild settings
-      const guildSetting = await config.modules(interaction.guildId!);
+      const guildSetting = await client.getGuildSetting(interaction.guildId!);
 
-      // Check if the reset option is true
       if (resetOption) {
         guildSetting.welcomer = {
           enabled: false,
@@ -40,7 +33,6 @@ const command: CommandInterface = {
         };
       }
 
-      // Update welcomer settings
       guildSetting.welcomer = {
         enabled: enabledOption,
         channelSend: channelSendOption?.id || guildSetting.welcomer.channelSend,
@@ -50,10 +42,8 @@ const command: CommandInterface = {
         imageFooter: guildSetting.welcomer.imageFooter,
       };
 
-      // Save the updated settings
       await guildSetting.save();
 
-      // Prepare the advanced settings text for attachment
       const advancedSettingsTxt =
         ">> Custom Message <<" +
         "\n" +
@@ -71,18 +61,16 @@ const command: CommandInterface = {
         "\n" +
         guildSetting.welcomer.imageFooter;
 
-      // Create an attachment with the advanced settings data
       const advancedSettingFileAttachment = new AttachmentBuilder(
         Buffer.from(advancedSettingsTxt, "utf-8"),
         {
           name: "customize-setting-data.md",
-        }
+        },
       );
 
-      // Send a success message with the updated settings and attachment
       interaction.editReply({
         embeds: [
-          CommonEmbedBuilder.success({
+          client.CommonEmbedBuilder.success({
             title: "Updated **Welcomer** module settings",
             description: `**Enabled**: \`${
               guildSetting.welcomer.enabled
@@ -98,13 +86,14 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
   name: "set-welcomer",
   description: "Settings for welcomer module",
+  disabled: false,
   deleted: false,
   devOnly: false,
   options: [

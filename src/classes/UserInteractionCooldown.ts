@@ -1,10 +1,6 @@
 import path from "path";
 import jsonStore from "json-store-typed";
 
-/**
- * JSON-based storage to persist user interaction cooldowns.
- * Each user ID maps to a set of cooldown keys with last-used timestamps.
- */
 const cooldownInteractionOfUserLists = jsonStore(
   path.join(__dirname, "../../database/cooldowns.json")
 );
@@ -12,9 +8,6 @@ const cooldownInteractionOfUserLists = jsonStore(
 export type InteractionType = "command" | "context" | "button" | "select";
 export type InteractionName = `${InteractionType}.${string}`;
 
-/**
- * Defines the structure of the cooldown check result.
- */
 export interface Cooldown {
   cooledDown: boolean;
   nextTime?: number;
@@ -30,23 +23,12 @@ export class UserInteractionCooldown {
   public cooldownInteractionOfUserList: Record<InteractionName, number>;
   private holdingCooldownKey: string | null = null;
 
-  /**
-   * Constructs a new UserInteractionCooldownManager instance.
-   *  @param userId - The ID of the user.
-   */
   public constructor(userId: string) {
     this.userId = userId;
     this.cooldownInteractionOfUserList =
       cooldownInteractionOfUserLists.get(userId) || {};
   }
 
-  /**
-   * Checks if a specific interaction is currently on cooldown for the user.
-   * @param interactionName - The name of the interaction (e.g., command name, button ID).
-   * @param type - The type of interaction.
-   * @param time - The cooldown time in seconds.
-   * @returns An object indicating cooldown status and next available time if applicable.
-   */
   public isCooledDown(
     interactionName: string,
     type: InteractionType,
@@ -69,9 +51,6 @@ export class UserInteractionCooldown {
     };
   }
 
-  /**
-   * Updates the cooldown timestamp for a specific interaction for the user.
-   */
   public updateCooldown(): void;
   public updateCooldown(interactionName: string, type: InteractionType): void;
   public updateCooldown(
@@ -97,9 +76,6 @@ export class UserInteractionCooldown {
     );
   }
 
-  /**
-   * Clears the cooldown data for the user.
-   */
   public clear() {
     cooldownInteractionOfUserLists.del(this.userId);
   }

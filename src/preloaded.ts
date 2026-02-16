@@ -1,7 +1,6 @@
-import _ from "lodash";
 import path from "path";
-import { getLocal } from "./helpers/utils/getLocal";
-import getAllFiles from "./helpers/utils/getAllFiles";
+import { getLocal } from "./helpers/loaders/getLocal";
+import getAllFiles from "./helpers/loaders/getAllFiles";
 import {
   ButtonInterface,
   CommandInterface,
@@ -16,95 +15,92 @@ export const contextMap = new Map<string, ContextInterface>();
 export const buttonMap = new Map<string, ButtonInterface>();
 export const selectMap = new Map<string, SelectMenuInterface>();
 
-/**
- * Preloads interaction components from categorized directories.
- * It iterates through subdirectories (categories) within the given root path,
- * and for each file in those subdirectories, it loads the component and stores it
- * in the provided sourceMap with a key formatted as "categoryName.fileName".
- * @template T - The type of the interaction component (e.g., ButtonInterface, SelectMenuInterface).
- * @param {string} root - The root directory where categories of components are located.
- * @param {Map<string, T>} sourceMap - The Map to store the preloaded components.
- */
+function normalizeCommand(name: string) {
+  return name.replace(/-/gi, "").toLowerCase();
+}
+
 function preloadCategoryMap<T>(root: string, sourceMap: Map<string, T>) {
   const categories = getAllFiles(root, true);
 
   for (const category of categories) {
     const categoryName = path.basename(category);
-
     const files = getAllFiles(category);
 
     for (const file of files) {
       const fileName = path.parse(file).name;
+      const key = `${categoryName}.${fileName}`;
 
-      const item = require(file).default as T;
+      const mod = require(file);
+      const item = mod?.default as T;
 
-      sourceMap.set(`${categoryName}.${fileName}`, item);
+      if (!item) {
+        console.warn(`Invalid module at ${file}`);
+        continue;
+      }
+
+      if (sourceMap.has(key)) {
+        console.warn(`Duplicate key detected: ${key}`);
+      }
+
+      sourceMap.set(key, item);
     }
   }
 }
 
-/**
- * Loads all commands, contexts, buttons, and select menus from their respective directories into maps for quick access.
- */
 export function preload() {
-  // Load all command with normal slash command, message command and alias
+  commandAliasMap.clear();
+  commandMap.clear();
+  commandLowerCaseMap.clear();
+  contextMap.clear();
+  buttonMap.clear();
+  selectMap.clear();
+
   const allLocalCommands = getLocal<CommandInterface>(
-    path.join(__dirname, "./commands")
+    path.join(__dirname, "./commands"),
   );
 
   for (const command of allLocalCommands) {
     commandMap.set(command.name, command);
-
-    commandLowerCaseMap.set(
-      command.name.replace(/-/gi, "").toLowerCase(), // Convert kebab-case to lowercase
-      command
-    );
+    commandLowerCaseMap.set(normalizeCommand(command.name), command);
 
     if (command.alias) {
-      commandAliasMap.set(command.alias, command);
+      for (const alias of command.alias) {
+        commandAliasMap.set(normalizeCommand(alias), command);
+      }
     }
   }
 
-  // Load all context menus
   const allLocalContext = getLocal<ContextInterface>(
-    path.join(__dirname, "./contexts")
+    path.join(__dirname, "./contexts"),
   );
 
   for (const context of allLocalContext) {
     contextMap.set(context.name, context);
   }
 
-  // Load all buttons
   preloadCategoryMap<ButtonInterface>(
     path.join(__dirname, "./menus/buttons"),
-    buttonMap
+    buttonMap,
   );
 
-  // Load all select menu
   preloadCategoryMap<SelectMenuInterface>(
     path.join(__dirname, "./menus/selects"),
-    selectMap
+    selectMap,
   );
-}
-
-export function getAliasCommandObject(commandName: string) {
-  return commandAliasMap.get(commandName);
-}
-
-export function getExactCommandObject(commandName: string) {
-  return commandMap.get(commandName);
-}
-
-export function getLowerCaseCommandObject(commandName: string) {
-  return commandLowerCaseMap.get(commandName);
 }
 
 export function getCommandObject(commandName: string) {
+  const normalized = normalizeCommand(commandName);
+
   return (
-    getAliasCommandObject(commandName) ||
-    getLowerCaseCommandObject(commandName) ||
-    getExactCommandObject(commandName)
+    commandAliasMap.get(normalized) ||
+    commandMap.get(commandName) ||
+    commandLowerCaseMap.get(normalized)
   );
+}
+
+export function getCommandObjectByName(commandName: string) {
+  return commandMap.get(commandName);
 }
 
 export function getContextObject(contextName: string) {

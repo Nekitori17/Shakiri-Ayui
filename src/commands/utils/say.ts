@@ -1,6 +1,5 @@
 import { useMainPlayer } from "discord-player";
 import { GuildMember, MessageFlags, PermissionFlagsBits } from "discord.js";
-import { handleInteractionError } from "../../helpers/utils/handleError";
 import { CommandInterface } from "./../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -9,7 +8,6 @@ const command: CommandInterface = {
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });
       const message = interaction.options.getString("message");
 
-      // Get the main player instance
       const player = useMainPlayer();
 
       await player.play(
@@ -20,25 +18,27 @@ const command: CommandInterface = {
           nodeOptions: {
             metadata: {
               channel: interaction.channel,
-              doNotLog: true
+              doNotLog: true,
             },
             volume: 100,
             leaveOnEmpty: false,
             leaveOnEnd: false,
           },
-        }
-      ); // Edit the reply to confirm the track has been added to the queue
+        },
+      );
 
       await interaction.editReply(`Successfully said: **${message}**`);
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
       return false;
     }
   },
+  alias: ["s"],
   name: "say",
   description: "Says what you want it to say.",
+  disabled: false,
   deleted: false,
   devOnly: false,
   options: [

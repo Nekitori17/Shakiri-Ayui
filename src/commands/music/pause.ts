@@ -1,7 +1,5 @@
 import { PermissionFlagsBits } from "discord.js";
 import { useQueue } from "discord-player";
-import { CustomError } from "../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../helpers/utils/handleError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -9,32 +7,29 @@ const command: CommandInterface = {
     try {
       await interaction.deferReply();
 
-      // Get the music queue for the current guild
       const queue = useQueue(interaction.guildId!);
-      // If no queue exists, throw an error
       if (!queue)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoQueue",
           message: "There is no queue to pause",
         });
 
-      // Pause the current track in the queue
       queue.node.setPaused(true);
-      // Delete the deferred reply, as the action is immediate and doesn't require a persistent message
       interaction.deleteReply();
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
-  alias: "ps",
+  alias: ["ps"],
   name: "pause",
   description: "Pause the current song",
   deleted: false,
   devOnly: false,
+  disabled: false,
   useInDm: false,
   requiredVoiceChannel: true,
   userPermissionsRequired: [PermissionFlagsBits.Connect],

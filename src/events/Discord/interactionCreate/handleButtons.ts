@@ -1,15 +1,13 @@
 import _ from "lodash";
 import { GuildMember, Interaction } from "discord.js";
 import { getButtonObject } from "../../../preloaded";
-import { CustomError } from "../../../helpers/utils/CustomError";
-import checkPermission from "../../../validator/checkPermission";
-import { handleInteractionError } from "../../../helpers/utils/handleError";
+import checkPermission from "../../../helpers/discord/validators/checkPermission";
 import { UserInteractionCooldown } from "../../../classes/UserInteractionCooldown";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
 const event: DiscordEventInterface = async (
   client,
-  interaction: Interaction
+  interaction: Interaction,
 ) => {
   // Check if the interaction is a button interaction
   if (!interaction.isButton()) return;
@@ -20,10 +18,9 @@ const event: DiscordEventInterface = async (
     // Split the customId to get category and actual customId
     const [category, customId] = interaction.customId.split("_");
 
-    // Get the button object from local files
     const buttonObject = getButtonObject(
       _.camelCase(category.replace("$", "")),
-      _.camelCase(customId)
+      _.camelCase(customId),
     );
 
     if (!buttonObject) return;
@@ -32,21 +29,20 @@ const event: DiscordEventInterface = async (
 
     if (buttonObject.devOnly) {
       const DEVELOPERS = (process.env.DEVELOPER_ACCOUNT_IDS as string).split(
-        ","
+        ",",
       );
 
       if (!DEVELOPERS.includes(interaction.user.id))
-        throw new CustomError({
+        throw new client.CustomError({
           name: "DeveloperOnly",
           message: "This button is for developers only.",
           type: "warning",
         });
     }
 
-    // Check if the user is required to be in a voice channel
     if (buttonObject.requiredVoiceChannel) {
       if (!(interaction.member as GuildMember).voice.channel)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoVoiceChannel",
           message: "To use this command, you must be in a voice channel",
         });
@@ -54,46 +50,42 @@ const event: DiscordEventInterface = async (
 
     let userCooldown = new UserInteractionCooldown(interaction.user.id);
 
-    // Check for button cooldown
     if (buttonObject.cooldown) {
       const cooldownResponse = userCooldown.isCooledDown(
         interaction.customId.slice(1),
         "button",
-        buttonObject.cooldown
+        buttonObject.cooldown,
       );
 
-      // If the button is not cooledDown, throw an error
       if (!cooldownResponse.cooledDown && cooldownResponse.nextTime)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "Cooldown",
           message: `Please wait <t:${cooldownResponse.nextTime}:R> before using this button again.`,
           type: "warning",
         });
     }
 
-    // Check for permissions
     if (interaction.guild) {
       checkPermission(
         interaction.member?.permissions,
         interaction.guild.members.me?.permissions,
         buttonObject.botPermissionsRequired,
-        buttonObject.userPermissionsRequired
+        buttonObject.userPermissionsRequired,
       );
     }
 
-    // Execute the button's action
     const succeed = (await buttonObject.execute(interaction, client)) ?? true;
     if (succeed && buttonObject.cooldown) userCooldown.updateCooldown();
   } catch (error) {
-    if (error instanceof Error) {
+    if (error instanceof Error && !(error instanceof client.CustomError)) {
       console.log(
-        `\x1b[31m\x1b[1m|> ${error.name} (Button Interaction)\x1b[0m`
+        `\x1b[31m\x1b[1m|> ${error.name} (Button Interaction)\x1b[0m`,
       );
       console.log(`\x1b[32m${error.message}\x1b[0m`);
       console.log(error);
     }
 
-    handleInteractionError(interaction, error, true);
+    client.interactionErrorHandler(interaction, error, true);
   }
 };
 

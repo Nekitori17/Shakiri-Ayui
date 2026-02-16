@@ -1,15 +1,13 @@
 import _ from "lodash";
 import { GuildMember, Interaction } from "discord.js";
 import { getSelectObject } from "../../../preloaded";
-import { CustomError } from "../../../helpers/utils/CustomError";
-import checkPermission from "../../../validator/checkPermission";
-import { handleInteractionError } from "../../../helpers/utils/handleError";
+import checkPermission from "../../../helpers/discord/validators/checkPermission";
 import { UserInteractionCooldown } from "../../../classes/UserInteractionCooldown";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
 const event: DiscordEventInterface = async (
   client,
-  interaction: Interaction
+  interaction: Interaction,
 ) => {
   // Check if the interaction is a string select menu
   if (!interaction.isStringSelectMenu()) return;
@@ -20,7 +18,7 @@ const event: DiscordEventInterface = async (
     // Get the select menu option object from local files
     const selectMenuOptionObject = getSelectObject(
       _.camelCase(interaction.customId.replace("$", "")),
-      _.camelCase(interaction.values[0])
+      _.camelCase(interaction.values[0]),
     );
 
     if (!selectMenuOptionObject) return;
@@ -32,14 +30,13 @@ const event: DiscordEventInterface = async (
       components: interaction.message.components,
     });
 
-    // Check if the select menu is for developers only
     if (selectMenuOptionObject.devOnly) {
       const DEVELOPERS = (process.env.DEVELOPER_ACCOUNT_IDS as string).split(
-        ","
+        ",",
       );
 
       if (!DEVELOPERS.includes(interaction.user.id))
-        throw new CustomError({
+        throw new client.CustomError({
           name: "DeveloperOnly",
           message: "This select menu is for developers only.",
           type: "warning",
@@ -48,7 +45,7 @@ const event: DiscordEventInterface = async (
 
     if (selectMenuOptionObject.requiredVoiceChannel) {
       if (!(interaction.member as GuildMember).voice.channel)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoVoiceChannel",
           message: "To use this command, you must be in a voice channel",
         });
@@ -56,48 +53,44 @@ const event: DiscordEventInterface = async (
 
     const userCooldown = new UserInteractionCooldown(interaction.user.id);
 
-    // Check for select menu cooldown
     if (selectMenuOptionObject.cooldown) {
       const cooldownResponse = userCooldown.isCooledDown(
         interaction.values[0],
         "select",
-        selectMenuOptionObject.cooldown
+        selectMenuOptionObject.cooldown,
       );
 
-      // If the select menu is not cooledDown, throw an error
       if (!cooldownResponse.cooledDown && cooldownResponse.nextTime)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "Cooldown",
           message: `Please wait <t:${cooldownResponse.nextTime}:R> before using this select menu again.`,
           type: "warning",
         });
     }
 
-    // Check for permissions
     if (interaction.guild) {
       checkPermission(
         interaction.member?.permissions,
         interaction.guild?.members.me?.permissions,
         selectMenuOptionObject.botPermissionsRequired,
-        selectMenuOptionObject.userPermissionsRequired
+        selectMenuOptionObject.userPermissionsRequired,
       );
     }
 
-    // Execute the select menu's action
     const succeed =
       (await selectMenuOptionObject.execute(interaction, client)) ?? true;
     if (succeed && selectMenuOptionObject.cooldown)
       userCooldown.updateCooldown();
   } catch (error) {
-    if (error instanceof Error) {
+    if (error instanceof Error && !(error instanceof client.CustomError)) {
       console.log(
-        `\x1b[31m\x1b[1m|> ${error.name} (Select Menu Interaction)\x1b[0m`
+        `\x1b[31m\x1b[1m|> ${error.name} (Select Menu Interaction)\x1b[0m`,
       );
       console.log(`\x1b[32m${error.message}\x1b[0m`);
       console.log(error);
     }
 
-    handleInteractionError(interaction, error);
+    client.interactionErrorHandler(interaction, error);
   }
 };
 

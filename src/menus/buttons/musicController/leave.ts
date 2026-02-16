@@ -1,13 +1,13 @@
 import { EmbedBuilder, MessageFlags } from "discord.js";
 import { VoiceUtils, useMainPlayer } from "discord-player";
-import { CustomError } from "../../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../../helpers/utils/handleError";
 import { VoiceStoreSession } from "../../../classes/VoiceStoreSession";
 import { ButtonInterface } from "../../../types/InteractionInterfaces";
 
 const button: ButtonInterface = {
   async execute(interaction, client) {
-    const controlPanelButtonIn = interaction.message.content.includes("\u200B");
+    const controlPanelButtonIn = interaction.message.content.includes(
+      client.constants.CONTROL_PANEL_TAG,
+    );
     
     try {
       await interaction.deferReply({
@@ -21,7 +21,7 @@ const button: ButtonInterface = {
       
       // If no connection exists, throw a custom error
       if (!connection)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoConnection",
           message: "I'm not connected to any voice channel",
         });
@@ -49,7 +49,7 @@ const button: ButtonInterface = {
       
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error, controlPanelButtonIn);
+      client.interactionErrorHandler(interaction, error, controlPanelButtonIn);
       
       return false;
     }

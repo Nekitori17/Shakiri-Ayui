@@ -1,18 +1,16 @@
-import config from "../../../config";
-import { errorLogger } from "../../../helpers/utils/handleError";
+import { errorLogger } from "../../../helpers/errors/handleError";
 import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
 const event: DiscordEventInterface = async (client) => {
   try {
-    if (!config.presenceRotateList) return;
+    if (!client.config.presenceRotateList) return;
 
-    // Initialize index for cycling through statuses
     let index: number = 0;
     setInterval(() => {
-      if (index === config.presenceRotateList.length) index = 0;
-      client.user?.setPresence(config.presenceRotateList[index]);
+      if (index === client.config.presenceRotateList.length) index = 0;
+      client.user?.setPresence(client.config.presenceRotateList[index]);
       index++;
-    }, config.presenceIntervalTime);
+    }, client.config.presenceIntervalTime);
   } catch (error) {
     errorLogger(error);
   }

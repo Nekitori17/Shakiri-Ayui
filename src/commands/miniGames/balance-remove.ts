@@ -1,8 +1,5 @@
 import { ApplicationCommandOptionType, PermissionFlagsBits } from "discord.js";
-import { CustomError } from "../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../helpers/utils/handleError";
-import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
-import MiniGameUserData from "../../models/MiniGameUserData";
+import MiniGameUserData from "../../models/UserMiniGameData";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -12,51 +9,42 @@ const command: CommandInterface = {
       const targetUserOption = interaction.options.getUser("user", true);
       const amountOption = interaction.options.getInteger("amount", true);
 
-      // Check if the user is a bot
       if (targetUserOption.bot)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "BotUser",
           message: "Bro think they can play mini game 💀🙏",
           type: "warning",
         });
 
-      // Check is invalid value
-      if (amountOption <= 0) 
-        throw new CustomError({
+      if (amountOption <= 0)
+        throw new client.CustomError({
           name: "InvalidAmount",
           message: "You cannot remove a negative or zero amount.",
           type: "warning",
         });
-      
 
-      // Get mini game data of user
       const miniGameUserData = await MiniGameUserData.findOne({
         userId: targetUserOption.id,
       });
 
-      // If user does not have an account
       if (!miniGameUserData)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoAccount",
-          message:
-            "You don't have an account yet. Please use the daily command to create one.",
+          message: "They don't have an account yet.",
         });
 
-      // Check if the user has enough balance
       if (miniGameUserData.balance < amountOption)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "InsufficientBalance",
           message: "The user does not have enough balance to remove.",
         });
 
-      // Update balance
       miniGameUserData.balance -= amountOption;
       await miniGameUserData.save();
 
-      // Send success message
       interaction.editReply({
         embeds: [
-          CommonEmbedBuilder.success({
+          client.CommonEmbedBuilder.success({
             title: "Balance Removed!",
             description:
               `Successfully removed **${amountOption}** <:nyen:1373967798790783016> from ${targetUserOption}'s balance.` +
@@ -68,13 +56,14 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
-      
+      client.interactionErrorHandler(interaction, error);
+
       return false;
     }
   },
   name: "balance-remove",
   description: "Remove balance from a user",
+  disabled: false,
   deleted: false,
   devOnly: false,
   options: [

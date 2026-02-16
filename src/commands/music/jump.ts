@@ -4,8 +4,6 @@ import {
   PermissionFlagsBits,
 } from "discord.js";
 import { useQueue } from "discord-player";
-import { CustomError } from "../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../helpers/utils/handleError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -14,26 +12,21 @@ const command: CommandInterface = {
       await interaction.deferReply();
       const indexOption = interaction.options.getInteger("index", true);
 
-      // Get the music queue for the current guild
       const queue = useQueue(interaction.guildId!);
-      // If no queue exists, throw a custom error
       if (!queue)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoQueue",
           message: "There is no queue to jump",
         });
 
-      // Validate the provided index
       if (indexOption < 0 || indexOption > queue.tracks.size - 1)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "InvalidIndex",
           message: "Invalid index provided",
           type: "warning",
         });
 
-      // Skip to the track at the specified index in the queue
       queue.node.skipTo(indexOption + 1);
-      // Edit the deferred reply with an embed confirming the jump
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
@@ -47,13 +40,14 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
   name: "jump",
   description: "Jump to a specific song",
+  disabled: false,
   deleted: false,
   devOnly: false,
   options: [

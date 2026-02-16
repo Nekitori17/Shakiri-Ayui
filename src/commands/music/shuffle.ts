@@ -1,8 +1,6 @@
 import { EmbedBuilder, PermissionFlagsBits } from "discord.js";
 import { useQueue } from "discord-player";
-import { CustomError } from "../../helpers/utils/CustomError";
 import { VoiceStoreSession } from "../../classes/VoiceStoreSession";
-import { handleInteractionError } from "../../helpers/utils/handleError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -10,24 +8,17 @@ const command: CommandInterface = {
     try {
       await interaction.deferReply();
 
-      // Get the music queue for the current guild
       const queue = useQueue(interaction.guildId!);
-      // If no queue exists or it's empty, throw an error
       if (!queue || queue.tracks.size === 0)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoQueue",
           message: "There is no queue to shuffle",
         });
-      // Shuffle the tracks in the queue
       queue.tracks.shuffle();
 
-      // Update the shuffle count in the session store
-      const voiceStoreSession = new VoiceStoreSession(
-        interaction.guildId!
-      );
+      const voiceStoreSession = new VoiceStoreSession(interaction.guildId!);
       voiceStoreSession.addShuffledTimes();
 
-      // Edit the deferred reply with an embed confirming the queue has been shuffled
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
@@ -41,16 +32,17 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
-  alias: "sf",
+  alias: ["sf"],
   name: "shuffle",
   description: "Let's shake the queue",
   deleted: false,
   devOnly: false,
+  disabled: false,
   useInDm: false,
   requiredVoiceChannel: true,
   userPermissionsRequired: [PermissionFlagsBits.Connect],

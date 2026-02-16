@@ -5,14 +5,10 @@ import {
   MessageFlags,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
-  ButtonBuilder,
-  ButtonStyle,
 } from "discord.js";
-import { CustomError } from "../../../helpers/utils/CustomError";
-import checkOwnTempVoice from "../../../validator/checkOwnTempVoice";
-import { handleInteractionError } from "../../../helpers/utils/handleError";
-import CommonEmbedBuilder from "../../../helpers/embeds/commonEmbedBuilder";
+import checkOwnTempVoice from "../../../helpers/discord/validators/checkOwnTempVoice";
 import UserSettings from "../../../models/UserSettings";
+import { createPageNavigationMenu } from "../../../components/pageNavigationMenu";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
 const select: SelectMenuInterface = {
@@ -25,7 +21,7 @@ const select: SelectMenuInterface = {
 
       // Check if the temporary voice channel belongs to the interacting user
       if (!checkOwnTempVoice(userVoiceChannel.id, interaction.user.id))
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NotOwnTempVoiceError",
           message: "This temporary voice channel does not belong to you.",
         });
@@ -42,8 +38,8 @@ const select: SelectMenuInterface = {
         },
         {
           upsert: true,
-          new: true,
-        }
+          returnDocument: "after",
+        },
       );
 
       // This retrieves the user's blocked users list
@@ -52,7 +48,7 @@ const select: SelectMenuInterface = {
 
       // If no users are blocked, throw an info error
       if (blockedUsers.length === 0) {
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoUserBlocked",
           message: "You have not blocked any users. Nice",
           type: "info",
@@ -81,7 +77,7 @@ const select: SelectMenuInterface = {
               .setLabel(user?.displayName ?? userId)
               .setDescription(user?.tag ?? userId)
               .setValue(userId);
-          }
+          },
         );
 
         // Create the StringSelectMenu for unblocking users
@@ -93,28 +89,15 @@ const select: SelectMenuInterface = {
               .addOptions(blockedUserSelectMenuOption)
               .setMinValues(1)
               .setMaxValues(10)
-              .setMaxValues(blockedUserSelectMenuOption.length)
+              .setMaxValues(blockedUserSelectMenuOption.length),
           );
 
         // Create pagination buttons
-        const buttonsPageRow =
-          new ActionRowBuilder<ButtonBuilder>().addComponents(
-            new ButtonBuilder()
-              .setCustomId("temp-voice-unblock-page-prev")
-              .setEmoji("1387296301867073576")
-              .setStyle(ButtonStyle.Primary)
-              .setDisabled(page === 0),
-            new ButtonBuilder()
-              .setCustomId("temp-voice-unblock-pag-current")
-              .setLabel(`${page + 1}/${maxPage}`)
-              .setStyle(ButtonStyle.Secondary)
-              .setDisabled(true),
-            new ButtonBuilder()
-              .setCustomId("temp-voice-unblock-page-next")
-              .setEmoji("1387296195256254564")
-              .setStyle(ButtonStyle.Primary)
-              .setDisabled(page >= maxPage - 1)
-          );
+        const buttonsPageRow = createPageNavigationMenu(
+          page,
+          maxPage,
+          "temp-voice-unblock",
+        );
 
         return {
           content:
@@ -125,7 +108,7 @@ const select: SelectMenuInterface = {
 
       // Send the initial reply with the first page of blocked users
       const blockedUsersMenuReply = await interaction.editReply(
-        generateBlockedUsersPage(currentPage)
+        generateBlockedUsersPage(currentPage),
       );
 
       // Create a message component collector for interactions with the menu and buttons
@@ -146,7 +129,7 @@ const select: SelectMenuInterface = {
             ) {
               currentPage--;
               await interaction.editReply(
-                generateBlockedUsersPage(currentPage)
+                generateBlockedUsersPage(currentPage),
               );
               return blockedUserMenuInteraction.deferUpdate();
             }
@@ -157,7 +140,7 @@ const select: SelectMenuInterface = {
             ) {
               currentPage++;
               await blockedUserMenuInteraction.update(
-                generateBlockedUsersPage(currentPage)
+                generateBlockedUsersPage(currentPage),
               );
               return blockedUserMenuInteraction.deferUpdate();
             }
@@ -177,7 +160,7 @@ const select: SelectMenuInterface = {
 
               const updatedBlockedUsers = blockedUsers.filter(
                 // Filter out the selected user IDs from the blocked list
-                (userId) => !userIds.includes(userId)
+                (userId) => !userIds.includes(userId),
               );
 
               // Update the user's blocked users list in the database
@@ -188,7 +171,7 @@ const select: SelectMenuInterface = {
               // Edit the reply to confirm the unblocked users
               blockedUserMenuInteraction.editReply({
                 embeds: [
-                  CommonEmbedBuilder.success({
+                  client.CommonEmbedBuilder.success({
                     title: "> Unblocked Users",
                     description: `Unblocked users: ${userIds
                       .map((userId) => `<@${userId}>`)
@@ -197,15 +180,19 @@ const select: SelectMenuInterface = {
                 ],
               });
             } catch (error) {
-              handleInteractionError(blockedUserMenuInteraction, error, true);
+              client.interactionErrorHandler(
+                blockedUserMenuInteraction,
+                error,
+                true,
+              );
             }
           }
-        }
+        },
       );
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error, true);
+      client.interactionErrorHandler(interaction, error, true);
 
       return false;
     }

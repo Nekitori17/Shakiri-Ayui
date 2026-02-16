@@ -1,6 +1,4 @@
 import { useTimeline } from "discord-player";
-import { CustomError } from "../../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../../helpers/utils/handleError";
 import { ButtonInterface } from "./../../../types/InteractionInterfaces";
 
 const button: ButtonInterface = {
@@ -13,7 +11,7 @@ const button: ButtonInterface = {
 
       // If no timeline exists, throw a custom error
       if (!trackTimeline)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoQueue",
           message: "There is no queue to forward",
         });
@@ -38,7 +36,7 @@ const button: ButtonInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error, true);
+      client.interactionErrorHandler(interaction, error, true);
 
       return false;
     }

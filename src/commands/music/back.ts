@@ -1,7 +1,5 @@
 import { EmbedBuilder, PermissionFlagsBits } from "discord.js";
 import { useHistory } from "discord-player";
-import { CustomError } from "../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../helpers/utils/handleError";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -9,18 +7,14 @@ const command: CommandInterface = {
     try {
       await interaction.deferReply();
 
-      // Get the history queue for the current guild
       const queueHistory = useHistory(interaction.guildId!);
-      // If no history queue exists, throw a custom error
       if (!queueHistory)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "NoQueue",
           message: "There is no queue to get back",
         });
 
-      // Play the previous track in the history
       queueHistory.previous();
-      // Edit the deferred reply with an embed confirming the previous track will play
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
@@ -34,16 +28,17 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
-  alias: "bk",
+  alias: ["bk"],
   name: "back",
   description: "Play the previous song",
   deleted: false,
   devOnly: false,
+  disabled: false,
   useInDm: false,
   requiredVoiceChannel: true,
   userPermissionsRequired: [PermissionFlagsBits.Connect],

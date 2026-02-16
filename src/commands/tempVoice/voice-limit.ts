@@ -3,11 +3,8 @@ import {
   GuildMember,
   MessageFlags,
 } from "discord.js";
+import checkOwnTempVoice from "../../helpers/discord/validators/checkOwnTempVoice";
 import UserSettings from "../../models/UserSettings";
-import { CustomError } from "../../helpers/utils/CustomError";
-import checkOwnTempVoice from "../../validator/checkOwnTempVoice";
-import { handleInteractionError } from "../../helpers/utils/handleError";
-import CommonEmbedBuilder from "../../helpers/embeds/commonEmbedBuilder";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -17,13 +14,12 @@ const command: CommandInterface = {
       const amountOfLimitOption = interaction.options.getInteger("limit", true);
 
       if (amountOfLimitOption < 0 || amountOfLimitOption > 99)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "InvalidLimit",
           message: "The limit cannot be a negative number or greater than 99",
           type: "warning",
         });
 
-      // Find the user's settings, or create new ones if they don't exist
       const userSetting = await UserSettings.findOneAndUpdate(
         {
           userId: interaction.user.id,
@@ -35,27 +31,23 @@ const command: CommandInterface = {
         },
         {
           upsert: true,
-          new: true,
-        }
+          returnDocument: "after",
+        },
       );
 
-      // Update the user's temporary voice channel limit in settings
       userSetting.temporaryVoiceChannel.limitUser = amountOfLimitOption;
       await userSetting.save();
 
-      // Get the voice channel of the interacting member
       const userVoiceChannel = (interaction.member as GuildMember).voice
         .channel;
 
-      // If the user is in a voice channel and it's their own temporary channel
       if (userVoiceChannel)
         if (checkOwnTempVoice(userVoiceChannel.id, interaction.user.id))
           await userVoiceChannel.setUserLimit(amountOfLimitOption);
 
       interaction.editReply({
         embeds: [
-          // Send a success embed indicating the limit has been changed
-          CommonEmbedBuilder.success({
+          client.CommonEmbedBuilder.success({
             title:
               "> <:colorconferencecall:1387286329003479213> Changed Temporary Channel Limit User",
             description: `Changed to amount: \`${amountOfLimitOption}\``,
@@ -65,13 +57,14 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
   name: "voice-limit",
   description: "Sets the limit of users in the voice channel",
+  disabled: false,
   deleted: false,
   devOnly: false,
   options: [

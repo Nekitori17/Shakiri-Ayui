@@ -1,6 +1,6 @@
-import config from "../config";
-import { PermissionsBitField } from "discord.js";
-import { CustomError } from "../helpers/utils/CustomError";
+import config from "../../../config";
+import { PermissionsBitField, PermissionResolvable } from "discord.js";
+import { CustomError } from "../../errors/CustomError";
 
 /**
  * Checks if the bot and user have the necessary permissions.
@@ -14,8 +14,8 @@ import { CustomError } from "../helpers/utils/CustomError";
 export default function (
   userPermissionHas: string | PermissionsBitField | undefined,
   botPermissionHas: PermissionsBitField | undefined,
-  userPermissionsRequired: bigint[] | undefined,
-  botPermissionsRequired: bigint[] | undefined
+  userPermissionsRequired: PermissionResolvable[] | undefined,
+  botPermissionsRequired: PermissionResolvable[] | undefined,
 ) {
   // Add default bot permissions to the required bot permissions
   botPermissionsRequired = botPermissionsRequired
@@ -26,14 +26,14 @@ export default function (
   const missingBotPermissions = botPermissionsRequired.filter(
     (perm) =>
       !(botPermissionHas instanceof PermissionsBitField) ||
-      !botPermissionHas.has(perm)
+      !botPermissionHas.has(perm),
   );
 
   if (missingBotPermissions.length > 0) {
     throw new CustomError({
       name: "MissingPermissions",
       message: `I am missing the following permission(s): \`${new PermissionsBitField(
-        missingBotPermissions
+        missingBotPermissions,
       )
         .toArray()
         .join(", ")}\` to use this command.`,
@@ -46,14 +46,14 @@ export default function (
     const missingUserPermissions = userPermissionsRequired.filter(
       (perm) =>
         !(userPermissionHas instanceof PermissionsBitField) ||
-        !userPermissionHas.has(perm)
+        !userPermissionHas.has(perm),
     );
 
     if (missingUserPermissions.length > 0)
       throw new CustomError({
         name: "MissingPermissions",
         message: `You are missing the following permission(s): \`${new PermissionsBitField(
-          missingUserPermissions
+          missingUserPermissions,
         )
           .toArray()
           .join(", ")}\` to use this command.`,

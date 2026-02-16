@@ -1,7 +1,5 @@
 import { ApplicationCommandOptionType, EmbedBuilder } from "discord.js";
-import { CustomError } from "../../helpers/utils/CustomError";
-import { handleInteractionError } from "../../helpers/utils/handleError";
-import MiniGameUserData from "../../models/MiniGameUserData";
+import MiniGameUserData from "../../models/UserMiniGameData";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -10,15 +8,13 @@ const command: CommandInterface = {
       await interaction.deferReply();
       const targetUserOption = interaction.options.getUser("user");
 
-      // Check if the user is a bot
       if (targetUserOption && targetUserOption.bot)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "BotUser",
           message: "Bro think they can play mini game 💀🙏",
           type: "warning",
         });
 
-      // Get mini game data of user
       const miniGameUserData = await MiniGameUserData.findOneAndUpdate(
         {
           userId: targetUserOption?.id || interaction.user.id,
@@ -30,23 +26,22 @@ const command: CommandInterface = {
         },
         {
           upsert: true,
-          new: true,
-        }
+          returnDocument: "after",
+        },
       );
 
-      // Send success message
       interaction.editReply({
         embeds: [
           new EmbedBuilder()
             .setTitle(
               `> <:colorcoin:1387339346889281596> ${
                 targetUserOption || interaction.user
-              }'s Balance`
+              }'s Balance`,
             )
             .setDescription(
-              `* <:colorfire:1387269037830049994> **Daily Streak**: ${miniGameUserData.dailyStreak} days` +
+              `* <:colorfire:1387269037830049994> **Daily Streak**: ${miniGameUserData.daily.streak} days` +
                 "\n" +
-                `* <:colorcampfire:1387274928981676165> **Longest Streak**: ${miniGameUserData.longestStreak} days` +
+                `* <:colorcampfire:1387274928981676165> **Longest Streak**: ${miniGameUserData.daily.longestStreak} days` +
                 "\n" +
                 `* <:colorwallet:1387275109844389928> Balance: ${miniGameUserData.balance} <:nyen:1373967798790783016>` +
                 "\n" +
@@ -54,12 +49,12 @@ const command: CommandInterface = {
                 "\n" +
                 `* <:coloreconomicimprovement:1387275487637803039> **Interest Rate**: ${
                   miniGameUserData.bank.interestRate * 100
-                }%`
+                }%`,
             )
             .setColor("Aqua")
             .setThumbnail(
               targetUserOption?.displayAvatarURL() ||
-                interaction.user.displayAvatarURL()
+                interaction.user.displayAvatarURL(),
             )
             .setFooter({
               text: client.user?.displayName!,
@@ -71,16 +66,17 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
-  alias: "bl",
+  alias: ["bl", "bal"],
   name: "balance",
   description: "Check your balance or someone else's balance",
   deleted: false,
   devOnly: false,
+  disabled: false,
   options: [
     {
       name: "user",

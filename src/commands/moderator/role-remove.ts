@@ -4,9 +4,7 @@ import {
   PermissionFlagsBits,
   Role,
 } from "discord.js";
-import { CustomError } from "../../helpers/utils/CustomError";
-import { checkRolePosition } from "../../validator/checkRolePosition";
-import { handleInteractionError } from "../../helpers/utils/handleError";
+import { checkRolePosition } from "../../helpers/discord/validators/checkRolePosition";
 import { CommandInterface } from "../../types/InteractionInterfaces";
 
 const command: CommandInterface = {
@@ -16,30 +14,24 @@ const command: CommandInterface = {
       const targetUserOption = interaction.options.getUser("target", true);
       const roleOption = interaction.options.getRole("role", true);
 
-      // Fetch the target user as a guild member
-      const targetUser = await interaction.guild?.members.fetch(
-        targetUserOption
-      );
+      const targetUser =
+        await interaction.guild?.members.fetch(targetUserOption);
 
-      // Check if the target user exists in the server
       if (!targetUser)
-        throw new CustomError({
+        throw new client.CustomError({
           name: "UserNotFound",
           message: "That user does not exist in this server",
         });
 
-      // Check role positions for hierarchy
       await checkRolePosition(
         interaction.member!,
         interaction.guild!.members.me!,
         roleOption,
-        interaction.guild!
+        interaction.guild!,
       );
 
-      // Remove the role from the target user
       await targetUser.roles.remove(roleOption as Role);
 
-      // Send a confirmation message
       await interaction.editReply({
         embeds: [
           new EmbedBuilder()
@@ -50,7 +42,7 @@ const command: CommandInterface = {
             .setColor("Orange")
             .setTitle("🍥 Role removed")
             .setDescription(
-              `Successfully removed the role ${roleOption} from ${targetUser}`
+              `Successfully removed the role ${roleOption} from ${targetUser}`,
             )
             .setFooter({
               text: `Requested by ${interaction.user.tag}`,
@@ -60,13 +52,14 @@ const command: CommandInterface = {
 
       return true;
     } catch (error) {
-      handleInteractionError(interaction, error);
+      client.interactionErrorHandler(interaction, error);
 
       return false;
     }
   },
   name: "role-remove",
   description: "Remove a role from a user",
+  disabled: false,
   deleted: false,
   devOnly: false,
   options: [
