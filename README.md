@@ -1,102 +1,140 @@
 <h1 align="center" style="font-weight: bold;">Shakiri Ayui 🤖</h1>
 
 <p align="center">
-<a href="#tech">Technologies</a>
-<a href="#started">Getting Started</a>
-
+  <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" alt="Node.js" />
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Discord.js-5865F2?style=for-the-badge&logo=discord&logoColor=white" alt="Discord.js" />
+  <img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
 </p>
 
-<p align="center">A Source Code Of My Small Discord Bot</p>
+<p align="center">A feature-rich, high-performance Discord bot designed for entertainment, music, and server management.</p>
 
-<h2 id="technologies">💻 Technologies</h2>
+<hr />
 
-- Node
-- Typescript
-- Discord.js v14
-- Mongoose
+## ✨ Features
 
-<h2 id="started">🚀 Getting started</h2>
+Shakiri Ayui comes packed with a variety of modules to enhance your Discord server experience:
 
-Here you describe how to run your project locally
+### 🎵 Music System
 
-<h3>Prerequisites</h3>
+Powered by `discord-player` and `youtubei.js` for high-quality audio streaming.
 
-Here you list all prerequisites necessary for running your project.
+- **Sources**: YouTube, SoundCloud, and more.
+- **Controls**: Play, pause, skip, stop, loop, shuffle, and volume adjustment.
+- **Advanced**: Lyrics lookup, queue management, seeking, and jump to specific tracks.
+- **Interaction**: Full button-based player controls.
 
-- [Node](https://nodejs.org)
-- [Git](https://git-scm.com/)
+### 🎮 Economy & Mini-Games
 
-<h3>Cloning</h3>
+Engage your community with interactive games and a robust economy system.
 
-How to clone your project
+- **Wordle**: Play the classic daily word game directly in Discord.
+- **Daily Rewards**: Claim daily currency to build your balance.
+- **Transactions**: Deposit, withdraw, and transfer currency between users.
+- **Leaderboards**: Track the richest users in your server.
 
-```bash
-git clone https://github.com/Nekitori17/Shakiri-Ayui
-```
+### 🕹️ Temporary Voice Channels
 
-<h3>Config .env variables</h2>
+Dynamic voice channel management.
 
-Use the `.env.example` as reference to create your configuration file `.env.development` for development and `.env.production` for production with your Discord Bot Token And MongoDB Connection String
+- **Customizable**: Rename your temporary channel.
+- **Privacy**: Block/unblock specific users or set member limits.
+- **Automation**: Channels are automatically created and deleted as users join/leave.
 
-```yaml
-# Bot token from discord application
-BOT_TOKEN = ""
+### 🛡️ Moderation
 
-# Bot ID from discord application
-CLIENT_ID = ""
+Essential tools for server administrators.
 
-# GEMINI AI API
-GEMINI_AI_TOKEN = ""
+- **Enforcement**: Ban, kick, and mute unruly members.
+- **Role Management**: Easily add or remove roles from users.
+- **Cleanup**: Purge messages efficiently.
 
-# Your API url base from nekitori17/fratizy-app
-CUSTOM_URL_API_BASE = ""
+### 🤖 AI Integration
 
-# # MongoDB connection string
-MONGODB_CONNECTION_URI = ""
+Integrated with **Google Gemini AI** for smart interactions.
 
-## Array of user id that can access developer commands. Example: ["123456789","987654321"]
-DEVELOPER_ACCOUNT_IDS = ""
+- Chat with the bot using advanced LLM capabilities.
+- Configurable model settings (defaults to `gemini-3-pro-preview`).
 
-# Webhook for logging error.
-WEBHOOK_LOG_ERROR_URL = ""
-```
+### 🛠️ Utility & Info
 
-<h3>Starting</h3>
+Quick access to server and user information.
 
-How to start your project
+- **Info**: Detailed server and user profiles.
+- **Interaction**: Say command for bot announcements.
+- **Configuration**: Prefix and status rotation management.
 
-- First Install Dependence Packages:
+<hr />
 
-```bash
-cd Shakiri-Ayui
-npm i
-```
+## 🚀 Getting Started
 
-- For Development with .env.development:
+### Prerequisites
 
-```bash
-npm run dev
-```
+- [Node.js](https://nodejs.org) (v20+ recommended)
+- [pnpm](https://pnpm.io/) (used for package management)
+- [MongoDB](https://www.mongodb.com/) (Atlas or local instance)
+- [Discord Bot Token](https://discord.com/developers/applications)
 
-- For Deployment with .env.production:
+### Installation
 
-```bash
-npm start
-```
+1. **Clone the repository:**
 
-<h2 id="contribute">📫 Contribute</h2>
+   ```bash
+   git clone https://github.com/Nekitori17/Shakiri-Ayui.git
+   cd Shakiri-Ayui
+   ```
 
-Here you will explain how other developers can contribute to your project. For example, explaining how can create their branches, which patterns to follow and how to open an pull request
+2. **Install dependencies:**
 
-1. `git clone https://github.com/Nekitori17/Shakiri-Ayui`
-2. `git checkout -b feature/NAME`
-3. Follow commit patterns
-4. Open a Pull Request explaining the problem solved or feature made, if exists, append screenshot of visual modifications and wait for the review!
+   ```bash
+   pnpm install
+   ```
 
-<h3>Documentations that might help</h3>
+3. **Configure Environment Variables:**
+   Use `.env.example` as a template. Create `.env.development` for local testing and `.env.production` for deployment.
 
-[🤖 DiscordJS Guide](https://discordjs.guide/#before-you-begin)
+   ```env
+   BOT_TOKEN = "your_bot_token"
+   CLIENT_ID = "your_client_id"
+   GEMINI_AI_TOKEN = "your_gemini_api_key"
+   MONGODB_CONNECTION_URI = "your_mongodb_uri"
+   DEVELOPER_ACCOUNT_IDS = "['id1', 'id2']"
+   WEBHOOK_LOG_ERROR_URL = "your_webhook_url"
+   ```
 
-[📝 How to create a Pull Request](https://www.atlassian.com/br/git/tutorials/making-a-pull-request)
+### Running the Bot
 
-[💾 Commit pattern](https://gist.github.com/joshbuchea/6f47e86d2510bce28f8e7f42ae84c716)
+- **Development Mode** (with auto-reload):
+
+  ```bash
+  pnpm run dev
+  ```
+
+- **Production Build & Start**:
+  ```bash
+  pnpm start
+  ```
+
+<hr />
+
+## 💻 Powered By
+
+- **Framework**: [Discord.js v14](https://discord.js.org/)
+- **Music**: [discord-player](https://discord-player.js.org/)
+- **Database**: [Mongoose](https://mongoosejs.com/)
+- **AI**: [Google Gemini Pro](https://ai.google.dev/)
+- **Image Processing**: [Sharp](https://sharp.pixelplumbing.com/) & [Node-Vibrant](https://github.com/akira-cn/node-vibrant)
+
+<hr />
+
+## 📫 Contribute
+
+Contributions are welcome! Follow these steps:
+
+1. Fork the project.
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`).
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`).
+4. Push to the branch (`git push origin feature/AmazingFeature`).
+5. Open a Pull Request.
+
+<p align="center">Made with ❤️ by <a href="https://github.com/Nekitori17">Nekitori17</a></p>
