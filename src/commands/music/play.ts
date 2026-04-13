@@ -80,6 +80,31 @@ const command: CommandInterface = {
       return false;
     }
   },
+  async autoComplete(interaction, client) {
+    const player = useMainPlayer();
+
+    const query = interaction.options.getString("query", true);
+    if (!query || !query.trim())
+      return interaction.respond([]);
+
+    const searchResult = await player.search(query, {
+      requestedBy: interaction.user,
+      searchEngine: QueryType.AUTO,
+    });
+
+    const tracks = searchResult.tracks.slice(0, 10);
+
+    interaction.respond(
+      tracks.map((track) => {
+      const title = `${track.author} - ${client.FnUtils.truncate(track.title, 100 - track.author.length - 5)}`;
+
+      return {
+        name: title,
+        value: track.url,
+      };
+  })
+    );
+  },
   alias: ["p"],
   name: "play",
   description: "Let the bot play a song",
@@ -92,6 +117,7 @@ const command: CommandInterface = {
       description: "The song to play",
       type: ApplicationCommandOptionType.String,
       required: true,
+      autocomplete: true
     },
   ],
   useInDm: false,
