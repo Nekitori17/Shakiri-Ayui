@@ -18,7 +18,7 @@ const command: CommandInterface = {
     try {
       await interaction.deferReply();
 
-      const sortBy = interaction.options.getString("sortBy", true);
+      const sortBy = interaction.options.getString("sort_by", true);
 
       let userMiniGameData: any[] = [];
 
@@ -136,7 +136,7 @@ const command: CommandInterface = {
   description: "Show the leaderboard",
   options: [
     {
-      name: "sortBy",
+      name: "sort_by",
       description: "Select the metric to sort the leaderboard by",
       type: ApplicationCommandOptionType.String,
       required: true,

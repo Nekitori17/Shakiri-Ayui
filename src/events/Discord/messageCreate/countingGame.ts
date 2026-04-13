@@ -4,7 +4,7 @@ import { DiscordEventInterface } from "../../../types/EventInterfaces";
 
 const event: DiscordEventInterface = async (client, message: Message) => {
   if (message.author.bot) return;
-  if (!client.utils.FnUtils.isNumber(message.content)) return;
+  if (!client.FnUtils.isNumber(message.content)) return;
 
   const guildSetting = await client.getGuildSetting(message.guildId!);
   if (!guildSetting.countingGame.enabled) return;
