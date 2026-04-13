@@ -43,7 +43,7 @@ export interface CommandInterface extends BaseInteractionInterface {
   name: string;
   description: string;
 
-  // autocomplete?: (interaction: AutocompleteInteraction, client: Client) => void;
+  autoComplete?: (interaction: AutocompleteInteraction, client: ExtendedClient) => void;
 
   deleted: boolean;
   options?: CommandOptionInterface[];
