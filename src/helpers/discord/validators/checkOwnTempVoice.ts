@@ -1,5 +1,4 @@
-import path from "path";
-import jsonStore from "json-store-typed";
+import TemporaryVoiceChannel from "../../../models/TemporaryVoiceChannel";
 
 /**
  * *  Checks if the user is the owner of the temporary voice channel.
@@ -7,11 +6,9 @@ import jsonStore from "json-store-typed";
  * @param userId The ID of the user.
  * @returns True if the user is the owner, false otherwise.
  */
-export default (voiceId: string, userId: string): boolean => {
-  const temporaryVoiceList = jsonStore(
-    path.join(__dirname, "../../../../database/temporaryVoiceChannels.json"),
-  );
-  const ownerId = temporaryVoiceList.get(voiceId);
+export default async (voiceId: string, userId: string): Promise<boolean> => {
+  const tempChannel = await TemporaryVoiceChannel.findOne({ channelId: voiceId });
+  if (!tempChannel) return false;
 
-  return userId === ownerId;
+  return userId === tempChannel.userId;
 };

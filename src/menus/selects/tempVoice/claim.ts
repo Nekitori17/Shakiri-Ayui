@@ -1,6 +1,5 @@
-import path from "path";
 import { GuildMember, MessageFlags } from "discord.js";
-import jsonStore from "json-store-typed";
+import TemporaryVoiceChannel from "../../../models/TemporaryVoiceChannel";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
 const select: SelectMenuInterface = {
@@ -11,14 +10,10 @@ const select: SelectMenuInterface = {
     try {
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-      // Initialize jsonStore for temporary voice channels
-      const temporaryChannels = jsonStore(
-        path.join(__dirname, "../../../../database/temporaryVoiceChannels.json")
-      );
-
       // Get the current owner of the voice channel
-      const ownerOfVoiceChannel = temporaryChannels.get(userVoiceChannel?.id);
-      if (!ownerOfVoiceChannel) return;
+      const tempChannelDoc = await TemporaryVoiceChannel.findOne({ channelId: userVoiceChannel?.id });
+      if (!tempChannelDoc) return;
+      const ownerOfVoiceChannel = tempChannelDoc.userId;
 
       // Check if the interacting user is already the owner
       if (interaction.user.id == ownerOfVoiceChannel)
@@ -41,7 +36,8 @@ const select: SelectMenuInterface = {
         });
 
       // Set the interacting user as the new owner
-      temporaryChannels.set(userVoiceChannel?.id, interaction.user.id);
+      tempChannelDoc.userId = interaction.user.id;
+      await tempChannelDoc.save();
       interaction.editReply({
         embeds: [
           client.CommonEmbedBuilder.success({

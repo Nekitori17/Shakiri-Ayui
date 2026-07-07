@@ -1,5 +1,4 @@
 import _ from "lodash";
-import path from "path";
 import {
   ActionRowBuilder,
   ButtonBuilder,
@@ -9,8 +8,8 @@ import {
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
 } from "discord.js";
-import jsonStore from "json-store-typed";
 import checkOwnTempVoice from "../../../helpers/discord/validators/checkOwnTempVoice";
+import TemporaryVoiceChannel from "../../../models/TemporaryVoiceChannel";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
 const select: SelectMenuInterface = {
@@ -21,13 +20,8 @@ const select: SelectMenuInterface = {
     try {
       await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-      // Initialize jsonStore for temporary voice channels
-      const temporaryChannels = jsonStore(
-        path.join(__dirname, "../../../../database/temporaryVoiceChannels.json")
-      );
-
       // Check if the temporary voice channel belongs to the interacting user
-      if (!checkOwnTempVoice(userVoiceChannel.id, interaction.user.id))
+      if (!(await checkOwnTempVoice(userVoiceChannel.id, interaction.user.id)))
         throw new client.CustomError({
           name: "NotOwnTempVoiceError",
           message: "This temporary voice channel does not belong to you.",
@@ -161,7 +155,10 @@ const select: SelectMenuInterface = {
               const userId = transferUserMenuInteraction.values[0];
 
               // Update the temporary channel owner in the database
-              temporaryChannels.set(userVoiceChannel.id, userId);
+              await TemporaryVoiceChannel.findOneAndUpdate(
+                { channelId: userVoiceChannel.id },
+                { userId }
+              );
 
               // Edit the reply to confirm the transfer
               transferUserMenuInteraction.editReply({

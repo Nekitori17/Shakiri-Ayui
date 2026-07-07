@@ -1,7 +1,6 @@
-import path from "path";
 import { GuildMember } from "discord.js";
-import jsonStore from "json-store-typed";
 import checkOwnTempVoice from "../../../helpers/discord/validators/checkOwnTempVoice";
+import TemporaryVoiceChannel from "../../../models/TemporaryVoiceChannel";
 import { SelectMenuInterface } from "../../../types/InteractionInterfaces";
 
 const select: SelectMenuInterface = {
@@ -10,13 +9,8 @@ const select: SelectMenuInterface = {
     const userVoiceChannel = (interaction.member as GuildMember).voice.channel;
 
     try {
-      // Initialize jsonStore for temporary voice channels
-      const temporaryChannels = jsonStore(
-        path.join(__dirname, "../../../../database/temporaryVoiceChannels.json")
-      );
-
       // Check if the temporary voice channel belongs to the interacting user
-      if (!checkOwnTempVoice(userVoiceChannel?.id!, interaction.user.id))
+      if (!(await checkOwnTempVoice(userVoiceChannel?.id!, interaction.user.id)))
         throw new client.CustomError({
           name: "NotOwnTempVoiceError",
           message: "This temporary voice channel does not belong to you.",
@@ -24,7 +18,7 @@ const select: SelectMenuInterface = {
         });
 
       // Delete the temporary channel entry from the store
-      temporaryChannels.del(userVoiceChannel?.id!);
+      await TemporaryVoiceChannel.deleteOne({ channelId: userVoiceChannel?.id });
       // Defer the update to prevent interaction timeout
       await interaction.deferUpdate();
       // Delete the voice channel itself

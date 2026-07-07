@@ -1,3 +1,10 @@
+allowBuilds:
+  esbuild: true
+  ffmpeg-static: true
+  sharp: true
+  ytdlp-nodejs: true
+minimumReleaseAgeExclude:
+  - mongoose@9.7.4
 onlyBuiltDependencies:
   - esbuild
   - ffmpeg-static

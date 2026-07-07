@@ -1,6 +1,6 @@
 import path from "path";
 import { ChannelType, VoiceState } from "discord.js";
-import jsonStore from "json-store-typed";
+import TemporaryVoiceChannel from "../../../models/TemporaryVoiceChannel";
 import { errorLogger } from "../../../helpers/errors/handleError";
 import { genericVariableFormatter } from "../../../helpers/formatters/variableFormatter";
 import UserSettings from "../../../models/UserSettings";
@@ -15,13 +15,11 @@ const event: DiscordEventInterface = async (
     const guildSetting = await client.getGuildSetting(newState.guild.id!);
 
     if (!guildSetting.temporaryVoiceChannel.enabled) return;
-    const temporaryChannels = jsonStore(
-      path.join(__dirname, "../../../../database/temporaryVoiceChannels.json"),
-    );
+    const channelRecord = await TemporaryVoiceChannel.findOne({ channelId: oldState.channelId });
 
     // Check if the user is leaving a temporary channel and if it's now empty
     if (
-      temporaryChannels.get(oldState.channelId!) &&
+      channelRecord &&
       newState.channelId !== oldState.channelId
     ) {
       // If the old channel exists and has no non-bot members, delete it
@@ -29,7 +27,7 @@ const event: DiscordEventInterface = async (
         oldState.channel &&
         oldState.channel.members.filter((mem) => !mem.user.bot).size === 0
       ) {
-        temporaryChannels.del(oldState.channelId!); // Remove the channel from the temporary channels store
+        await TemporaryVoiceChannel.deleteOne({ channelId: oldState.channelId }); // Remove the channel from the temporary channels store
         await oldState.channel.delete(); // Delete the voice channel
       }
     }
@@ -63,9 +61,13 @@ const event: DiscordEventInterface = async (
         userLimit: userSetting?.temporaryVoiceChannel?.limitUser || undefined,
         bitrate: 96000,
       })
-      .then((channel) => {
-        newState.member?.voice.setChannel(channel); // Move the user to the newly created channel
-        temporaryChannels.set(channel.id, newState.member?.id); // Store the new channel ID and its owner's ID
+      .then(async (channel) => {
+        try {
+          newState.member?.voice.setChannel(channel); // Move the user to the newly created channel
+          await TemporaryVoiceChannel.create({ channelId: channel.id, userId: newState.member?.id }); // Store the new channel ID and its owner's ID
+        } catch (error) {
+          errorLogger(error);
+        }
       });
   } catch (error) {
     errorLogger(error);
