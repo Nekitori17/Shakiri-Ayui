@@ -3,11 +3,10 @@ import {
   DefaultExtractors,
   SoundCloudExtractor,
 } from "@discord-player/extractor";
-import { YoutubeiExtractor } from "discord-player-youtubei";
+import { YoutubeDlpExtractor } from "discord-player-youtubedlp";
 import { SoundcloudExtractor as ExSoundcloudExtractor } from "discord-player-soundcloud";
 import { TTSExtractor } from "discord-player-tts";
 import { errorLogger } from "../helpers/errors/handleError";
-import isCanUseYoutube from "../helpers/discord/validators/canUseYoutube";
 
 export default async (player: Player) => {
   try {
@@ -22,6 +21,9 @@ export default async (player: Player) => {
     // Override default extractors
     await player.extractors.register(ExSoundcloudExtractor, {});
 
+    // Register youtube-dl extractor
+    await player.extractors.register(YoutubeDlpExtractor, {});
+
     // Register other extractors
     await player.extractors.register(TTSExtractor, {
       language: "vi",
@@ -29,21 +31,6 @@ export default async (player: Player) => {
     });
 
     console.log("⌛ | Checking if youtube is available...");
-
-    // Check if YouTube is available
-    // if (await isCanUseYoutube()) {
-    if (true) {
-      console.log("🔰 | Youtube is available. Being loaded...");
-      await player.extractors.register(YoutubeiExtractor, {
-        streamOptions: {
-          highWaterMark: 1 << 25,
-          useClient: "TV",
-        },
-        logLevel: "LOW",
-      });
-    } else {
-      console.log("❌ | Youtube is not available. Skipping loading...");
-    }
 
     console.log("✅ | Music extractors loaded successfully!");
   } catch (error) {
