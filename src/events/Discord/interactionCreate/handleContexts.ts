@@ -54,7 +54,7 @@ const event: DiscordEventInterface = async (
     const userCooldown = new UserInteractionCooldown(interaction.user.id);
 
     if (contextObject.cooldown) {
-      const cooldownResponse = userCooldown.isCooledDown(
+      const cooldownResponse = await userCooldown.isCooledDown(
         interaction.commandName,
         "context",
         contextObject.cooldown,
@@ -78,7 +78,7 @@ const event: DiscordEventInterface = async (
     }
 
     const succeed = (await contextObject.execute(interaction, client)) ?? true;
-    if (succeed && contextObject.cooldown) userCooldown.updateCooldown();
+    if (succeed && contextObject.cooldown) await userCooldown.updateCooldown();
   } catch (error) {
     if (error instanceof Error && !(error instanceof client.CustomError)) {
       console.log(

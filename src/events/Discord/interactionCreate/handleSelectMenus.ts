@@ -54,7 +54,7 @@ const event: DiscordEventInterface = async (
     const userCooldown = new UserInteractionCooldown(interaction.user.id);
 
     if (selectMenuOptionObject.cooldown) {
-      const cooldownResponse = userCooldown.isCooledDown(
+      const cooldownResponse = await userCooldown.isCooledDown(
         interaction.values[0],
         "select",
         selectMenuOptionObject.cooldown,
@@ -80,7 +80,7 @@ const event: DiscordEventInterface = async (
     const succeed =
       (await selectMenuOptionObject.execute(interaction, client)) ?? true;
     if (succeed && selectMenuOptionObject.cooldown)
-      userCooldown.updateCooldown();
+      await userCooldown.updateCooldown();
   } catch (error) {
     if (error instanceof Error && !(error instanceof client.CustomError)) {
       console.log(

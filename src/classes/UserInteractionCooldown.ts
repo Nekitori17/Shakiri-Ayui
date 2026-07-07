@@ -1,9 +1,4 @@
-import path from "path";
-import jsonStore from "json-store-typed";
-
-const cooldownInteractionOfUserLists = jsonStore(
-  path.join(__dirname, "../../database/cooldowns.json")
-);
+import CooldownModel from "../models/InteractionCooldown";
 
 export type InteractionType = "command" | "context" | "button" | "select";
 export type InteractionName = `${InteractionType}.${string}`;
@@ -19,27 +14,28 @@ export interface Cooldown {
  * allowing for a "holding" state for the current interaction.
  */
 export class UserInteractionCooldown {
-  public userId: string;
-  public cooldownInteractionOfUserList: Record<InteractionName, number>;
-  private holdingCooldownKey: string | null = null;
+  public readonly userId: string;
+  private holdingCooldownKey: InteractionName | null = null;
+  private holdingTime: number | null = null;
 
   public constructor(userId: string) {
     this.userId = userId;
-    this.cooldownInteractionOfUserList =
-      cooldownInteractionOfUserLists.get(userId) || {};
   }
 
-  public isCooledDown(
+  public async isCooledDown(
     interactionName: string,
     type: InteractionType,
-    time: number
-  ): Cooldown {
+    time: number,
+  ): Promise<Cooldown> {
     const cooldownKey: InteractionName = `${type}.${interactionName}`;
-    const currentTime = Math.floor(Date.now() / 1000);
-    const lastUsed = this.cooldownInteractionOfUserList[cooldownKey];
+    const cooldownDoc = await CooldownModel.findOne({
+      userId: this.userId,
+      commandName: cooldownKey,
+    });
 
-    if (!lastUsed || currentTime - lastUsed > time) {
+    if (!cooldownDoc) {
       this.holdingCooldownKey = cooldownKey;
+      this.holdingTime = time;
       return {
         cooledDown: true,
       };
@@ -47,36 +43,64 @@ export class UserInteractionCooldown {
 
     return {
       cooledDown: false,
-      nextTime: lastUsed + time,
+      nextTime: Math.floor(cooldownDoc.expireAt.getTime() / 1000),
     };
   }
 
-  public updateCooldown(): void;
-  public updateCooldown(interactionName: string, type: InteractionType): void;
-  public updateCooldown(
+  public async updateCooldown(): Promise<void>;
+  public async updateCooldown(
+    interactionName: string,
+    type: InteractionType,
+    time: number,
+  ): Promise<void>;
+  public async updateCooldown(
     interactionName?: string,
-    type?: InteractionType
-  ): void {
-    let cooldownKey: string | null;
+    type?: InteractionType,
+    time?: number,
+  ): Promise<void> {
+    let cooldownKey: InteractionName;
+    let finalTime: number;
 
-    if (interactionName && type) {
-      cooldownKey = `${type}.${interactionName}`;
+    if (time != null) {
+      finalTime = time;
+    } else if (this.holdingTime != null) {
+      finalTime = this.holdingTime;
     } else {
-      cooldownKey = this.holdingCooldownKey;
+      throw new Error(
+        "Cooldown duration must be provided either as an argument or from a previous cooldown check.",
+      );
     }
 
-    if (!cooldownKey) return;
+    if (interactionName != null && type != null) {
+      cooldownKey = `${type}.${interactionName}`;
+    } else if (this.holdingCooldownKey) {
+      cooldownKey = this.holdingCooldownKey;
+    } else {
+      throw new Error(
+        "Cooldown key must be provided either as an argument or from a previous cooldown check",
+      );
+    }
 
-    this.cooldownInteractionOfUserList[cooldownKey as InteractionName] =
-      Math.floor(Date.now() / 1000);
+    const expireAt = new Date(Date.now() + finalTime * 1000);
 
-    cooldownInteractionOfUserLists.set(
-      this.userId,
-      this.cooldownInteractionOfUserList
+    await CooldownModel.updateOne(
+      {
+        userId: this.userId,
+        commandName: cooldownKey,
+      },
+      {
+        $set: { expireAt },
+      },
+      {
+        upsert: true,
+      },
     );
+
+    this.holdingCooldownKey = null;
+    this.holdingTime = null;
   }
 
-  public clear() {
-    cooldownInteractionOfUserLists.del(this.userId);
+  public async clear() {
+    await CooldownModel.deleteMany({ userId: this.userId });
   }
 }
