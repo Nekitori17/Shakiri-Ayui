@@ -26,6 +26,9 @@ importers:
       discord-player-tts:
         specifier: ^1.0.9
         version: 1.0.9
+      discord-player-youtubedlp:
+        specifier: ^1.1.8
+        version: 1.1.8(discord-player@7.2.0(@discord-player/extractor@7.2.0)(mediaplex@1.0.0)(tsx@4.23.0))
       discord.js:
         specifier: ^14.26.4
         version: 14.26.4
@@ -71,6 +74,9 @@ importers:
         version: 6.0.3
 
 packages:
+
+  '@bufbuild/protobuf@2.12.1':
+    resolution: {integrity: sha512-BvAMfS6LrgZiryOAZ4pBYucu4wG/Ei/9o9DZ9akbREnMLbPJiom2i8b9C8IsKErQoiKqVhrerzt3kOT/RrzLHg==}
 
   '@derhuerst/http-basic@8.2.4':
     resolution: {integrity: sha512-F9rL9k9Xjf5blCz8HsJRO4diy111cayL2vkY2XE4r4t3n0yPXVYy3KD3nJ1qbrSn9743UWSXH4IwuCa/HWlGFw==}
@@ -1001,6 +1007,11 @@ packages:
   discord-player-tts@1.0.9:
     resolution: {integrity: sha512-GcCPLKofFdJeqjmqNSCDPE+ZePppQ7jZ6KDPbDR/XYIIU77EXEsNOqKUbOlaEM+/+8BBg4IJaU+e1aB66kSINA==}
 
+  discord-player-youtubedlp@1.1.8:
+    resolution: {integrity: sha512-BnilIHvSvwOHkgUujntq1hvE0RsmimyvuTdHfc09eckmPO/Ouqg81Ag0VhjsGmXo96R6BY1QVEynP3z5+3d+4w==}
+    peerDependencies:
+      discord-player: ^7.2.0
+
   discord-player@7.2.0:
     resolution: {integrity: sha512-0UCo/IKZjEqkv3DLdEWh2jQ0hyzqaTxm25yCCG3NQpiRfCetaRVPbjdTgo4/4YOdNcZEypIPZtkE6lJxpkbtnA==}
     peerDependencies:
@@ -1278,6 +1289,10 @@ packages:
 
   memory-pager@1.5.0:
     resolution: {integrity: sha512-ZS4Bp4r/Zoeq6+NLJpP+0Zzm0pR8whtGPf1XExKLJBAczGMnSi3It14OiNCStjQjM6NU1okjQGSxgEZN8eBYKg==}
+
+  meriyah@6.1.4:
+    resolution: {integrity: sha512-Sz8FzjzI0kN13GK/6MVEsVzMZEPvOhnmmI1lU5+/1cGOiK3QUahntrNNtdVeihrO7t9JpoH75iMNXg6R6uWflQ==}
+    engines: {node: '>=18.0.0'}
 
   minimatch@10.2.5:
     resolution: {integrity: sha512-MULkVLfKGYDFYejP07QOurDLLQpcjk7Fw+7jXS2R2czRQzR56yHRveU5NDJEOviH+hETZKSkIk5c+T23GjFUMg==}
@@ -1561,6 +1576,9 @@ packages:
   timm@1.7.1:
     resolution: {integrity: sha512-IjZc9KIotudix8bMaBW6QvMuq64BrJWFs1+4V0lXwWGQZwH+LnX87doAYhem4caOEusRP9/g6jVDQmZ8XOk1nw==}
 
+  tiny-typed-emitter@2.1.0:
+    resolution: {integrity: sha512-qVtvMxeXbVej0cQWKqVSSAHmKZEHAvxdF8HEUBFWts8h+xEo5m/lEiPakuyZ3BnCBjOD8i24kzNOiOLLgsSxhA==}
+
   tinycolor2@1.6.0:
     resolution: {integrity: sha512-XPaBkWQJdsf3pLKJV9p4qN/S+fm2Oj8AIPo1BTUhg5oxkvm9+SVEGFdhyOz7tTdUTfvxMiAs4sp6/eZO2Ew+pw==}
 
@@ -1691,12 +1709,17 @@ packages:
       utf-8-validate:
         optional: true
 
+  youtubei.js@16.0.1:
+    resolution: {integrity: sha512-3802bCAGkBc2/G5WUTc0l/bO5mPYJbQAHL04d9hE9PnrDHoBUT8MN721Yqt4RCNncAXdHcfee9VdJy3Fhq1r5g==}
+
   ytdlp-nodejs@3.4.4:
     resolution: {integrity: sha512-PR2nQOtyOzSuSQpWf6SHD97d6qlcfY2y6CVCeYnuDacYDc1YzNLXYiqAyIpFWk13UUrtQN+XD35h5DERli3SXQ==}
     engines: {node: '>=16.0.0'}
     hasBin: true
 
 snapshots:
+
+  '@bufbuild/protobuf@2.12.1': {}
 
   '@derhuerst/http-basic@8.2.4':
     dependencies:
@@ -2399,6 +2422,13 @@ snapshots:
 
   discord-player-tts@1.0.9: {}
 
+  discord-player-youtubedlp@1.1.8(discord-player@7.2.0(@discord-player/extractor@7.2.0)(mediaplex@1.0.0)(tsx@4.23.0)):
+    dependencies:
+      discord-player: 7.2.0(@discord-player/extractor@7.2.0)(mediaplex@1.0.0)(tsx@4.23.0)
+      tiny-typed-emitter: 2.1.0
+      youtubei.js: 16.0.1
+      ytdlp-nodejs: 3.4.4
+
   discord-player@7.2.0(@discord-player/extractor@7.2.0)(mediaplex@1.0.0)(tsx@4.23.0):
     dependencies:
       '@discord-player/equalizer': 7.2.0
@@ -2724,6 +2754,8 @@ snapshots:
 
   memory-pager@1.5.0: {}
 
+  meriyah@6.1.4: {}
+
   minimatch@10.2.5:
     dependencies:
       brace-expansion: 5.0.7
@@ -3022,6 +3054,8 @@ snapshots:
 
   timm@1.7.1: {}
 
+  tiny-typed-emitter@2.1.0: {}
+
   tinycolor2@1.6.0: {}
 
   tinyexec@0.3.2: {}
@@ -3126,5 +3160,10 @@ snapshots:
       webidl-conversions: 3.0.1
 
   ws@8.21.0: {}
+
+  youtubei.js@16.0.1:
+    dependencies:
+      '@bufbuild/protobuf': 2.12.1
+      meriyah: 6.1.4
 
   ytdlp-nodejs@3.4.4: {}
